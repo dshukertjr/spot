@@ -11,14 +11,14 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  bloc: ^7.0.0-nullsafety.3
   flutter_bloc: ^7.0.0-nullsafety.3
   intl: ^0.17.0
+  shared_preferences: ^2.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  bloc_test: ^8.0.0-nullsafety.1
+  bloc_test: ^8.0.0-nullsafety.2
   mocktail: 0.0.1-dev.12
   very_good_analysis: ^2.0.0
 
