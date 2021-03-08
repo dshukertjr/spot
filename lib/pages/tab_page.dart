@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
 import 'package:spot/pages/tabs/profile_tab.dart';
 
@@ -32,6 +33,12 @@ class _TabPageState extends State<TabPage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _bottomNavigationButton(_Tab.map),
+          IconButton(
+            icon: const Icon(Icons.video_call),
+            onPressed: () {
+              Navigator.of(context).push(RecordPage.route());
+            },
+          ),
           _bottomNavigationButton(_Tab.profile),
         ],
       ),
