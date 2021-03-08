@@ -48,5 +48,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access required to take videos. </string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Mic access required to take videos with sound. </string>
 </dict>
 </plist>
