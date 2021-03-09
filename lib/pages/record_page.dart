@@ -13,6 +13,17 @@ class RecordPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Record'),
+        actions: [
+          TextButton(
+            onPressed: () {},
+            child: const Text(
+              'Next',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          )
+        ],
       ),
       body: BlocBuilder<RecordCubit, RecordState>(
         builder: (context, state) {
@@ -72,6 +83,7 @@ class _RecordPreview extends StatelessWidget {
         ),
         Positioned.fill(
           top: null,
+          bottom: MediaQuery.of(context).padding.bottom + 24,
           child: Center(
             child: SizedBox(
               width: 70,
