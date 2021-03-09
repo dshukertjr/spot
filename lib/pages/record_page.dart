@@ -33,6 +33,8 @@ class RecordPage extends StatelessWidget {
               controller: state.controller,
               isPaused: true,
             );
+          } else if (state is RecordError) {
+            return Center(child: Text(state.errorMessage));
           }
           return Container();
         },
