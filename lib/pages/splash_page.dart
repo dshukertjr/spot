@@ -69,7 +69,7 @@ class _SplashPageState extends State<SplashPage> {
     //   return;
     // }
 
-    // _redirectToRoomsPage();
+    _redirectToTabsPage();
   }
 
   void _redirectToLoginPage() {
@@ -88,7 +88,7 @@ class _SplashPageState extends State<SplashPage> {
     );
   }
 
-  void _redirectToRoomsPage() {
+  void _redirectToTabsPage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => TabPage(),

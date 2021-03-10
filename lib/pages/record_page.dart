@@ -5,7 +5,12 @@ import 'package:spot/cubits/record/record_cubit.dart';
 
 class RecordPage extends StatelessWidget {
   static Route<void> route() {
-    return MaterialPageRoute(builder: (_) => RecordPage());
+    return MaterialPageRoute(
+      builder: (_) => BlocProvider<RecordCubit>(
+        create: (_) => RecordCubit()..initialize(),
+        child: RecordPage(),
+      ),
+    );
   }
 
   @override
@@ -74,10 +79,13 @@ class RecordPreview extends StatelessWidget {
           child: OverflowBox(
             alignment: Alignment.center,
             child: FittedBox(
-              fit: BoxFit.fitWidth,
-              child: AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: CameraPreview(controller),
+              fit: BoxFit.cover,
+              child: SizedBox(
+                height: 600,
+                child: AspectRatio(
+                  aspectRatio: 1 / controller.value.aspectRatio,
+                  child: CameraPreview(controller),
+                ),
               ),
             ),
           ),
@@ -106,7 +114,7 @@ class RecordPreview extends StatelessWidget {
                       duration: const Duration(milliseconds: 300),
                       decoration: BoxDecoration(
                         color: Theme.of(context).accentColor,
-                        borderRadius: BorderRadius.circular(isPaused ? 8 : 100),
+                        borderRadius: BorderRadius.circular(isPaused ? 100 : 8),
                       ),
                     ),
                   ),

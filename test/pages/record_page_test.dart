@@ -18,21 +18,19 @@ import '../helpers/helpers.dart';
 class MockRecordCubit extends MockCubit<RecordState> implements RecordCubit {}
 
 void main() {
-  group('CounterPage', () {
-    testWidgets('renders CounterView', (tester) async {
-      await tester.pumpApp(RecordPage());
-      expect(find.byType(BlocBuilder), findsOneWidget);
+  group('RecordPage', () {
+    testWidgets('renders RecordPage', (tester) async {
+      await tester.pumpApp(
+        BlocProvider<RecordCubit>(
+          create: (_) => RecordCubit()..initialize(),
+          child: RecordPage(),
+        ),
+      );
+      expect(find.text('Record'), findsOneWidget);
     });
   });
 
   group('RecordPage', () {
-    const incrementButtonKey = Key(
-      'counterView_increment_floatingActionButton',
-    );
-    const decrementButtonKey = Key(
-      'counterView_decrement_floatingActionButton',
-    );
-
     late RecordCubit recordCubit;
 
     setUp(() {
