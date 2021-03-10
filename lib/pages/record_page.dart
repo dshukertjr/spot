@@ -30,17 +30,17 @@ class RecordPage extends StatelessWidget {
           if (state is RecordInitial) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is RecordReady) {
-            return _RecordPreview(
+            return RecordPreview(
               controller: state.controller,
               isPaused: true,
             );
           } else if (state is RecordInProgress) {
-            return _RecordPreview(
+            return RecordPreview(
               controller: state.controller,
               isPaused: false,
             );
           } else if (state is RecordPaused) {
-            return _RecordPreview(
+            return RecordPreview(
               controller: state.controller,
               isPaused: true,
             );
@@ -54,8 +54,9 @@ class RecordPage extends StatelessWidget {
   }
 }
 
-class _RecordPreview extends StatelessWidget {
-  const _RecordPreview({
+@visibleForTesting
+class RecordPreview extends StatelessWidget {
+  const RecordPreview({
     Key? key,
     required this.controller,
     required this.isPaused,
