@@ -7,13 +7,13 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:spot/app/app.dart';
-import 'package:spot/counter/counter.dart';
+import 'package:spot/pages/splash_page.dart';
 
 void main() {
   group('App', () {
     testWidgets('renders CounterPage', (tester) async {
       await tester.pumpWidget(const App());
-      expect(find.byType(CounterPage), findsOneWidget);
+      expect(find.byType(SplashPage), findsOneWidget);
     });
   });
 }
