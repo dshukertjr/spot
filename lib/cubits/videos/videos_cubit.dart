@@ -6,4 +6,8 @@ part 'videos_state.dart';
 
 class VideosCubit extends Cubit<VideosState> {
   VideosCubit() : super(VideosInitial());
+
+  Future<void> loadVideos() async {
+    // TODO receive geo point and get videos
+  }
 }
