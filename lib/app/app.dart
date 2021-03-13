@@ -18,7 +18,9 @@ class App extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         accentColor: const Color(0xFF13B9FF),
-        appBarTheme: const AppBarTheme(color: Color(0xFF13B9FF)),
+        appBarTheme: const AppBarTheme(
+          color: Color(0xFF13B9FF),
+        ),
       ),
       localizationsDelegates: [
         AppLocalizations.delegate,
