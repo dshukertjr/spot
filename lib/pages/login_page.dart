@@ -11,11 +11,44 @@ class LoginPage extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
+          Positioned(
+              top: -53,
+              right: -47,
+              child: Image.asset(
+                'assets/images/purple-fog.png',
+                height: 228,
+              )),
+          Positioned(
+            top: 201,
+            left: 0,
+            child: Image.asset(
+              'assets/images/blue-ellipse.png',
+              height: 168,
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            left: 37,
+            child: Image.asset('assets/images/blue-blob.png'),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 46,
+            child: Image.asset('assets/images/yellow-blob.png'),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Image.asset('assets/images/red-blob.png'),
+          ),
           Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
                     maxWidth: 280,
@@ -36,13 +69,21 @@ class LoginPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 24.5),
                           _LoginButton(
-                            icon: const Icon(Icons.email),
+                            icon: Image.asset(
+                              'assets/images/google.png',
+                              width: 16,
+                              height: 16,
+                            ),
                             label: 'Sign in with Google',
                             onPressed: () {},
                           ),
                           const SizedBox(height: 24.5),
                           _LoginButton(
-                            icon: const Icon(Icons.email),
+                            icon: Image.asset(
+                              'assets/images/apple.png',
+                              width: 16,
+                              height: 16,
+                            ),
                             label: 'Sign in with Apple',
                             onPressed: () {},
                           ),
@@ -82,7 +123,7 @@ class _LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _GradientPainter(
+      painter: _GradientBorderPainter(
         strokeWidth: 1,
         radius: 4,
         gradient: const LinearGradient(
@@ -121,8 +162,8 @@ class _LoginButton extends StatelessWidget {
   }
 }
 
-class _GradientPainter extends CustomPainter {
-  _GradientPainter({
+class _GradientBorderPainter extends CustomPainter {
+  _GradientBorderPainter({
     required double strokeWidth,
     required double radius,
     required Gradient gradient,

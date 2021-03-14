@@ -24,5 +24,7 @@ dev_dependencies:
   very_good_analysis: ^2.0.0
 
 flutter:
+  assets:
+    - assets/images/
   uses-material-design: true
   generate: true
