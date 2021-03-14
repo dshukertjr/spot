@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spot/pages/tab_page.dart';
 
+import '../components/app_scaffold.dart';
 import 'edit_profile_page.dart';
 import 'login_page.dart';
 
@@ -16,8 +17,8 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return AppScaffold(
+      body: const Center(
         child: CircularProgressIndicator(),
       ),
     );
@@ -68,8 +69,8 @@ class _SplashPageState extends State<SplashPage> {
     //   _redirectToEditProfilePage();
     //   return;
     // }
-
-    _redirectToTabsPage();
+    _redirectToLoginPage();
+    // _redirectToTabsPage();
   }
 
   void _redirectToLoginPage() {

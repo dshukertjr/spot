@@ -19,8 +19,8 @@ class AppScaffold extends Scaffold {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0x4B3199),
-                      Color(0x2284A9),
+                      Color(0xFF4B3199),
+                      Color(0xFF2284A9),
                     ],
                   ),
                 ),
