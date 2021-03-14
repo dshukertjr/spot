@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../components/app_scaffold.dart';
+import 'tab_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -163,7 +164,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               height: 16,
                             ),
                             label: 'Sign in with Google',
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(TabPage.route());
+                            },
                           ),
                           const SizedBox(height: 24.5),
                           _LoginButton(
@@ -173,7 +176,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               height: 16,
                             ),
                             label: 'Sign in with Apple',
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(TabPage.route());
+                            },
                           ),
                           const SizedBox(height: 24.5),
                           const Text(
