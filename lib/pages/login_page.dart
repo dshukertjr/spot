@@ -4,7 +4,42 @@ import 'package:flutter/material.dart';
 
 import '../components/app_scaffold.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
+  late final _controller = AnimationController(
+    duration: const Duration(seconds: 2),
+    vsync: this,
+  )..forward();
+
+  late final _curvedAnimation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOutCubic,
+  );
+
+  late final _delayedController = AnimationController(
+    duration: const Duration(seconds: 2),
+    vsync: this,
+  );
+
+  late final _delayedCurvedAnimation = CurvedAnimation(
+    parent: _delayedController,
+    curve: Curves.easeOutCubic,
+  );
+
+  late final _moreDelayedController = AnimationController(
+    duration: const Duration(seconds: 2),
+    vsync: this,
+  );
+
+  late final _moreDdelayedCurvedAnimation = CurvedAnimation(
+    parent: _moreDelayedController,
+    curve: Curves.easeOutCubic,
+  );
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
@@ -12,37 +47,90 @@ class LoginPage extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           Positioned(
-              top: -53,
-              right: -47,
-              child: Image.asset(
-                'assets/images/purple-fog.png',
-                height: 228,
-              )),
+            top: -53,
+            right: -47,
+            child: AnimatedBuilder(
+                animation: _controller,
+                child: Image.asset(
+                  'assets/images/purple-fog.png',
+                  height: 228,
+                ),
+                builder: (context, child) {
+                  return Opacity(
+                    opacity: _controller.value,
+                    child: child,
+                  );
+                }),
+          ),
           Positioned(
             top: 201,
             left: 0,
-            child: Image.asset(
-              'assets/images/blue-ellipse.png',
-              height: 168,
-            ),
+            child: AnimatedBuilder(
+                animation: _curvedAnimation,
+                child: Image.asset(
+                  'assets/images/blue-ellipse.png',
+                  height: 168,
+                ),
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(-200 + 200 * _curvedAnimation.value, 0),
+                    child: child,
+                  );
+                }),
           ),
           Positioned(
             bottom: 0,
             right: 0,
             left: 37,
-            child: Image.asset('assets/images/blue-blob.png'),
+            child: AnimatedBuilder(
+              animation: _curvedAnimation,
+              child: Image.asset('assets/images/blue-blob.png'),
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(
+                    200 - 200 * _curvedAnimation.value,
+                    400 - 400 * _curvedAnimation.value,
+                  ),
+                  child: child,
+                );
+              },
+            ),
           ),
           Positioned(
             bottom: 0,
             left: 0,
             right: 46,
-            child: Image.asset('assets/images/yellow-blob.png'),
+            child: AnimatedBuilder(
+              animation: _delayedCurvedAnimation,
+              child: Image.asset('assets/images/yellow-blob.png'),
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(
+                    -300 + 300 * _delayedCurvedAnimation.value,
+                    400 - 400 * _curvedAnimation.value,
+                  ),
+                  child: child,
+                );
+              },
+            ),
           ),
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: Image.asset('assets/images/red-blob.png'),
+            child: AnimatedBuilder(
+              animation: _moreDdelayedCurvedAnimation,
+              child: Image.asset('assets/images/red-blob.png'),
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(
+                    0,
+                    300 - 300 * _moreDdelayedCurvedAnimation.value,
+                  ),
+                  child: child,
+                );
+              },
+            ),
           ),
           Center(
             child: ClipRRect(
@@ -102,6 +190,27 @@ class LoginPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    _playDelayedAnimation();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _delayedController.dispose();
+    _moreDelayedController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _playDelayedAnimation() async {
+    await Future.delayed(const Duration(milliseconds: 700));
+    _delayedController..forward();
+    await Future.delayed(const Duration(milliseconds: 400));
+    _moreDelayedController..forward();
   }
 }
 
