@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:spot/components/gradient_border.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
+import 'package:spot/pages/tabs/notifications_tab.dart';
 import 'package:spot/pages/tabs/profile_tab.dart';
+import 'package:spot/pages/tabs/search_tab.dart';
 
 import '../components/app_scaffold.dart';
 import 'record_page.dart';
@@ -25,6 +27,8 @@ class _TabPageState extends State<TabPage> {
         index: _currentIndex,
         children: [
           MapTab(),
+          SearchTab(),
+          NotificationsTab(),
           ProfileTab(),
         ],
       ),
