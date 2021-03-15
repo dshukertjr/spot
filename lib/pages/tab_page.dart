@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:spot/components/gradient_border.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
 import 'package:spot/pages/tabs/profile_tab.dart';
 
-enum _Tab {
-  map,
-  profile,
-}
+import '../components/app_scaffold.dart';
 
 class TabPage extends StatefulWidget {
   static Route<void> route() {
@@ -18,45 +16,129 @@ class TabPage extends StatefulWidget {
 }
 
 class _TabPageState extends State<TabPage> {
-  _Tab _currentTab = _Tab.map;
+  int _currentIndex = 0;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       body: IndexedStack(
-        index: _currentTab.index,
+        index: _currentIndex,
         children: [
           MapTab(),
           ProfileTab(),
         ],
       ),
-      bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _bottomNavigationButton(_Tab.map),
-          IconButton(
-            icon: const Icon(Icons.video_call),
-            onPressed: () {
-              Navigator.of(context).push(RecordPage.route());
-            },
+      bottomNavigationBar: Material(
+        child: Ink(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF40489D),
+                Color(0xFF2D6FA5),
+              ],
+            ),
           ),
-          _bottomNavigationButton(_Tab.profile),
-        ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _bottomNavigationButton(
+                  label: 'Home',
+                  icon: const Icon(Icons.home),
+                  tabIndex: 0,
+                ),
+                _bottomNavigationButton(
+                  label: 'Search',
+                  icon: const Icon(Icons.search),
+                  tabIndex: 1,
+                ),
+                GradientBorder(
+                  strokeWidth: 2,
+                  borderRadius: 12,
+                  gradient: const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Color(0xFF3790E3),
+                      Color(0xFF43CBE9),
+                    ],
+                  ),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(10),
+                    clipBehavior: Clip.hardEdge,
+                    child: Ink(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [
+                            Color(0xFFD73763),
+                            Color(0xFFF6935C),
+                          ],
+                        ),
+                      ),
+                      child: InkWell(
+                        onTap: () {},
+                        child: const Padding(
+                          padding: EdgeInsets.all(9),
+                          child: Icon(Icons.add),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                _bottomNavigationButton(
+                  label: 'Notifications',
+                  icon: const Icon(Icons.notifications),
+                  tabIndex: 0,
+                ),
+                _bottomNavigationButton(
+                  label: 'Profile',
+                  icon: ClipOval(
+                    child: Image.network(
+                      'https://www.dmarge.com/wp-content/uploads/2021/01/dwayne-the-rock-.jpg',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  tabIndex: 0,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  IconButton _bottomNavigationButton(_Tab tab) {
-    late IconData iconData;
-    if (tab == _Tab.map) {
-      iconData = Icons.home;
-    } else if (tab == _Tab.profile) {
-      iconData = Icons.person;
-    }
-    return IconButton(
-      icon: Icon(iconData),
-      onPressed: () {
+  Widget _bottomNavigationButton({
+    required String label,
+    required Widget icon,
+    required int tabIndex,
+  }) {
+    return InkWell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: icon,
+          ),
+          const SizedBox(height: 4.5),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        ],
+      ),
+      onTap: () {
         setState(() {
-          _currentTab = tab;
+          _currentIndex = tabIndex;
         });
       },
     );

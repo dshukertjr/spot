@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:spot/components/gradient_border.dart';
 
 import '../components/app_scaffold.dart';
 import 'tab_page.dart';
@@ -236,18 +237,16 @@ class _LoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _GradientBorderPainter(
-        strokeWidth: 1,
-        radius: 4,
-        gradient: const LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            Color(0xFFD83B63),
-            Color(0xFFDFC14F),
-          ],
-        ),
+    return GradientBorder(
+      strokeWidth: 1,
+      borderRadius: 4,
+      gradient: const LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [
+          Color(0xFFD83B63),
+          Color(0xFFDFC14F),
+        ],
       ),
       child: Material(
         clipBehavior: Clip.hardEdge,
