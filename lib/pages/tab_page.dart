@@ -5,6 +5,7 @@ import 'package:spot/pages/tabs/map_tab.dart';
 import 'package:spot/pages/tabs/profile_tab.dart';
 
 import '../components/app_scaffold.dart';
+import 'record_page.dart';
 
 class TabPage extends StatefulWidget {
   static Route<void> route() {
@@ -54,41 +55,7 @@ class _TabPageState extends State<TabPage> {
                   icon: const Icon(Icons.search),
                   tabIndex: 1,
                 ),
-                GradientBorder(
-                  strokeWidth: 2,
-                  borderRadius: 12,
-                  gradient: const LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Color(0xFF3790E3),
-                      Color(0xFF43CBE9),
-                    ],
-                  ),
-                  child: Material(
-                    borderRadius: BorderRadius.circular(10),
-                    clipBehavior: Clip.hardEdge,
-                    child: Ink(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [
-                            Color(0xFFD73763),
-                            Color(0xFFF6935C),
-                          ],
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {},
-                        child: const Padding(
-                          padding: EdgeInsets.all(9),
-                          child: Icon(Icons.add),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                const _RecordButton(),
                 _bottomNavigationButton(
                   label: 'Notifications',
                   icon: const Icon(Icons.notifications),
@@ -141,6 +108,53 @@ class _TabPageState extends State<TabPage> {
           _currentIndex = tabIndex;
         });
       },
+    );
+  }
+}
+
+class _RecordButton extends StatelessWidget {
+  const _RecordButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GradientBorder(
+      strokeWidth: 2,
+      borderRadius: 12,
+      gradient: const LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [
+          Color(0xFF3790E3),
+          Color(0xFF43CBE9),
+        ],
+      ),
+      child: Material(
+        borderRadius: BorderRadius.circular(10),
+        clipBehavior: Clip.hardEdge,
+        child: Ink(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                Color(0xFFD73763),
+                Color(0xFFF6935C),
+              ],
+            ),
+          ),
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).push(RecordPage.route());
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(9),
+              child: Icon(Icons.add),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
