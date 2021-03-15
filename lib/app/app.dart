@@ -21,6 +21,9 @@ class App extends StatelessWidget {
         appBarTheme: const AppBarTheme(
           color: Color(0xFF13B9FF),
         ),
+        inputDecorationTheme: const InputDecorationTheme(
+          border: OutlineInputBorder(),
+        ),
       ),
       localizationsDelegates: [
         AppLocalizations.delegate,
