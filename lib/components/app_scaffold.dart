@@ -25,7 +25,10 @@ class AppScaffold extends Scaffold {
                   ),
                 ),
               ),
-              body,
+              Material(
+                color: Colors.transparent,
+                child: body,
+              ),
             ],
           ),
           floatingActionButton: floatingActionButton,
