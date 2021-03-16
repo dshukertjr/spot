@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spot/pages/view_video_page.dart';
 
 import '../models/profile.dart';
 import '../models/video.dart';
@@ -17,7 +18,7 @@ class UserProfile extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: '',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
     Video(
       id: '',
@@ -31,7 +32,7 @@ class UserProfile extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: '',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
     Video(
       id: '',
@@ -45,7 +46,7 @@ class UserProfile extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: '',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
     Video(
       id: '',
@@ -59,7 +60,7 @@ class UserProfile extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: '',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
     Video(
       id: '',
@@ -73,7 +74,7 @@ class UserProfile extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: '',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
     Video(
       id: '',
@@ -87,7 +88,7 @@ class UserProfile extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: '',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
     Video(
       id: '',
@@ -101,7 +102,7 @@ class UserProfile extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: '',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
     Video(
       id: '',
@@ -115,7 +116,7 @@ class UserProfile extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: '',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
     Video(
       id: '',
@@ -129,7 +130,7 @@ class UserProfile extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: '',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
   ];
   @override
@@ -184,7 +185,10 @@ class UserProfile extends StatelessWidget {
                       ),
                     ),
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context)
+                            .push(ViewVideoPage.route(video.id));
+                      },
                     ),
                   ),
                 ),

@@ -16,6 +16,7 @@ dependencies:
   intl: ^0.17.0
   shared_preferences: ^2.0.3
   google_maps_flutter: ^2.0.1
+  video_player: ^2.0.2
 
 dev_dependencies:
   flutter_test:

@@ -81,7 +81,7 @@ class RecordPreview extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.cover,
               child: SizedBox(
-                height: 600,
+                height: 1,
                 child: AspectRatio(
                   aspectRatio: 1 / controller.value.aspectRatio,
                   child: CameraPreview(controller),

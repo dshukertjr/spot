@@ -40,4 +40,6 @@
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDe5Zyx6Rb4qrY3wt2Rsf9MfE1prt0vPcM"/>
     </application>
+    
+    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>
