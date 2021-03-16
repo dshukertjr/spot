@@ -2,6 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../models/profile.dart';
+import '../../models/video.dart';
+
 part 'video_state.dart';
 
 /// Takes care of actions done on single video
@@ -20,7 +23,24 @@ class VideoCubit extends Cubit<VideoState> {
     await _videoPlayerController.initialize();
     await _videoPlayerController.setLooping(true);
     await _videoPlayerController.play();
-    emit(VideoPlaying(videoPlayerController: _videoPlayerController));
+    final video = Video(
+      id: '',
+      createdAt: DateTime.now(),
+      createdBy: Profile(
+        id: '',
+        name: 'aaa',
+        imageUrl:
+            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
+      ),
+      description: '',
+      thumbnailUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    );
+    emit(VideoPlaying(
+      video: video,
+      videoPlayerController: _videoPlayerController,
+    ));
   }
 
   @override
