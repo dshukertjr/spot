@@ -63,7 +63,7 @@ class _TabPageState extends State<TabPage> {
                 _bottomNavigationButton(
                   label: 'Notifications',
                   icon: const Icon(Icons.notifications),
-                  tabIndex: 0,
+                  tabIndex: 2,
                 ),
                 _bottomNavigationButton(
                   label: 'Profile',
@@ -73,7 +73,7 @@ class _TabPageState extends State<TabPage> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  tabIndex: 0,
+                  tabIndex: 3,
                 ),
               ],
             ),
