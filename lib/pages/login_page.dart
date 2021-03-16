@@ -22,23 +22,23 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     curve: Curves.easeOutCubic,
   );
 
-  late final _delayedController = AnimationController(
+  late final _yellowBlobAnimationController = AnimationController(
     duration: const Duration(seconds: 2),
     vsync: this,
   );
 
   late final _delayedCurvedAnimation = CurvedAnimation(
-    parent: _delayedController,
+    parent: _yellowBlobAnimationController,
     curve: Curves.easeOutCubic,
   );
 
-  late final _moreDelayedController = AnimationController(
+  late final _redBlobAnimationController = AnimationController(
     duration: const Duration(seconds: 2),
     vsync: this,
   );
 
   late final _moreDdelayedCurvedAnimation = CurvedAnimation(
-    parent: _moreDelayedController,
+    parent: _redBlobAnimationController,
     curve: Curves.easeOutCubic,
   );
 
@@ -207,16 +207,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     _controller.dispose();
-    _delayedController.dispose();
-    _moreDelayedController.dispose();
+    _yellowBlobAnimationController.dispose();
+    _redBlobAnimationController.dispose();
     super.dispose();
   }
 
   Future<void> _playDelayedAnimation() async {
     await Future.delayed(const Duration(milliseconds: 700));
-    _delayedController..forward();
-    await Future.delayed(const Duration(milliseconds: 400));
-    _moreDelayedController..forward();
+    _yellowBlobAnimationController..forward();
+    await Future.delayed(const Duration(milliseconds: 200));
+    _redBlobAnimationController..forward();
   }
 }
 
@@ -273,45 +273,4 @@ class _LoginButton extends StatelessWidget {
       ),
     );
   }
-}
-
-class _GradientBorderPainter extends CustomPainter {
-  _GradientBorderPainter({
-    required double strokeWidth,
-    required double radius,
-    required Gradient gradient,
-  })   : _strokeWidth = strokeWidth,
-        _radius = radius,
-        _gradient = gradient;
-
-  final Paint _paint = Paint();
-  final double _radius;
-  final double _strokeWidth;
-  final Gradient _gradient;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // create outer rectangle equals size
-    final outerRect = Offset.zero & size;
-    final outerRRect =
-        RRect.fromRectAndRadius(outerRect, Radius.circular(_radius));
-
-    // create inner rectangle smaller by strokeWidth
-    final innerRect = Rect.fromLTWH(_strokeWidth, _strokeWidth,
-        size.width - _strokeWidth * 2, size.height - _strokeWidth * 2);
-    final innerRRect = RRect.fromRectAndRadius(
-        innerRect, Radius.circular(_radius - _strokeWidth));
-
-    // apply gradient shader
-    _paint.shader = _gradient.createShader(outerRect);
-
-    // create difference between outer and inner paths and draw it
-    final path1 = Path()..addRRect(outerRRect);
-    final path2 = Path()..addRRect(innerRRect);
-    var path = Path.combine(PathOperation.difference, path1, path2);
-    canvas.drawPath(path, _paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => oldDelegate != this;
 }
