@@ -3,6 +3,7 @@ import 'package:spot/pages/view_video_page.dart';
 
 import '../models/profile.dart';
 import '../models/video.dart';
+import 'profile_image.dart';
 
 class UserProfile extends StatelessWidget {
   final videos = [
@@ -147,14 +148,7 @@ class UserProfile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                ClipOval(
-                  child: Image.network(
-                    'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-                    width: 120,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                const ProfileImage(size: 120),
                 const SizedBox(width: 18),
                 Expanded(
                   child: Column(
