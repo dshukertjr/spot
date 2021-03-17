@@ -170,30 +170,33 @@ class UserProfile extends StatelessWidget {
               ],
             ),
           ),
-          Wrap(
-            children: List.generate(videos.length, (index) {
-              final video = videos[index];
-              return FractionallySizedBox(
-                widthFactor: 0.5,
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(video.thumbnailUrl),
-                        fit: BoxFit.cover,
+          Material(
+            color: Colors.transparent,
+            child: Wrap(
+              children: List.generate(videos.length, (index) {
+                final video = videos[index];
+                return FractionallySizedBox(
+                  widthFactor: 0.5,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(video.thumbnailUrl),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.of(context)
+                              .push(ViewVideoPage.route(video.id));
+                        },
                       ),
                     ),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.of(context)
-                            .push(ViewVideoPage.route(video.id));
-                      },
-                    ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           ),
         ],
       ),
