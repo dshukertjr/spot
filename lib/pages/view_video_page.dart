@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:spot/app/constants.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:video_player/video_player.dart';
 
@@ -21,7 +22,13 @@ class ViewVideoPage extends StatelessWidget {
       body: BlocBuilder<VideoCubit, VideoState>(
         builder: (context, state) {
           if (state is VideoInitial) {
-            return const Center(child: CircularProgressIndicator());
+            return preloader;
+          } else if (state is VideoLoading) {
+            final video = state.video;
+            return Image.network(
+              video.thumbnailUrl,
+              fit: BoxFit.cover,
+            );
           } else if (state is VideoPlaying) {
             final controller = state.videoPlayerController;
             final video = state.video;

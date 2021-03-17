@@ -5,6 +5,12 @@ abstract class VideoState {}
 
 class VideoInitial extends VideoState {}
 
+class VideoLoading extends VideoState {
+  VideoLoading(this.video);
+
+  final Video video;
+}
+
 class VideoPlaying extends VideoState {
   VideoPlaying({
     required this.video,

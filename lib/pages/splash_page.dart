@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spot/app/constants.dart';
 import 'package:spot/pages/tab_page.dart';
 
 import '../components/app_scaffold.dart';
@@ -18,9 +19,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      body: const Center(
-        child: CircularProgressIndicator(),
-      ),
+      body: preloader,
     );
   }
 

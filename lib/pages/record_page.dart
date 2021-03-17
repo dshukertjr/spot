@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:spot/app/constants.dart';
 import 'package:spot/cubits/record/record_cubit.dart';
 
 class RecordPage extends StatelessWidget {
@@ -33,7 +34,7 @@ class RecordPage extends StatelessWidget {
       body: BlocBuilder<RecordCubit, RecordState>(
         builder: (context, state) {
           if (state is RecordInitial) {
-            return const Center(child: CircularProgressIndicator());
+            return preloader;
           } else if (state is RecordReady) {
             return RecordPreview(
               controller: state.controller,

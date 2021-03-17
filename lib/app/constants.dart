@@ -6,3 +6,9 @@ const appYellow = Color(0xFFDFC14F);
 const appBlue = Color(0xFF3790E3);
 const appLightBlue = Color(0xFF43CBE9);
 const appPurple = Color(0xFF8F42A0);
+
+const preloader = Center(
+  child: CircularProgressIndicator(
+    valueColor: AlwaysStoppedAnimation<Color>(appRed),
+  ),
+);
