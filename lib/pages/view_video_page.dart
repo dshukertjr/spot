@@ -24,6 +24,7 @@ class ViewVideoPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (state is VideoPlaying) {
             final controller = state.videoPlayerController;
+            final video = state.video;
             return Stack(
               fit: StackFit.expand,
               children: [
@@ -41,6 +42,11 @@ class ViewVideoPage extends StatelessWidget {
                       ),
                     ),
                   ),
+                ),
+                Positioned(
+                  left: 18,
+                  top: MediaQuery.of(context).padding.top + 18,
+                  child: const BackButton(),
                 ),
                 Positioned(
                   bottom: 123,
@@ -78,6 +84,32 @@ class ViewVideoPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                Positioned(
+                    left: 19,
+                    bottom: 50,
+                    child: SizedBox(
+                      width: 195,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '@${video.createdBy.name}',
+                            style: const TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            video.description,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
               ],
             );
           }
