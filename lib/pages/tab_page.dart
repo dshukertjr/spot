@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spot/app/constants.dart';
 import 'package:spot/components/gradient_border.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
@@ -135,8 +136,8 @@ class _RecordButton extends StatelessWidget {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [
-              Color(0xFF3790E3),
-              Color(0xFF43CBE9),
+              appBlue,
+              appLightBlue,
             ],
           ),
           child: Material(
@@ -148,8 +149,8 @@ class _RecordButton extends StatelessWidget {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    Color(0xFFD73763),
-                    Color(0xFFF6935C),
+                    appRed,
+                    appOrange,
                   ],
                 ),
               ),

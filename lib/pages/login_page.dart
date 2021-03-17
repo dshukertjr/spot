@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:spot/app/constants.dart';
 import 'package:spot/components/gradient_border.dart';
 
 import '../components/app_scaffold.dart';
@@ -244,8 +245,8 @@ class _LoginButton extends StatelessWidget {
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
         colors: [
-          Color(0xFFD83B63),
-          Color(0xFFDFC14F),
+          appRed,
+          appYellow,
         ],
       ),
       child: Material(
