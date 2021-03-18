@@ -252,7 +252,7 @@ class _LoginButton extends StatelessWidget {
       child: Material(
         clipBehavior: Clip.hardEdge,
         borderRadius: BorderRadius.circular(4),
-        color: const Color(0xFF000000).withOpacity(0.2),
+        color: dialogBackgroundColor,
         child: InkWell(
           onTap: _onPressed,
           child: Padding(

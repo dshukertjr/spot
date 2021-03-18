@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/video.dart';
 import 'package:video_player/video_player.dart';
@@ -144,6 +147,84 @@ class _VideoScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                color: buttonBackgroundColor,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).padding.top + 16,
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: IconButton(
+                      color: Colors.white,
+                      icon: const Icon(Icons.close),
+                      onPressed: () {},
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 17),
+                      itemCount: 20,
+                      itemBuilder: (_, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Row(
+                            children: [
+                              ProfileImage(),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text('@TrueNewyorker'),
+                                    RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                              text:
+                                                  'I would love to visit New York someday. I hope covid ends soon so that I can visit there.'),
+                                          TextSpan(
+                                            text: ' 1h',
+                                            style: TextStyle(
+                                              color: Color(0x88ffffff),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: Text('Send'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
