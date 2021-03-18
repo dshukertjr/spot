@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/gradient_button.dart';
 import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/video.dart';
@@ -212,16 +213,25 @@ class _VideoScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Text('Send'),
-                      ),
-                    ],
+                  Padding(
+                    padding: EdgeInsets.all(4.0).copyWith(
+                        bottom: MediaQuery.of(context).padding.bottom + 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'What did you think about the video?',
+                            ),
+                          ),
+                        ),
+                        GradientButton(
+                          onPressed: () {},
+                          child: const Text('Send'),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
