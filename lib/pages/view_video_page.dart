@@ -48,7 +48,7 @@ class ViewVideoPage extends StatelessWidget {
   }
 }
 
-class _VideoScreen extends StatelessWidget {
+class _VideoScreen extends StatefulWidget {
   const _VideoScreen({
     Key? key,
     this.controller,
@@ -59,13 +59,20 @@ class _VideoScreen extends StatelessWidget {
   final Video video;
 
   @override
+  __VideoScreenState createState() => __VideoScreenState();
+}
+
+class __VideoScreenState extends State<_VideoScreen> {
+  bool _isCommentsShown = false;
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        controller == null
+        widget.controller == null
             ? Image.network(
-                video.thumbnailUrl,
+                widget.video.thumbnailUrl,
                 fit: BoxFit.cover,
               )
             : ClipRect(
@@ -76,8 +83,8 @@ class _VideoScreen extends StatelessWidget {
                     child: SizedBox(
                       height: 1,
                       child: AspectRatio(
-                        aspectRatio: controller!.value.aspectRatio,
-                        child: VideoPlayer(controller!),
+                        aspectRatio: widget.controller!.value.aspectRatio,
+                        child: VideoPlayer(widget.controller!),
                       ),
                     ),
                   ),
@@ -107,7 +114,11 @@ class _VideoScreen extends StatelessWidget {
                   const SizedBox(height: 36),
                   IconButton(
                     icon: const Icon(Icons.comment),
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        _isCommentsShown = true;
+                      });
+                    },
                   ),
                   const SizedBox(height: 36),
                   IconButton(
@@ -134,14 +145,14 @@ class _VideoScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '@${video.createdBy.name}',
+                  '@${widget.video.createdBy.name}',
                   style: const TextStyle(
                     fontSize: 15,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  video.description,
+                  widget.video.description,
                   style: const TextStyle(
                     fontSize: 15,
                     height: 1.3,
@@ -151,57 +162,85 @@ class _VideoScreen extends StatelessWidget {
             ),
           ),
         ),
-        Positioned.fill(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                color: buttonBackgroundColor,
+        if (_isCommentsShown)
+          Positioned.fill(
+            child: _CommentsOverlay(
+              onClose: () {
+                setState(() {
+                  _isCommentsShown = false;
+                });
+              },
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CommentsOverlay extends StatefulWidget {
+  _CommentsOverlay({
+    Key? key,
+    required void Function() onClose,
+  })   : _onClose = onClose,
+        super(key: key);
+
+  void Function() _onClose;
+
+  @override
+  __CommentsOverlayState createState() => __CommentsOverlayState();
+}
+
+class __CommentsOverlayState extends State<_CommentsOverlay> {
+  @override
+  Widget build(BuildContext context) {
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          color: buttonBackgroundColor,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).padding.top + 16,
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  widget._onClose();
+                },
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).padding.top + 16,
-                  ),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.close),
-                      onPressed: () {},
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 17),
-                      itemCount: 20,
-                      itemBuilder: (_, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: Row(
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 17),
+                itemCount: 20,
+                itemBuilder: (_, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Row(
+                      children: [
+                        ProfileImage(),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              ProfileImage(),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
+                              Text('@TrueNewyorker'),
+                              RichText(
+                                text: TextSpan(
                                   children: [
-                                    Text('@TrueNewyorker'),
-                                    RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                              text:
-                                                  'I would love to visit New York someday. I hope covid ends soon so that I can visit there.'),
-                                          TextSpan(
-                                            text: ' 1h',
-                                            style: TextStyle(
-                                              color: Color(0x88ffffff),
-                                            ),
-                                          ),
-                                        ],
+                                    TextSpan(
+                                        text:
+                                            'I would love to visit New York someday. I hope covid ends soon so that I can visit there.'),
+                                    TextSpan(
+                                      text: ' 1h',
+                                      style: TextStyle(
+                                        color: Color(0x88ffffff),
                                       ),
                                     ),
                                   ],
@@ -209,36 +248,36 @@ class _VideoScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(4.0).copyWith(
-                        bottom: MediaQuery.of(context).padding.bottom + 4),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'What did you think about the video?',
-                            ),
-                          ),
-                        ),
-                        GradientButton(
-                          onPressed: () {},
-                          child: const Text('Send'),
                         ),
                       ],
                     ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(4.0)
+                  .copyWith(bottom: MediaQuery.of(context).padding.bottom + 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'What did you think about the video?',
+                      ),
+                    ),
+                  ),
+                  GradientButton(
+                    onPressed: () {},
+                    child: const Text('Send'),
                   ),
                 ],
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
