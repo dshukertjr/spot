@@ -40,6 +40,13 @@ class ViewVideoPage extends StatelessWidget {
               controller: controller,
               video: video,
             );
+          } else if (state is VideoPaused) {
+            final controller = state.videoPlayerController;
+            final video = state.video;
+            return _VideoScreen(
+              controller: controller,
+              video: video,
+            );
           }
           return Container();
         },
@@ -114,7 +121,8 @@ class __VideoScreenState extends State<_VideoScreen> {
                   const SizedBox(height: 36),
                   IconButton(
                     icon: const Icon(Icons.comment),
-                    onPressed: () {
+                    onPressed: () async {
+                      await BlocProvider.of<VideoCubit>(context).pause();
                       setState(() {
                         _isCommentsShown = true;
                       });
@@ -164,12 +172,21 @@ class __VideoScreenState extends State<_VideoScreen> {
         ),
         if (_isCommentsShown)
           Positioned.fill(
-            child: _CommentsOverlay(
-              onClose: () {
+            child: WillPopScope(
+              onWillPop: () async {
+                await BlocProvider.of<VideoCubit>(context).resume();
                 setState(() {
                   _isCommentsShown = false;
                 });
+                return false;
               },
+              child: _CommentsOverlay(
+                onClose: () {
+                  setState(() {
+                    _isCommentsShown = false;
+                  });
+                },
+              ),
             ),
           ),
       ],
@@ -184,7 +201,7 @@ class _CommentsOverlay extends StatefulWidget {
   })   : _onClose = onClose,
         super(key: key);
 
-  void Function() _onClose;
+  final void Function() _onClose;
 
   @override
   __CommentsOverlayState createState() => __CommentsOverlayState();

@@ -13,6 +13,7 @@ class VideoCubit extends Cubit<VideoState> {
   VideoCubit() : super(VideoInitial());
 
   late final String _videoId;
+  late final Video _video;
   late final VideoPlayerController _videoPlayerController;
 
   Future<void> initialize(String videoId) async {
@@ -32,6 +33,8 @@ class VideoCubit extends Cubit<VideoState> {
       videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     );
 
+    _video = video;
+
     emit(VideoLoading(video));
 
     _videoPlayerController = VideoPlayerController.network(
@@ -40,7 +43,23 @@ class VideoCubit extends Cubit<VideoState> {
     await _videoPlayerController.setLooping(true);
     await _videoPlayerController.play();
     emit(VideoPlaying(
-      video: video,
+      video: _video,
+      videoPlayerController: _videoPlayerController,
+    ));
+  }
+
+  Future<void> pause() async {
+    await _videoPlayerController.pause();
+    emit(VideoPaused(
+      video: _video,
+      videoPlayerController: _videoPlayerController,
+    ));
+  }
+
+  Future<void> resume() async {
+    await _videoPlayerController.play();
+    emit(VideoPlaying(
+      video: _video,
       videoPlayerController: _videoPlayerController,
     ));
   }
