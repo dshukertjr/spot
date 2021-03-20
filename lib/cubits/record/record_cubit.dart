@@ -35,9 +35,10 @@ class RecordCubit extends Cubit<RecordState> {
   }
 
   Future<void> doneRecording() async {
+    emit(RecordCompleted(controller: _controller));
+    // stopVideoRecording takes about a whole second
     await _controller.stopVideoRecording();
     // TODO do something that will take the user to the next step
-    emit(RecordCompleted(controller: _controller));
   }
 
   @override

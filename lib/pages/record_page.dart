@@ -56,7 +56,7 @@ class RecordPage extends StatelessWidget {
 }
 
 @visibleForTesting
-class RecordPreview extends StatelessWidget {
+class RecordPreview extends StatefulWidget {
   const RecordPreview({
     Key? key,
     required CameraController controller,
@@ -69,6 +69,13 @@ class RecordPreview extends StatelessWidget {
   final bool _isPaused;
 
   @override
+  _RecordPreviewState createState() => _RecordPreviewState();
+}
+
+class _RecordPreviewState extends State<RecordPreview> {
+  bool _isPastMimimumDuration = false;
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
@@ -76,7 +83,22 @@ class RecordPreview extends StatelessWidget {
         _cameraPreview(),
         _recordButton(context),
         _gauge(context),
+        _completeButton(context),
       ],
+    );
+  }
+
+  Positioned _completeButton(BuildContext context) {
+    return Positioned(
+      right: 24,
+      bottom: MediaQuery.of(context).padding.bottom + 24,
+      child: SizedBox(
+        height: 70,
+        child: Center(
+          child: _RecordingCompleteButton(
+              isPastMimimumDuration: _isPastMimimumDuration),
+        ),
+      ),
     );
   }
 
@@ -89,8 +111,8 @@ class RecordPreview extends StatelessWidget {
           child: SizedBox(
             height: 1,
             child: AspectRatio(
-              aspectRatio: 1 / _controller.value.aspectRatio,
-              child: CameraPreview(_controller),
+              aspectRatio: 1 / widget._controller.value.aspectRatio,
+              child: CameraPreview(widget._controller),
             ),
           ),
         ),
@@ -116,7 +138,7 @@ class RecordPreview extends StatelessWidget {
               borderRadius: BorderRadius.circular(100),
               child: InkWell(
                 onTap: () {
-                  if (_isPaused) {
+                  if (widget._isPaused) {
                     BlocProvider.of<RecordCubit>(context).startRecording();
                   } else {
                     BlocProvider.of<RecordCubit>(context).pauseRecording();
@@ -126,7 +148,7 @@ class RecordPreview extends StatelessWidget {
                   padding: const EdgeInsets.all(5),
                   child: Center(
                     child: _RecordButtonTarget(
-                      isPaused: _isPaused,
+                      isPaused: widget._isPaused,
                     ),
                   ),
                 ),
@@ -164,7 +186,12 @@ class RecordPreview extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(50),
                 child: _RecordingGaugeIndicator(
-                  isPaused: _isPaused,
+                  isPaused: widget._isPaused,
+                  onPastMinimumDuration: () {
+                    setState(() {
+                      _isPastMimimumDuration = true;
+                    });
+                  },
                 ),
               ),
             ),
@@ -175,14 +202,118 @@ class RecordPreview extends StatelessWidget {
   }
 }
 
+class _RecordingCompleteButton extends StatefulWidget {
+  const _RecordingCompleteButton({
+    Key? key,
+    required bool isPastMimimumDuration,
+  })   : _isPastMimimumDuration = isPastMimimumDuration,
+        super(key: key);
+
+  final bool _isPastMimimumDuration;
+
+  @override
+  __RecordingCompleteButtonState createState() =>
+      __RecordingCompleteButtonState();
+}
+
+class __RecordingCompleteButtonState extends State<_RecordingCompleteButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+  late final Animation<double> _curve;
+  bool _animationPlayed = false;
+
+  static const _animationDuration = Duration(milliseconds: 80);
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: widget._isPastMimimumDuration ? 1 : 0.5,
+      child: AnimatedBuilder(
+          animation: _curve,
+          child: Material(
+            clipBehavior: Clip.hardEdge,
+            borderRadius: BorderRadius.circular(50),
+            child: InkWell(
+              onTap: widget._isPastMimimumDuration
+                  ? () {
+                      ///TODO open description window
+                    }
+                  : null,
+              child: Ink(
+                decoration: const BoxDecoration(
+                  gradient: redOrangeGradient,
+                ),
+                child: const SizedBox(
+                  width: 46,
+                  height: 46,
+                  child: Center(
+                    child: Icon(
+                      Icons.check,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _curve.value,
+              child: child,
+            );
+          }),
+    );
+  }
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: _animationDuration,
+      lowerBound: 0.8,
+      upperBound: 1.0,
+    );
+    _curve = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    );
+
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant _RecordingCompleteButton oldWidget) {
+    _playAnimation();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _playAnimation() async {
+    if (widget._isPastMimimumDuration && !_animationPlayed) {
+      _animationPlayed = true;
+      await _animationController.forward();
+      await Future.delayed(_animationDuration);
+      await _animationController.reverse();
+    }
+  }
+}
+
 class _RecordingGaugeIndicator extends StatefulWidget {
   const _RecordingGaugeIndicator({
     Key? key,
     required bool isPaused,
-  })   : _isPaused = isPaused,
+    required void Function() onPastMinimumDuration,
+  })   : _onPastMinimumDuration = onPastMinimumDuration,
+        _isPaused = isPaused,
         super(key: key);
 
   final bool _isPaused;
+  final void Function() _onPastMinimumDuration;
 
   @override
   __RecordingGaugeIndicatorState createState() =>
@@ -197,16 +328,12 @@ class __RecordingGaugeIndicatorState extends State<_RecordingGaugeIndicator>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
         animation: _animationController,
-        child: const DecoratedBox(
+        child: DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                appBlue,
-                appLightBlue,
-              ],
-            ),
+            borderRadius: BorderRadius.circular(50),
+            gradient: blueGradient,
           ),
-          child: SizedBox(height: 16),
+          child: const SizedBox(height: 16),
         ),
         builder: (_, child) {
           return FractionallySizedBox(
@@ -223,11 +350,9 @@ class __RecordingGaugeIndicatorState extends State<_RecordingGaugeIndicator>
       vsync: this,
       duration: const Duration(seconds: 30),
     );
-    _animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        BlocProvider.of<RecordCubit>(context).doneRecording();
-      }
-    });
+    _animationController
+      ..addStatusListener(_checkComplete)
+      ..addListener(_checkForMinimumDuration);
     super.initState();
   }
 
@@ -246,8 +371,23 @@ class __RecordingGaugeIndicatorState extends State<_RecordingGaugeIndicator>
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _animationController
+      ..removeStatusListener(_checkComplete)
+      ..removeListener(_checkForMinimumDuration)
+      ..dispose();
     super.dispose();
+  }
+
+  void _checkComplete(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      BlocProvider.of<RecordCubit>(context).doneRecording();
+    }
+  }
+
+  void _checkForMinimumDuration() {
+    if (_animationController.value > 0.3) {
+      widget._onPastMinimumDuration();
+    }
   }
 }
 
