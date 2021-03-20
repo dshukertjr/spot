@@ -36,6 +36,16 @@ class NotificationsTab extends StatelessWidget {
         videoId: '',
       ),
     ),
+    AppNotification(
+      type: NotificationType.follow,
+      profile: Profile(
+        id: 'aaa',
+        name: 'O\'niel',
+        imageUrl:
+            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
+      ),
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+    ),
   ];
 
   @override
@@ -80,9 +90,7 @@ class _NotificationCell extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             text: TextSpan(
               children: [
-                const TextSpan(
-                    text:
-                        '@actuallisaheather commented "Hey, this looks like the old house from my dreams. I used to live here and I loved it so much."'),
+                TextSpan(text: _notificationText),
                 TextSpan(
                   text: ' 1h',
                   style: TextStyle(
@@ -97,9 +105,35 @@ class _NotificationCell extends StatelessWidget {
         SizedBox(
           width: 24,
           height: 24,
-          child: Image.asset('assets/images/like.png'),
+          child: Image.asset(_notificationIconPath),
         ),
       ],
     );
+  }
+
+  String get _notificationText {
+    switch (_notification.type) {
+      case NotificationType.like:
+        return '@${_notification.profile.name} liked your video"';
+      case NotificationType.comment:
+        return '@${_notification.profile.name} commented "${_notification.comment!.text}"';
+      case NotificationType.follow:
+        return '@${_notification.profile.name} started following you"';
+      case NotificationType.other:
+        return '';
+    }
+  }
+
+  String get _notificationIconPath {
+    switch (_notification.type) {
+      case NotificationType.like:
+        return 'assets/images/like.png';
+      case NotificationType.comment:
+        return 'assets/images/comment.png';
+      case NotificationType.follow:
+        return 'assets/images/follower.png';
+      case NotificationType.other:
+        return 'assets/images/like.png';
+    }
   }
 }
