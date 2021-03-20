@@ -2,7 +2,10 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/gradient_border.dart';
 import 'package:spot/cubits/record/record_cubit.dart';
+
+import '../components/app_scaffold.dart';
 
 class RecordPage extends StatelessWidget {
   static Route<void> route() {
@@ -16,21 +19,7 @@ class RecordPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Record'),
-        actions: [
-          TextButton(
-            onPressed: () {},
-            child: const Text(
-              'Next',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          )
-        ],
-      ),
+    return AppScaffold(
       body: BlocBuilder<RecordCubit, RecordState>(
         builder: (context, state) {
           if (state is RecordInitial) {
@@ -122,6 +111,51 @@ class RecordPreview extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+        ),
+        Positioned(
+          top: MediaQuery.of(context).padding.top + 16,
+          left: 16,
+          right: 16,
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              Expanded(
+                child: GradientBorder(
+                  borderRadius: 50,
+                  strokeWidth: 1,
+                  gradient: const LinearGradient(
+                    colors: [
+                      appRed,
+                      appOrange,
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: 0.01,
+                      child: const DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              appBlue,
+                              appLightBlue,
+                            ],
+                          ),
+                        ),
+                        child: SizedBox(height: 16),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
