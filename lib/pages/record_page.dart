@@ -65,100 +65,112 @@ class RecordPreview extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        ClipRect(
-          child: OverflowBox(
-            alignment: Alignment.center,
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: SizedBox(
-                height: 1,
-                child: AspectRatio(
-                  aspectRatio: 1 / controller.value.aspectRatio,
-                  child: CameraPreview(controller),
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned.fill(
-          top: null,
-          bottom: MediaQuery.of(context).padding.bottom + 24,
-          child: Center(
-            child: SizedBox(
-              width: 70,
-              height: 70,
-              child: Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(100),
-                child: InkWell(
-                  onTap: () {
-                    if (isPaused) {
-                      BlocProvider.of<RecordCubit>(context).startRecording();
-                    } else {
-                      BlocProvider.of<RecordCubit>(context).pauseRecording();
-                    }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).accentColor,
-                        borderRadius: BorderRadius.circular(isPaused ? 100 : 8),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          top: MediaQuery.of(context).padding.top + 16,
-          left: 16,
-          right: 16,
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              Expanded(
-                child: GradientBorder(
-                  borderRadius: 50,
-                  strokeWidth: 1,
-                  gradient: const LinearGradient(
-                    colors: [
-                      appRed,
-                      appOrange,
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: 0.01,
-                      child: const DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              appBlue,
-                              appLightBlue,
-                            ],
-                          ),
-                        ),
-                        child: SizedBox(height: 16),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        _cameraPreview(),
+        _recordButton(context),
+        _gauge(context),
       ],
+    );
+  }
+
+  ClipRect _cameraPreview() {
+    return ClipRect(
+      child: OverflowBox(
+        alignment: Alignment.center,
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            height: 1,
+            child: AspectRatio(
+              aspectRatio: 1 / controller.value.aspectRatio,
+              child: CameraPreview(controller),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Positioned _recordButton(BuildContext context) {
+    return Positioned.fill(
+      top: null,
+      bottom: MediaQuery.of(context).padding.bottom + 24,
+      child: Center(
+        child: SizedBox(
+          width: 70,
+          height: 70,
+          child: Material(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(100),
+            child: InkWell(
+              onTap: () {
+                if (isPaused) {
+                  BlocProvider.of<RecordCubit>(context).startRecording();
+                } else {
+                  BlocProvider.of<RecordCubit>(context).pauseRecording();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).accentColor,
+                    borderRadius: BorderRadius.circular(isPaused ? 100 : 8),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Positioned _gauge(BuildContext context) {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 16,
+      left: 16,
+      right: 16,
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          Expanded(
+            child: GradientBorder(
+              borderRadius: 50,
+              strokeWidth: 1,
+              gradient: const LinearGradient(
+                colors: [
+                  appRed,
+                  appOrange,
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 0.01,
+                  child: const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          appBlue,
+                          appLightBlue,
+                        ],
+                      ),
+                    ),
+                    child: SizedBox(height: 16),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
