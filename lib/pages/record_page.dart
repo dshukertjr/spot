@@ -6,6 +6,7 @@ import 'package:spot/components/gradient_border.dart';
 import 'package:spot/cubits/record/record_cubit.dart';
 
 import '../components/app_scaffold.dart';
+import '../cubits/record/record_cubit.dart';
 
 class RecordPage extends StatelessWidget {
   static Route<void> route() {
@@ -35,6 +36,11 @@ class RecordPage extends StatelessWidget {
               isPaused: false,
             );
           } else if (state is RecordPaused) {
+            return RecordPreview(
+              controller: state.controller,
+              isPaused: true,
+            );
+          } else if (state is RecordCompleted) {
             return RecordPreview(
               controller: state.controller,
               isPaused: true,
@@ -157,20 +163,8 @@ class RecordPreview extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: 0.01,
-                  child: const DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          appBlue,
-                          appLightBlue,
-                        ],
-                      ),
-                    ),
-                    child: SizedBox(height: 16),
-                  ),
+                child: _RecordingGaugeIndicator(
+                  isPaused: _isPaused,
                 ),
               ),
             ),
@@ -178,6 +172,82 @@ class RecordPreview extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _RecordingGaugeIndicator extends StatefulWidget {
+  const _RecordingGaugeIndicator({
+    Key? key,
+    required bool isPaused,
+  })   : _isPaused = isPaused,
+        super(key: key);
+
+  final bool _isPaused;
+
+  @override
+  __RecordingGaugeIndicatorState createState() =>
+      __RecordingGaugeIndicatorState();
+}
+
+class __RecordingGaugeIndicatorState extends State<_RecordingGaugeIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+        animation: _animationController,
+        child: const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                appBlue,
+                appLightBlue,
+              ],
+            ),
+          ),
+          child: SizedBox(height: 16),
+        ),
+        builder: (_, child) {
+          return FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: _animationController.value,
+            child: child,
+          );
+        });
+  }
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 30),
+    );
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        BlocProvider.of<RecordCubit>(context).doneRecording();
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant _RecordingGaugeIndicator oldWidget) {
+    final isPausedChanged = widget._isPaused != oldWidget._isPaused;
+    if (isPausedChanged) {
+      if (widget._isPaused) {
+        _animationController.stop();
+      } else {
+        _animationController.forward();
+      }
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 }
 

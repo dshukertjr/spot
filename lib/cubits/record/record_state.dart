@@ -23,6 +23,11 @@ class RecordPaused extends RecordState {
   final CameraController controller;
 }
 
+class RecordCompleted extends RecordState {
+  RecordCompleted({required this.controller});
+  final CameraController controller;
+}
+
 class RecordError extends RecordState {
   RecordError(this.errorMessage);
 
