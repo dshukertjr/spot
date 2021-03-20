@@ -2,16 +2,30 @@ import 'comment.dart';
 import 'profile.dart';
 import 'video.dart';
 
-class Notification {
-  Notification({
+enum NotificationType {
+  like,
+  comment,
+  follow,
+  other,
+}
+
+class AppNotification {
+  AppNotification({
+    required this.type,
     this.comment,
-    this.targetVideo,
+    this.targetVideoId,
     required this.profile,
     required this.createdAt,
-  });
+  }) : assert(
+          (type == NotificationType.like && targetVideoId != null) ||
+              (type == NotificationType.comment && comment != null) ||
+              type == NotificationType.follow ||
+              type == NotificationType.other,
+        );
 
+  final NotificationType type;
   final Comment? comment;
-  final Video? targetVideo;
+  final String? targetVideoId;
   final Profile profile;
   final DateTime createdAt;
 }

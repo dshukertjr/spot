@@ -15,6 +15,7 @@ class VideoCubit extends Cubit<VideoState> {
   late final String _videoId;
   late final Video _video;
   late final VideoPlayerController _videoPlayerController;
+  bool _videoInitialized = false;
 
   Future<void> initialize(String videoId) async {
     // TODO get video data with videoId
@@ -40,6 +41,7 @@ class VideoCubit extends Cubit<VideoState> {
     _videoPlayerController = VideoPlayerController.network(
         'https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_20mb.mp4');
     await _videoPlayerController.initialize();
+    _videoInitialized = true;
     await _videoPlayerController.setLooping(true);
     await _videoPlayerController.play();
     emit(VideoPlaying(
@@ -50,18 +52,22 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> pause() async {
     await _videoPlayerController.pause();
-    emit(VideoPaused(
-      video: _video,
-      videoPlayerController: _videoPlayerController,
-    ));
+    if (!(state is VideoLoading)) {
+      emit(VideoPaused(
+        video: _video,
+        videoPlayerController: _videoPlayerController,
+      ));
+    }
   }
 
   Future<void> resume() async {
     await _videoPlayerController.play();
-    emit(VideoPlaying(
-      video: _video,
-      videoPlayerController: _videoPlayerController,
-    ));
+    if (_videoInitialized) {
+      emit(VideoPlaying(
+        video: _video,
+        videoPlayerController: _videoPlayerController,
+      ));
+    }
   }
 
   @override
