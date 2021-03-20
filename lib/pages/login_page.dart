@@ -166,7 +166,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             ),
                             label: 'Sign in with Google',
                             onPressed: () {
-                              Navigator.of(context).push(TabPage.route());
+                              Navigator.of(context)
+                                  .pushReplacement(TabPage.route());
                             },
                           ),
                           const SizedBox(height: 24.5),
@@ -178,7 +179,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             ),
                             label: 'Sign in with Apple',
                             onPressed: () {
-                              Navigator.of(context).push(TabPage.route());
+                              Navigator.of(context)
+                                  .pushReplacement(TabPage.route());
                             },
                           ),
                           const SizedBox(height: 24.5),
