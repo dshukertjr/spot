@@ -53,12 +53,14 @@ class RecordPage extends StatelessWidget {
 class RecordPreview extends StatelessWidget {
   const RecordPreview({
     Key? key,
-    required this.controller,
-    required this.isPaused,
-  }) : super(key: key);
+    required CameraController controller,
+    required bool isPaused,
+  })   : _controller = controller,
+        _isPaused = isPaused,
+        super(key: key);
 
-  final CameraController controller;
-  final bool isPaused;
+  final CameraController _controller;
+  final bool _isPaused;
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +83,8 @@ class RecordPreview extends StatelessWidget {
           child: SizedBox(
             height: 1,
             child: AspectRatio(
-              aspectRatio: 1 / controller.value.aspectRatio,
-              child: CameraPreview(controller),
+              aspectRatio: 1 / _controller.value.aspectRatio,
+              child: CameraPreview(_controller),
             ),
           ),
         ),
@@ -98,24 +100,28 @@ class RecordPreview extends StatelessWidget {
         child: SizedBox(
           width: 70,
           height: 70,
-          child: Material(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(100),
-            child: InkWell(
-              onTap: () {
-                if (isPaused) {
-                  BlocProvider.of<RecordCubit>(context).startRecording();
-                } else {
-                  BlocProvider.of<RecordCubit>(context).pauseRecording();
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).accentColor,
-                    borderRadius: BorderRadius.circular(isPaused ? 100 : 8),
+          child: GradientBorder(
+            borderRadius: 100,
+            strokeWidth: 3,
+            gradient: blueGradient,
+            child: Material(
+              clipBehavior: Clip.hardEdge,
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(100),
+              child: InkWell(
+                onTap: () {
+                  if (_isPaused) {
+                    BlocProvider.of<RecordCubit>(context).startRecording();
+                  } else {
+                    BlocProvider.of<RecordCubit>(context).pauseRecording();
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Center(
+                    child: _RecordButtonTarget(
+                      isPaused: _isPaused,
+                    ),
                   ),
                 ),
               ),
@@ -172,5 +178,75 @@ class RecordPreview extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _RecordButtonTarget extends StatefulWidget {
+  const _RecordButtonTarget({
+    Key? key,
+    required bool isPaused,
+  })   : _isRecording = isPaused,
+        super(key: key);
+
+  final bool _isRecording;
+
+  @override
+  __RecordButtonTargetState createState() => __RecordButtonTargetState();
+}
+
+class __RecordButtonTargetState extends State<_RecordButtonTarget>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+  late final Animation<double> _curve;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+        animation: _curve,
+        builder: (_, __) {
+          return SizedBox(
+            width: 50 - 20 * _curve.value,
+            height: 50 - 20 * _curve.value,
+            child: Ink(
+              decoration: BoxDecoration(
+                gradient: redOrangeGradient,
+                borderRadius: BorderRadius.circular(25 - 19 * _curve.value),
+              ),
+            ),
+          );
+        });
+  }
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(
+        milliseconds: 300,
+      ),
+    );
+    _curve =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant _RecordButtonTarget oldWidget) {
+    final isRecordingChanged = widget._isRecording != oldWidget._isRecording;
+    if (isRecordingChanged) {
+      if (widget._isRecording) {
+        _animationController.reverse();
+      } else {
+        _animationController.forward();
+      }
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 }

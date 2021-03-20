@@ -10,6 +10,18 @@ const appPurple = Color(0xFF8F42A0);
 const buttonBackgroundColor = Color(0x33000000);
 const dialogBackgroundColor = Color(0x26000000);
 
+const redOrangeGradient = LinearGradient(
+  colors: [
+    appRed,
+    appOrange,
+  ],
+);
+
+const blueGradient = LinearGradient(colors: [
+  appBlue,
+  appLightBlue,
+]);
+
 const preloader = Center(
   child: CircularProgressIndicator(
     valueColor: AlwaysStoppedAnimation<Color>(appRed),
