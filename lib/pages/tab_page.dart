@@ -11,8 +11,14 @@ import '../components/app_scaffold.dart';
 import 'record_page.dart';
 
 class TabPage extends StatefulWidget {
+  static final name = 'TabPage';
   static Route<void> route() {
-    return MaterialPageRoute(builder: (_) => TabPage());
+    return MaterialPageRoute(
+      settings: RouteSettings(
+        name: name,
+      ),
+      builder: (_) => TabPage(),
+    );
   }
 
   @override
