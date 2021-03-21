@@ -41,6 +41,23 @@ class ConfirmRecordingPage extends StatelessWidget {
             return _VideoConfirmationPage(
               videoPlayerController: state.videoPlayerController,
             );
+          } else if (state is ConfirmVideoTranscoding) {
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                FullScreenVideoPlayer(
+                  videoPlayerController: state.videoPlayerController,
+                ),
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF000000).withOpacity(0.3),
+                    ),
+                    child: preloader,
+                  ),
+                ),
+              ],
+            );
           } else if (state is ConfirmVideoUploaded) {
             return preloader;
           }

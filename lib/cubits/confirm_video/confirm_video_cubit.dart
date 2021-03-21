@@ -19,6 +19,9 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   final _flutterFFmpeg = FlutterFFmpeg();
 
   bool _doneCompressingVideo = false;
+  late File _compressedVideo;
+  late File _thumbnail;
+  late File _gif;
 
   Future<void> initialize({required XFile videoFile}) async {
     final videoPath = videoFile.path;
@@ -29,11 +32,24 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     emit(ConfirmVideoPlaying(videoPlayerController: _videoPlayerController));
 
     final tempDir = await getTemporaryDirectory();
-    final tempPath = '${tempDir.path}/temp.mp4';
-    await _compressVideo(videoPath: videoPath, tempPath: tempPath);
+    final videoTempPath = '${tempDir.path}/temp.mp4';
+    _compressedVideo =
+        await _compressVideo(videoPath: videoPath, tempPath: videoTempPath);
+
+    final thubmnailTempPath = '${tempDir.path}/tempThubm.jpg';
+    _thumbnail = await _getVideoThumbnail(
+        videoPath: videoPath, tempPath: thubmnailTempPath);
+
+    final gifTempPath = '${tempDir.path}/tempGif.gif';
+    _gif = await _getGif(videoPath: videoPath, tempPath: gifTempPath);
+
+    _doneCompressingVideo = true;
   }
 
   Future<void> post() async {
+    emit(
+        ConfirmVideoTranscoding(videoPlayerController: _videoPlayerController));
+
     /// wait until video processing is complete
     await Future.doWhile(() async {
       await Future.delayed(const Duration(milliseconds: 100));
@@ -57,7 +73,37 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
         message: 'ffmpeg failed to compress video',
       );
     }
-    _doneCompressingVideo = true;
+    return File(tempPath);
+  }
+
+  Future<File> _getVideoThumbnail({
+    required String videoPath,
+    required String tempPath,
+  }) async {
+    final command =
+        '-y -i $videoPath -vf "scale=100:-2, crop=100:100:exact=1" $tempPath';
+    final res = await _flutterFFmpeg.execute(command);
+    if (res != 0) {
+      throw PlatformException(
+        code: 'ffmpeg error',
+        message: 'ffmpeg failed to compress video',
+      );
+    }
+    return File(tempPath);
+  }
+
+  Future<File> _getGif({
+    required String videoPath,
+    required String tempPath,
+  }) async {
+    final command = '-y -t 3 -i $videoPath -vf scale=-2:120 -r 10 $tempPath';
+    final res = await _flutterFFmpeg.execute(command);
+    if (res != 0) {
+      throw PlatformException(
+        code: 'ffmpeg error',
+        message: 'ffmpeg failed to compress video',
+      );
+    }
     return File(tempPath);
   }
 }
