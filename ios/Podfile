@@ -53,7 +53,7 @@ flutter_ios_podfile_setup
         File.symlink(plugin_path, symlink)
 
         if plugin_name == 'flutter_ffmpeg'
-          pod 'flutter_ffmpeg/https-gpl-lts', :path => File.join(relative_symlink_dir, 'plugins', plugin_name, platform)
+          pod 'flutter_ffmpeg/https-gpl', :path => File.join(relative_symlink_dir, 'plugins', plugin_name, platform)
         else
           pod plugin_name, :path => File.join(relative_symlink_dir, 'plugins', plugin_name, platform)
         end

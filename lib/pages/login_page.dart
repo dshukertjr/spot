@@ -134,65 +134,44 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               },
             ),
           ),
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 280,
-                  ),
-                  child: DecoratedBox(
-                    decoration: const BoxDecoration(
-                      color: Color(0x26000000),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            'Sign in',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          const SizedBox(height: 24.5),
-                          _LoginButton(
-                            icon: Image.asset(
-                              'assets/images/google.png',
-                              width: 16,
-                              height: 16,
-                            ),
-                            label: 'Sign in with Google',
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pushReplacement(TabPage.route());
-                            },
-                          ),
-                          const SizedBox(height: 24.5),
-                          _LoginButton(
-                            icon: Image.asset(
-                              'assets/images/apple.png',
-                              width: 16,
-                              height: 16,
-                            ),
-                            label: 'Sign in with Apple',
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pushReplacement(TabPage.route());
-                            },
-                          ),
-                          const SizedBox(height: 24.5),
-                          const Text(
-                            'By signing in, you agree to the Terms of Service and Privacy Policy',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+          FrostedDialog(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Sign in',
+                  style: TextStyle(fontSize: 18),
                 ),
-              ),
+                const SizedBox(height: 24.5),
+                _LoginButton(
+                  icon: Image.asset(
+                    'assets/images/google.png',
+                    width: 16,
+                    height: 16,
+                  ),
+                  label: 'Sign in with Google',
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(TabPage.route());
+                  },
+                ),
+                const SizedBox(height: 24.5),
+                _LoginButton(
+                  icon: Image.asset(
+                    'assets/images/apple.png',
+                    width: 16,
+                    height: 16,
+                  ),
+                  label: 'Sign in with Apple',
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(TabPage.route());
+                  },
+                ),
+                const SizedBox(height: 24.5),
+                const Text(
+                  'By signing in, you agree to the Terms of Service and Privacy Policy',
+                ),
+              ],
             ),
           ),
         ],
@@ -219,6 +198,52 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _yellowBlobAnimationController..forward();
     await Future.delayed(const Duration(milliseconds: 200));
     _redBlobAnimationController..forward();
+  }
+}
+
+class FrostedDialog extends StatelessWidget {
+  const FrostedDialog({
+    Key? key,
+    required Widget child,
+    bool? hasBackdropShadow,
+  })  : _child = child,
+        _hasBackdropShadow = hasBackdropShadow ?? false,
+        super(key: key);
+
+  final Widget _child;
+  final bool _hasBackdropShadow;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: _hasBackdropShadow
+            ? const Color(0xFF000000).withOpacity(0.2)
+            : Colors.transparent,
+      ),
+      child: Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 280,
+              ),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF000000).withOpacity(0.2),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: _child,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
