@@ -4,8 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/gradient_border.dart';
 import 'package:spot/cubits/record/record_cubit.dart';
+import 'package:spot/pages/confirm_recording_page.dart';
 
 import '../components/app_scaffold.dart';
+import '../cubits/record/record_cubit.dart';
+import '../cubits/record/record_cubit.dart';
 import '../cubits/record/record_cubit.dart';
 
 class RecordPage extends StatelessWidget {
@@ -21,7 +24,14 @@ class RecordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      body: BlocBuilder<RecordCubit, RecordState>(
+      body: BlocConsumer<RecordCubit, RecordState>(
+        listener: (context, state) {
+          if (state is RecordCompleted) {
+            Navigator.of(context).pushReplacement(
+              ConfirmRecordingPage.route(videoFile: state.videoFile),
+            );
+          }
+        },
         builder: (context, state) {
           if (state is RecordInitial) {
             return preloader;
@@ -40,6 +50,23 @@ class RecordPage extends StatelessWidget {
               controller: state.controller,
               isPaused: true,
             );
+          } else if (state is RecordProcessing) {
+            return Column(
+              children: [
+                RecordPreview(
+                  controller: state.controller,
+                  isPaused: true,
+                ),
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF000000).withOpacity(0.2),
+                    ),
+                    child: preloader,
+                  ),
+                ),
+              ],
+            );
           } else if (state is RecordCompleted) {
             return RecordPreview(
               controller: state.controller,
@@ -48,7 +75,7 @@ class RecordPage extends StatelessWidget {
           } else if (state is RecordError) {
             return Center(child: Text(state.errorMessage));
           }
-          return Container();
+          throw UnimplementedError('Record page not picking up all the states');
         },
       ),
     );

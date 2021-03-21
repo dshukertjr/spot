@@ -23,9 +23,18 @@ class RecordPaused extends RecordState {
   final CameraController controller;
 }
 
-class RecordCompleted extends RecordState {
-  RecordCompleted({required this.controller});
+class RecordProcessing extends RecordState {
+  RecordProcessing({required this.controller});
   final CameraController controller;
+}
+
+class RecordCompleted extends RecordState {
+  RecordCompleted({
+    required this.controller,
+    required this.videoFile,
+  });
+  final CameraController controller;
+  final XFile videoFile;
 }
 
 class RecordError extends RecordState {

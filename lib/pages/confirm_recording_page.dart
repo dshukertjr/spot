@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/full_screen_video_player.dart';
 import 'package:spot/cubits/confirm_video/confirm_video_cubit.dart';
 
 import '../components/app_scaffold.dart';
@@ -25,7 +26,9 @@ class ConfirmRecordingPage extends StatelessWidget {
           if (state is ConfirmVideoInitial) {
             return preloader;
           } else if (state is ConfirmVideoPlaying) {
-            return Container();
+            return FullScreenVideoPlayer(
+              videoPlayerController: state.videoPlayerController,
+            );
           }
           throw UnimplementedError('Confirm Recording Page State not caught');
         },

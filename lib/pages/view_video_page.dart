@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/full_screen_video_player.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
@@ -82,20 +83,8 @@ class __VideoScreenState extends State<_VideoScreen> {
                 widget.video.thumbnailUrl,
                 fit: BoxFit.cover,
               )
-            : ClipRect(
-                child: OverflowBox(
-                  alignment: Alignment.center,
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      height: 1,
-                      child: AspectRatio(
-                        aspectRatio: widget.controller!.value.aspectRatio,
-                        child: VideoPlayer(widget.controller!),
-                      ),
-                    ),
-                  ),
-                ),
+            : FullScreenVideoPlayer(
+                videoPlayerController: widget.controller!,
               ),
         Positioned(
           left: 18,
