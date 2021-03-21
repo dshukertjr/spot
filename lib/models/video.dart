@@ -4,6 +4,7 @@ class Video {
   Video({
     required this.id,
     required this.videoUrl,
+    required this.videoImageUrl,
     required this.thumbnailUrl,
     required this.createdAt,
     required this.description,
@@ -12,6 +13,7 @@ class Video {
 
   final String id;
   final String videoUrl;
+  final String videoImageUrl;
   final String thumbnailUrl;
   final DateTime createdAt;
   final String description;

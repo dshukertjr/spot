@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:spot/models/video.dart';
 
 import '../../models/profile.dart';
-import '../../models/video.dart';
 import '../view_video_page.dart';
 
 class SearchTab extends StatelessWidget {
@@ -18,19 +18,7 @@ class SearchTab extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    ),
-    Video(
-      id: '',
-      createdAt: DateTime.now(),
-      createdBy: Profile(
-        id: '',
-        name: 'aaa',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
-      description: '',
-      thumbnailUrl:
+      videoImageUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
       videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
@@ -46,19 +34,7 @@ class SearchTab extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    ),
-    Video(
-      id: '',
-      createdAt: DateTime.now(),
-      createdBy: Profile(
-        id: '',
-        name: 'aaa',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
-      description: '',
-      thumbnailUrl:
+      videoImageUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
       videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
@@ -74,19 +50,7 @@ class SearchTab extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    ),
-    Video(
-      id: '',
-      createdAt: DateTime.now(),
-      createdBy: Profile(
-        id: '',
-        name: 'aaa',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
-      description: '',
-      thumbnailUrl:
+      videoImageUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
       videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
@@ -102,19 +66,7 @@ class SearchTab extends StatelessWidget {
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    ),
-    Video(
-      id: '',
-      createdAt: DateTime.now(),
-      createdBy: Profile(
-        id: '',
-        name: 'aaa',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
-      description: '',
-      thumbnailUrl:
+      videoImageUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
       videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
@@ -129,6 +81,72 @@ class SearchTab extends StatelessWidget {
       ),
       description: '',
       thumbnailUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoImageUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    ),
+    Video(
+      id: '',
+      createdAt: DateTime.now(),
+      createdBy: Profile(
+        id: '',
+        name: 'aaa',
+        imageUrl:
+            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
+      ),
+      description: '',
+      thumbnailUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoImageUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    ),
+    Video(
+      id: '',
+      createdAt: DateTime.now(),
+      createdBy: Profile(
+        id: '',
+        name: 'aaa',
+        imageUrl:
+            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
+      ),
+      description: '',
+      thumbnailUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoImageUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    ),
+    Video(
+      id: '',
+      createdAt: DateTime.now(),
+      createdBy: Profile(
+        id: '',
+        name: 'aaa',
+        imageUrl:
+            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
+      ),
+      description: '',
+      thumbnailUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoImageUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    ),
+    Video(
+      id: '',
+      createdAt: DateTime.now(),
+      createdBy: Profile(
+        id: '',
+        name: 'aaa',
+        imageUrl:
+            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
+      ),
+      description: '',
+      thumbnailUrl:
+          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      videoImageUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
       videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
     ),
