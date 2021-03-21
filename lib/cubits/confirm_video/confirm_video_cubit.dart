@@ -19,31 +19,41 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   final _flutterFFmpeg = FlutterFFmpeg();
 
   bool _doneCompressingVideo = false;
-  late File _compressedVideo;
-  late File _thumbnail;
-  late File _gif;
+  late final File _compressedVideo;
+  late final File _videoImage;
+  late final File _thumbnail;
+  late final File _gif;
 
   Future<void> initialize({required XFile videoFile}) async {
-    final videoPath = videoFile.path;
-    _videoPlayerController = VideoPlayerController.file(File(videoPath));
-    await _videoPlayerController.setLooping(true);
-    await _videoPlayerController.initialize();
-    await _videoPlayerController.play();
-    emit(ConfirmVideoPlaying(videoPlayerController: _videoPlayerController));
+    try {
+      final videoPath = videoFile.path;
+      _videoPlayerController = VideoPlayerController.file(File(videoPath));
+      await _videoPlayerController.setLooping(true);
+      await _videoPlayerController.initialize();
+      await _videoPlayerController.play();
+      emit(ConfirmVideoPlaying(videoPlayerController: _videoPlayerController));
 
-    final tempDir = await getTemporaryDirectory();
-    final videoTempPath = '${tempDir.path}/temp.mp4';
-    _compressedVideo =
-        await _compressVideo(videoPath: videoPath, tempPath: videoTempPath);
+      final tempDir = await getTemporaryDirectory();
+      final videoTempPath = '${tempDir.path}/temp.mp4';
+      _compressedVideo =
+          await _compressVideo(videoPath: videoPath, tempPath: videoTempPath);
 
-    final thubmnailTempPath = '${tempDir.path}/tempThubm.jpg';
-    _thumbnail = await _getVideoThumbnail(
-        videoPath: videoPath, tempPath: thubmnailTempPath);
+      final videoImageTempPath = '${tempDir.path}/tempImage.jpg';
+      _videoImage = await _getVideoImage(
+          videoPath: videoPath, tempPath: videoImageTempPath);
 
-    final gifTempPath = '${tempDir.path}/tempGif.gif';
-    _gif = await _getGif(videoPath: videoPath, tempPath: gifTempPath);
+      final thubmnailTempPath = '${tempDir.path}/tempThumb.jpg';
+      _thumbnail = await _getVideoThumbnail(
+          videoPath: _videoImage.path, tempPath: thubmnailTempPath);
 
-    _doneCompressingVideo = true;
+      final gifTempPath = '${tempDir.path}/temp.gif';
+      _gif = await _getGif(videoPath: videoPath, tempPath: gifTempPath);
+
+      _doneCompressingVideo = true;
+    } catch (e) {
+      //TODO handle error in better way
+      emit(ConfirmVideoError());
+    }
   }
 
   Future<void> post() async {
@@ -76,12 +86,28 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     return File(tempPath);
   }
 
+  Future<File> _getVideoImage({
+    required String videoPath,
+    required String tempPath,
+  }) async {
+    final command =
+        '-y -i $videoPath -vframes 1 -filter:v scale="-2:-720" $tempPath';
+    final res = await _flutterFFmpeg.execute(command);
+    if (res != 0) {
+      throw PlatformException(
+        code: 'ffmpeg error',
+        message: 'ffmpeg failed to get video image',
+      );
+    }
+    return File(tempPath);
+  }
+
   Future<File> _getVideoThumbnail({
     required String videoPath,
     required String tempPath,
   }) async {
     final command =
-        '-y -i $videoPath -vf "scale=100:-2, crop=100:100:exact=1" $tempPath';
+        '-y -i $videoPath -vf "scale=200:-2, crop=200:200:exact=1" $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(

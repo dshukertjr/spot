@@ -60,6 +60,10 @@ class ConfirmRecordingPage extends StatelessWidget {
             );
           } else if (state is ConfirmVideoUploaded) {
             return preloader;
+          } else if (state is ConfirmVideoState) {
+            return const Center(
+              child: Text('Error occured. Please retry'),
+            );
           }
           throw UnimplementedError('Confirm Recording Page State not caught');
         },

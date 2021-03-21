@@ -18,3 +18,5 @@ class ConfirmVideoTranscoding extends ConfirmVideoState {
 }
 
 class ConfirmVideoUploaded extends ConfirmVideoState {}
+
+class ConfirmVideoError extends ConfirmVideoState {}
