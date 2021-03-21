@@ -86,7 +86,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     if (res != 0) {
       throw PlatformException(
         code: 'ffmpeg error',
-        message: 'ffmpeg failed to compress video',
+        message: 'ffmpeg failed to get image thumbnail',
       );
     }
     return File(tempPath);
@@ -101,7 +101,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     if (res != 0) {
       throw PlatformException(
         code: 'ffmpeg error',
-        message: 'ffmpeg failed to compress video',
+        message: 'ffmpeg failed to get gif',
       );
     }
     return File(tempPath);
