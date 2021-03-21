@@ -13,6 +13,7 @@ class RecordCubit extends Cubit<RecordState> {
       final cameras = await availableCameras();
       _controller = CameraController(cameras.first, ResolutionPreset.high);
       await _controller.initialize();
+      await _controller.prepareForVideoRecording();
       emit(RecordReady(controller: _controller));
     } catch (e) {
       emit(RecordError('Camera initialize failed'));
@@ -37,7 +38,7 @@ class RecordCubit extends Cubit<RecordState> {
   Future<void> doneRecording() async {
     emit(RecordCompleted(controller: _controller));
     // stopVideoRecording takes about a whole second
-    await _controller.stopVideoRecording();
+    final some = await _controller.stopVideoRecording();
     // TODO do something that will take the user to the next step
   }
 

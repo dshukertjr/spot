@@ -160,6 +160,8 @@ class _RecordPreviewState extends State<RecordPreview> {
     );
   }
 
+  /// Displayes the gauge as well as stops the video recording
+  /// when the gauge goes to the end
   Positioned _gauge(BuildContext context) {
     return Positioned(
       top: MediaQuery.of(context).padding.top + 16,
@@ -385,6 +387,8 @@ class __RecordingGaugeIndicatorState extends State<_RecordingGaugeIndicator>
   }
 
   void _checkForMinimumDuration() {
+    // If the video recording is above 20% of the max time
+    // (6 seconds), then allow saving
     if (_animationController.value > 0.3) {
       widget._onPastMinimumDuration();
     }
