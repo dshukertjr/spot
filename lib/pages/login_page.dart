@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
 
 import '../components/app_scaffold.dart';
@@ -198,52 +199,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _yellowBlobAnimationController..forward();
     await Future.delayed(const Duration(milliseconds: 200));
     _redBlobAnimationController..forward();
-  }
-}
-
-class FrostedDialog extends StatelessWidget {
-  const FrostedDialog({
-    Key? key,
-    required Widget child,
-    bool? hasBackdropShadow,
-  })  : _child = child,
-        _hasBackdropShadow = hasBackdropShadow ?? false,
-        super(key: key);
-
-  final Widget _child;
-  final bool _hasBackdropShadow;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: _hasBackdropShadow
-            ? const Color(0xFF000000).withOpacity(0.2)
-            : Colors.transparent,
-      ),
-      child: Center(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 280,
-              ),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF000000).withOpacity(0.2),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _child,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
 
