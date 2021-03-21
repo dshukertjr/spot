@@ -9,7 +9,6 @@ import 'package:spot/pages/confirm_recording_page.dart';
 import '../components/app_scaffold.dart';
 import '../cubits/record/record_cubit.dart';
 import '../cubits/record/record_cubit.dart';
-import '../cubits/record/record_cubit.dart';
 
 class RecordPage extends StatelessWidget {
   static Route<void> route() {
@@ -51,7 +50,8 @@ class RecordPage extends StatelessWidget {
               isPaused: true,
             );
           } else if (state is RecordProcessing) {
-            return Column(
+            return Stack(
+              fit: StackFit.expand,
               children: [
                 RecordPreview(
                   controller: state.controller,
@@ -265,7 +265,7 @@ class __RecordingCompleteButtonState extends State<_RecordingCompleteButton>
             child: InkWell(
               onTap: widget._isPastMimimumDuration
                   ? () {
-                      ///TODO open description window
+                      BlocProvider.of<RecordCubit>(context).doneRecording();
                     }
                   : null,
               child: Ink(
@@ -416,7 +416,7 @@ class __RecordingGaugeIndicatorState extends State<_RecordingGaugeIndicator>
   void _checkForMinimumDuration() {
     // If the video recording is above 20% of the max time
     // (6 seconds), then allow saving
-    if (_animationController.value > 0.3) {
+    if (_animationController.value > 0.2) {
       widget._onPastMinimumDuration();
     }
   }

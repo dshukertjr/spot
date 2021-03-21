@@ -7,17 +7,20 @@ class GradientButton extends StatelessWidget {
     Key? key,
     required void Function() onPressed,
     required Widget child,
-  })   : _onPressed = onPressed,
+    double? strokeWidth,
+  })  : _onPressed = onPressed,
         _child = child,
+        _strokeWidth = strokeWidth ?? 1,
         super(key: key);
 
   final void Function() _onPressed;
   final Widget _child;
+  final double _strokeWidth;
 
   @override
   Widget build(BuildContext context) {
     return GradientBorder(
-      strokeWidth: 1,
+      strokeWidth: _strokeWidth,
       borderRadius: 4,
       gradient: const LinearGradient(
         begin: Alignment.centerLeft,
