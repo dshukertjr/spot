@@ -24,6 +24,12 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   late final File _thumbnail;
   late final File _gif;
 
+  @override
+  Future<void> close() {
+    _videoPlayerController.dispose();
+    return super.close();
+  }
+
   Future<void> initialize({required XFile videoFile}) async {
     try {
       final videoPath = videoFile.path;

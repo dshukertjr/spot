@@ -8,6 +8,12 @@ class RecordCubit extends Cubit<RecordState> {
   RecordCubit() : super(RecordInitial());
   late CameraController _controller;
 
+  @override
+  Future<void> close() {
+    _controller.dispose();
+    return super.close();
+  }
+
   Future<void> initialize() async {
     try {
       final cameras = await availableCameras();
@@ -43,11 +49,5 @@ class RecordCubit extends Cubit<RecordState> {
     emit(
       RecordCompleted(controller: _controller, videoFile: videoFile),
     );
-  }
-
-  @override
-  Future<void> close() {
-    _controller.dispose();
-    return super.close();
   }
 }
