@@ -10,7 +10,7 @@ create table public.users (
 comment on table pulbic.users is 'Holds all of users profile information';
 
 create table public.posts (
-  id uuid not null primary key,
+  id uuid not null primary key DEFAULT uuid_generate_v4 (),
   creator_uid uuid references public.users not null,
   created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
   video_url text,
@@ -37,12 +37,26 @@ create table public.likes (
 );
 comment on table public.likes is 'Holds all of the like data created by thee users.';
 
+create table public.hashtags (
+    id uuid not null primary key,
+    text varchar(120) UNIQUE,
+    created_at timestamp with time zone default timezone('utc' :: text, now()) not null
+);
+comment on table public.hashtags is 'Holds list of hashtags. ';
+
+create table public.posts_hashtags (
+    id uuid not null primary key,
+    video_id uuid references public.posts not null,
+    hashtag_id uuid references public.hashtags not null
+);
+comment on table pulbic.posts_hashtags is 'Holds relationships between posts and hashtags';
+
 create table public.follow (
     following_user_id not null primary key,
     followed_user_id not null primary key,
     followed_at timestamp with time zone default timezone('utc' :: text, now()) not null
 );
-comment on table public.follow is 'Creates follow follower relationships';
+comment on table public.follow is 'Creates follow follower relationships.';
 ```
 
 [![Very Good Ventures][logo]][very_good_ventures_link]
