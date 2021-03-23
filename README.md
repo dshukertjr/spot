@@ -1,5 +1,50 @@
 # Spot
 
+```sql
+create table public.users (
+  id uuid references auth.users not null primary key,
+  name varchar(18) UNIQUE,
+  description varchar(320),
+  image_url text
+);
+comment on table pulbic.users is 'Holds all of users profile information';
+
+create table public.posts (
+  id uuid not null primary key,
+  creator_uid uuid references public.users not null,
+  created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
+  video_url text,
+  thumbnail_url text,
+  gif_url text,
+  description varchar(320)
+);
+comment on table public.rooms is 'Holds all the video posts.';
+
+create table public.comments (
+  id uuid not null primary key,
+  post_id uuid references public.posts not null,
+  creator_uid uuid references public.users not null,
+  created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
+  text varchar(320)
+);
+comment on table public.comments is 'Holds all of the comments created by the users.';
+
+create table public.likes (
+    id uuid not null primary key,
+    post_id uuid references public.posts not null,
+    creator_uid uuid references public.users not null,
+    created_at timestamp with time zone default timezone('utc' :: text, now()) not null
+);
+comment on table public.likes is 'Holds all of the like data created by thee users.';
+
+create table public.follow (
+    following_user_id not null primary key,
+    followed_user_id not null primary key,
+    followed_at timestamp with time zone default timezone('utc' :: text, now()) not null
+);
+comment on table public.follow is 'Creates follow follower relationships';
+```
+
 [![Very Good Ventures][logo]][very_good_ventures_link]
 
 Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
