@@ -5,13 +5,17 @@ CREATE TABLE IF NOT EXISTS public.users (
   id uuid references auth.users not null primary key,
   name varchar(18) UNIQUE,
   description varchar(320),
-  image_url text
+  image_url text,
+  
+  constraint username_length check (char_length(username) >= 4)
 );
 comment on table public.users is 'Holds all of users profile information';
+
 alter table public.users enable row level security;
 create policy "Public profiles are viewable by everyone." on profiles for select using (true);
 create policy "Users can insert their own profile." on profiles for insert with check (auth.uid() = id);
 create policy "Users can update own profile." on profiles for update using (auth.uid() = id);
+
 
 CREATE TABLE IF NOT EXISTS public.posts (
   id uuid not null primary key DEFAULT uuid_generate_v4 (),
