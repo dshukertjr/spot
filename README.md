@@ -1,26 +1,31 @@
 # Spot
 
 ```sql
-create table public.users (
+CREATE TABLE IF NOT EXISTS public.users (
   id uuid references auth.users not null primary key,
   name varchar(18) UNIQUE,
   description varchar(320),
   image_url text
 );
-comment on table pulbic.users is 'Holds all of users profile information';
+comment on table public.users is 'Holds all of users profile information';
+alter table public.users enable row level security;
+create policy "Public profiles are viewable by everyone." on profiles for select using (true);
+create policy "Users can insert their own profile." on profiles for insert with check (auth.uid() = id);
+create policy "Users can update own profile." on profiles for update using (auth.uid() = id);
 
-create table public.posts (
+CREATE TABLE IF NOT EXISTS public.posts (
   id uuid not null primary key DEFAULT uuid_generate_v4 (),
   creator_uid uuid references public.users not null,
   created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
   video_url text,
   thumbnail_url text,
   gif_url text,
-  description varchar(320)
+  description varchar(320),
+  location geography(POINT)
 );
-comment on table public.rooms is 'Holds all the video posts.';
+comment on table public.posts is 'Holds all the video posts.';
 
-create table public.comments (
+CREATE TABLE IF NOT EXISTS public.comments (
   id uuid not null primary key,
   post_id uuid references public.posts not null,
   creator_uid uuid references public.users not null,
@@ -29,7 +34,7 @@ create table public.comments (
 );
 comment on table public.comments is 'Holds all of the comments created by the users.';
 
-create table public.likes (
+CREATE TABLE IF NOT EXISTS public.likes (
     id uuid not null primary key,
     post_id uuid references public.posts not null,
     creator_uid uuid references public.users not null,
@@ -37,24 +42,25 @@ create table public.likes (
 );
 comment on table public.likes is 'Holds all of the like data created by thee users.';
 
-create table public.hashtags (
+CREATE TABLE IF NOT EXISTS public.hashtags (
     id uuid not null primary key,
     text varchar(120) UNIQUE,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null
 );
 comment on table public.hashtags is 'Holds list of hashtags. ';
 
-create table public.posts_hashtags (
+CREATE TABLE IF NOT EXISTS public.posts_hashtags (
     id uuid not null primary key,
     video_id uuid references public.posts not null,
     hashtag_id uuid references public.hashtags not null
 );
-comment on table pulbic.posts_hashtags is 'Holds relationships between posts and hashtags';
+comment on table public.posts_hashtags is 'Holds relationships between posts and hashtags';
 
-create table public.follow (
-    following_user_id not null primary key,
-    followed_user_id not null primary key,
-    followed_at timestamp with time zone default timezone('utc' :: text, now()) not null
+CREATE TABLE IF NOT EXISTS public.follow (
+    following_user_id uuid references auth.users not null,
+    followed_user_id uuid references auth.users not null,
+    followed_at timestamp with time zone default timezone('utc' :: text, now()) not null,
+    PRIMARY KEY (following_user_id, followed_user_id)
 );
 comment on table public.follow is 'Creates follow follower relationships.';
 ```
