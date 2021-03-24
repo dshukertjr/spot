@@ -18,14 +18,14 @@ create policy "Users can update own profile." on public.users for update using (
 
 
 CREATE TABLE IF NOT EXISTS public.posts (
-  id uuid not null primary key DEFAULT uuid_generate_v4 (),
-  creator_uid uuid references public.users not null,
-  created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-  video_url text,
-  thumbnail_url text,
-  gif_url text,
-  description varchar(320),
-  location geography(POINT)
+    id uuid not null primary key DEFAULT uuid_generate_v4 (),
+    creator_uid uuid references public.users not null,
+    created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
+    video_url text,
+    thumbnail_url text,
+    gif_url text,
+    description varchar(320),
+    location geography(POINT)
 );
 comment on table public.posts is 'Holds all the video posts.';
 
@@ -33,16 +33,26 @@ alter table public.posts enable row level security;
 create policy "Posts are viewable by everyone. " on public.posts for select using (true);
 create policy "Users can insert their own posts." on public.posts for insert with check (auth.uid() = creator_uid);
 create policy "Users can update own posts." on public.posts for update using (auth.uid() = creator_uid);
+create policy "Users can delete own posts." on public.posts for delete using (auth.uid() = creator_uid);
 
 
 CREATE TABLE IF NOT EXISTS public.comments (
-  id uuid not null primary key,
-  post_id uuid references public.posts not null,
-  creator_uid uuid references public.users not null,
-  created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-  text varchar(320)
+    id uuid not null primary key,
+    post_id uuid references public.posts not null,
+    creator_uid uuid references public.users not null,
+    created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
+    text varchar(320),
+
+    constraint comment_length check (char_length(text) >= 1)
 );
 comment on table public.comments is 'Holds all of the comments created by the users.';
+
+alter table public.comments enable row level security;
+create policy "Comments are viewable by everyone. " on public.comments for select using (true);
+create policy "Users can insert their own comments." on public.comments for insert with check (auth.uid() = creator_uid);
+create policy "Users can update own comments." on public.comments for update using (auth.uid() = creator_uid);
+create policy "Users can delete own comments." on public.comments for delete using (auth.uid() = creator_uid);
+
 
 CREATE TABLE IF NOT EXISTS public.likes (
     id uuid not null primary key,
@@ -51,6 +61,12 @@ CREATE TABLE IF NOT EXISTS public.likes (
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null
 );
 comment on table public.likes is 'Holds all of the like data created by thee users.';
+
+alter table public.likes enable row level security;
+create policy "Likes are viewable by everyone. " on public.likes for select using (true);
+create policy "Users can insert their own likes." on public.likes for insert with check (auth.uid() = creator_uid);
+create policy "Users can delete own likes." on public.likes for delete using (auth.uid() = creator_uid);
+
 
 CREATE TABLE IF NOT EXISTS public.hashtags (
     id uuid not null primary key,
