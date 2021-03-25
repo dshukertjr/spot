@@ -64,8 +64,8 @@ comment on table public.likes is 'Holds all of the like data created by thee use
 
 alter table public.likes enable row level security;
 create policy "Likes are viewable by everyone. " on public.likes for select using (true);
-create policy "Users can insert their own likes." on public.likes for insert with check (auth.uid() = creator_uid);
-create policy "Users can delete own likes." on public.likes for delete using (auth.uid() = creator_uid);
+create policy "Users can insert their own likes." on public.likes for insert with check (auth.uid() = liked_uid);
+create policy "Users can delete own likes." on public.likes for delete using (auth.uid() = liked_uid);
 
 
 CREATE TABLE IF NOT EXISTS public.follow (
