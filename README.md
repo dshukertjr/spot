@@ -55,10 +55,10 @@ create policy "Users can delete own comments." on public.comments for delete usi
 
 
 CREATE TABLE IF NOT EXISTS public.likes (
-    id uuid not null primary key,
     post_id uuid references public.posts not null,
-    creator_uid uuid references public.users not null,
-    created_at timestamp with time zone default timezone('utc' :: text, now()) not null
+    liked_uid uuid references public.users not null,
+    created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
+    PRIMARY KEY (post_id, liked_uid)
 );
 comment on table public.likes is 'Holds all of the like data created by thee users.';
 
@@ -68,20 +68,6 @@ create policy "Users can insert their own likes." on public.likes for insert wit
 create policy "Users can delete own likes." on public.likes for delete using (auth.uid() = creator_uid);
 
 
-CREATE TABLE IF NOT EXISTS public.hashtags (
-    id uuid not null primary key,
-    text varchar(120) UNIQUE,
-    created_at timestamp with time zone default timezone('utc' :: text, now()) not null
-);
-comment on table public.hashtags is 'Holds list of hashtags. ';
-
-CREATE TABLE IF NOT EXISTS public.posts_hashtags (
-    id uuid not null primary key,
-    video_id uuid references public.posts not null,
-    hashtag_id uuid references public.hashtags not null
-);
-comment on table public.posts_hashtags is 'Holds relationships between posts and hashtags';
-
 CREATE TABLE IF NOT EXISTS public.follow (
     following_user_id uuid references auth.users not null,
     followed_user_id uuid references auth.users not null,
@@ -89,6 +75,12 @@ CREATE TABLE IF NOT EXISTS public.follow (
     PRIMARY KEY (following_user_id, followed_user_id)
 );
 comment on table public.follow is 'Creates follow follower relationships.';
+
+alter table public.follow enable row level security;
+create policy "Follows are viewable by everyone. " on public.follow for select using (true);
+create policy "Users can follow anyone" on public.follow for insert with check (auth.uid() = following_user_id);
+create policy "Users can unfollow their follows. " on public.follow for delete using (auth.uid() = following_user_id);
+create policy "Users can remove their followers" on public.follow for delete using (auth.uid() = followed_user_id);
 ```
 
 [![Very Good Ventures][logo]][very_good_ventures_link]
