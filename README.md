@@ -86,7 +86,7 @@ insert into storage.buckets (id, name) values ('posts', 'posts');
 insert into storage.buckets (id, name) values ('profiles', 'profiles');
 create policy "Posts buckets are public" on storage.objects for select using (bucket_id = 'posts');
 create policy "Posts and profiles buckets are public" on storage.objects for select using (bucket_id = 'profiles');
-create policy "uid has to be the first element in path_tokens" onstorage.objects for insert with check (auth.uid() = path_tokens[1]);
+create policy "uid has to be the first element in path_tokens" on storage.objects for insert with check (auth.uid()::text = path_tokens[1] and array_length(path_tokens, 1) = 2);
 ```
 
 [![Very Good Ventures][logo]][very_good_ventures_link]
