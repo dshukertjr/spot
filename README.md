@@ -1,7 +1,7 @@
 # Spot
 
 ```sql
-CREATE TABLE IF NOT EXISTS public.users (
+create table if not exists public.users (
   id uuid references auth.users not null primary key,
   name varchar(18) UNIQUE,
   description varchar(320),
@@ -17,7 +17,7 @@ create policy "Users can insert their own profile." on public.users for insert w
 create policy "Users can update own profile." on public.users for update using (auth.uid() = id);
 
 
-CREATE TABLE IF NOT EXISTS public.posts (
+create table if not exists public.posts (
     id uuid not null primary key DEFAULT uuid_generate_v4 (),
     creator_uid uuid references public.users not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
@@ -36,7 +36,7 @@ create policy "Users can update own posts." on public.posts for update using (au
 create policy "Users can delete own posts." on public.posts for delete using (auth.uid() = creator_uid);
 
 
-CREATE TABLE IF NOT EXISTS public.comments (
+create table if not exists public.comments (
     id uuid not null primary key,
     post_id uuid references public.posts not null,
     creator_uid uuid references public.users not null,
@@ -54,7 +54,7 @@ create policy "Users can update own comments." on public.comments for update usi
 create policy "Users can delete own comments." on public.comments for delete using (auth.uid() = creator_uid);
 
 
-CREATE TABLE IF NOT EXISTS public.likes (
+create table if not exists public.likes (
     post_id uuid references public.posts not null,
     liked_uid uuid references public.users not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
@@ -68,7 +68,7 @@ create policy "Users can insert their own likes." on public.likes for insert wit
 create policy "Users can delete own likes." on public.likes for delete using (auth.uid() = liked_uid);
 
 
-CREATE TABLE IF NOT EXISTS public.follow (
+create table if not exists public.follow (
     following_user_id uuid references auth.users not null,
     followed_user_id uuid references auth.users not null,
     followed_at timestamp with time zone default timezone('utc' :: text, now()) not null,
@@ -79,8 +79,14 @@ comment on table public.follow is 'Creates follow follower relationships.';
 alter table public.follow enable row level security;
 create policy "Follows are viewable by everyone. " on public.follow for select using (true);
 create policy "Users can follow anyone" on public.follow for insert with check (auth.uid() = following_user_id);
-create policy "Users can unfollow their follows. " on public.follow for delete using (auth.uid() = following_user_id);
-create policy "Users can remove their followers" on public.follow for delete using (auth.uid() = followed_user_id);
+create policy "Users can unfollow their follows and ssers can remove their followers" on public.follow for delete using (auth.uid() = following_user_id or auth.uid() = followed_user_id);
+
+-- Configure storage
+insert into storage.buckets (id, name) values ('posts', 'posts');
+insert into storage.buckets (id, name) values ('profiles', 'profiles');
+create policy "Posts buckets are public" on storage.objects for select using (bucket_id = 'posts');
+create policy "Posts and profiles buckets are public" on storage.objects for select using (bucket_id = 'profiles');
+create policy "uid has to be the first element in path_tokens" onstorage.objects for insert with check (auth.uid() = path_tokens[1]);
 ```
 
 [![Very Good Ventures][logo]][very_good_ventures_link]
