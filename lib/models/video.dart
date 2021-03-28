@@ -18,4 +18,8 @@ class Video {
   final DateTime createdAt;
   final String description;
   final Profile createdBy;
+
+  Future<double> getDistanceInMeter() async {
+    return 1000;
+  }
 }
