@@ -14,7 +14,7 @@ comment on table public.users is 'Holds all of users profile information';
 alter table public.users enable row level security;
 create policy "Public profiles are viewable by everyone." on public.users for select using (true);
 create policy "Users can insert their own profile." on public.users for insert with check (auth.uid() = id);
-create policy "Users can update own profile." on public.users for update using (auth.uid() = id);
+create policy "Users can update own profile." on public.users for update with check (auth.uid() = id);
 
 
 create table if not exists public.posts (
@@ -32,7 +32,7 @@ comment on table public.posts is 'Holds all the video posts.';
 alter table public.posts enable row level security;
 create policy "Posts are viewable by everyone. " on public.posts for select using (true);
 create policy "Users can insert their own posts." on public.posts for insert with check (auth.uid() = creator_uid);
-create policy "Users can update own posts." on public.posts for update using (auth.uid() = creator_uid);
+create policy "Users can update own posts." on public.posts for update with check (auth.uid() = creator_uid);
 create policy "Users can delete own posts." on public.posts for delete using (auth.uid() = creator_uid);
 
 
@@ -50,7 +50,7 @@ comment on table public.comments is 'Holds all of the comments created by the us
 alter table public.comments enable row level security;
 create policy "Comments are viewable by everyone. " on public.comments for select using (true);
 create policy "Users can insert their own comments." on public.comments for insert with check (auth.uid() = creator_uid);
-create policy "Users can update own comments." on public.comments for update using (auth.uid() = creator_uid);
+create policy "Users can update own comments." on public.comments for update with check (auth.uid() = creator_uid);
 create policy "Users can delete own comments." on public.comments for delete using (auth.uid() = creator_uid);
 
 
