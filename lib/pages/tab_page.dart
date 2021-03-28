@@ -33,7 +33,7 @@ class _TabPageState extends State<TabPage> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          MapTab(),
+          MapTab.create(),
           SearchTab(),
           NotificationsTab(),
           ProfileTab(),

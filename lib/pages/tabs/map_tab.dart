@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -14,6 +13,13 @@ import 'package:spot/models/video.dart';
 import 'package:spot/pages/view_video_page.dart';
 
 class MapTab extends StatelessWidget {
+  static Widget create() {
+    return BlocProvider<VideosCubit>(
+      create: (context) => VideosCubit()..initialize(),
+      child: MapTab(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<VideosCubit, VideosState>(
@@ -122,10 +128,17 @@ class __MapState extends State<_Map> {
     final canvas = Canvas(pictureRecorder);
     final boundingRect = Rect.fromLTWH(0.0, 0.0, size, size);
 
-    final paint = Paint()
-      ..shader = redOrangeGradient.createShader(
+    /// Adding gradient to the background of the marker
+    final paint = Paint();
+    if (video.id == 'aaa') {
+      paint.shader = blueGradient.createShader(
         boundingRect,
       );
+    } else {
+      paint.shader = redOrangeGradient.createShader(
+        boundingRect,
+      );
+    }
 
     // start adding images
     final res = await http.get(Uri.parse(video.thumbnailUrl));
@@ -133,6 +146,7 @@ class __MapState extends State<_Map> {
     final imageCodec = await ui.instantiateImageCodec(
       imageBytes,
       targetWidth: imageSize.toInt(),
+      targetHeight: imageSize.toInt(),
     );
     final frameInfo = await imageCodec.getNextFrame();
     final byteData = await frameInfo.image.toByteData(
@@ -173,7 +187,7 @@ class __MapState extends State<_Map> {
       onTap: onTap,
       consumeTapEvents: true,
       markerId: MarkerId(video.id),
-      position: const LatLng(0, 0),
+      position: video.position,
       icon: BitmapDescriptor.fromBytes(markerIcon),
     );
   }
