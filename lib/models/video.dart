@@ -1,3 +1,4 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spot/models/profile.dart';
 
 class Video {
@@ -9,6 +10,7 @@ class Video {
     required this.createdAt,
     required this.description,
     required this.createdBy,
+    required this.position,
   });
 
   final String id;
@@ -18,6 +20,7 @@ class Video {
   final DateTime createdAt;
   final String description;
   final Profile createdBy;
+  final LatLng position;
 
   Future<double> getDistanceInMeter() async {
     return 1000;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spot/models/video.dart';
 
 import '../../models/profile.dart';
@@ -21,6 +22,7 @@ class SearchTab extends StatelessWidget {
       videoImageUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
       videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+      position: LatLng(37.43296265331129, -122.08832357078792),
     ),
   ];
   @override
