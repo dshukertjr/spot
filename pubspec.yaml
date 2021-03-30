@@ -20,6 +20,7 @@ dependencies:
   flutter_ffmpeg: ^0.4.0
   path_provider: ^2.0.1
   http: ^0.13.1
+  geolocator: ^7.0.1
 
 dev_dependencies:
   flutter_test:
