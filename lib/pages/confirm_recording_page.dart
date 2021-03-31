@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/full_screen_video_player.dart';
@@ -144,7 +145,7 @@ class __VideoConfirmationPageState extends State<_VideoConfirmationPage> {
         child: Row(
           children: [
             /// TODO update icons to feather icons
-            const Icon(Icons.thumb_up),
+            const Icon(FeatherIcons.thumbsUp),
             const SizedBox(width: 4),
             const Text('Looks Good'),
           ],

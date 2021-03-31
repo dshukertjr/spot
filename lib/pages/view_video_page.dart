@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/full_screen_video_player.dart';
 import 'package:spot/components/gradient_button.dart';
@@ -109,7 +110,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                   ),
                   const SizedBox(height: 36),
                   IconButton(
-                    icon: const Icon(Icons.comment),
+                    icon: const Icon(FeatherIcons.messageCircle),
                     onPressed: () async {
                       await BlocProvider.of<VideoCubit>(context).pause();
                       setState(() {
@@ -119,7 +120,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                   ),
                   const SizedBox(height: 36),
                   IconButton(
-                    icon: const Icon(Icons.favorite),
+                    icon: const Icon(FeatherIcons.heart),
                     onPressed: () {},
                   ),
                   const SizedBox(height: 36),

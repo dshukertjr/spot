@@ -160,6 +160,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "7.0.0"
+  flutter_feather_icons:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "2f432a16d2e75385b7f54a071d0605dffae1a858"
+      url: "https://github.com/NikSWE/flutter_feather_icons"
+    source: git
+    version: "1.0.5-nullsafety.0"
   flutter_ffmpeg:
     dependency: "direct main"
     description:

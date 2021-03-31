@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spot/models/video.dart';
 
@@ -38,7 +39,7 @@ class SearchTab extends StatelessWidget {
             child: TextFormField(
               decoration: const InputDecoration(
                 hintText: 'Search away my friend',
-                suffixIcon: Icon(Icons.search),
+                suffixIcon: Icon(FeatherIcons.search),
               ),
             ),
           ),

@@ -21,6 +21,9 @@ dependencies:
   path_provider: ^2.0.1
   http: ^0.13.1
   geolocator: ^7.0.1
+  flutter_feather_icons:
+    git:
+      url: https://github.com/NikSWE/flutter_feather_icons
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/gradient_border.dart';
 import 'package:spot/pages/record_page.dart';
@@ -58,18 +59,18 @@ class _TabPageState extends State<TabPage> {
               children: [
                 _bottomNavigationButton(
                   label: 'Home',
-                  icon: const Icon(Icons.home),
+                  icon: const Icon(FeatherIcons.home),
                   tabIndex: 0,
                 ),
                 _bottomNavigationButton(
                   label: 'Search',
-                  icon: const Icon(Icons.search),
+                  icon: const Icon(FeatherIcons.search),
                   tabIndex: 1,
                 ),
                 const _RecordButton(),
                 _bottomNavigationButton(
                   label: 'Notifications',
-                  icon: const Icon(Icons.notifications),
+                  icon: const Icon(FeatherIcons.bell),
                   tabIndex: 2,
                 ),
                 _bottomNavigationButton(
