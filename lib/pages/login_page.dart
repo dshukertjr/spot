@@ -1,10 +1,12 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
+import 'package:spot/models/profile.dart';
 import 'package:spot/pages/splash_page.dart';
 
 import '../components/app_scaffold.dart';
@@ -279,14 +281,23 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             final res = await supabaseClient.auth.signIn(
                 email: _emailController.text,
                 password: _passwordController.text);
+            final error = res.error;
+            if (error != null) {
+              setState(() {
+                _isLoading = false;
+              });
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(error.message)));
+
+              return;
+            }
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } catch (e) {
             setState(() {
               _isLoading = false;
             });
-
             ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Error signing up')));
+                const SnackBar(content: Text('Error signing in')));
           }
         },
       ),
@@ -339,8 +350,21 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final res = supabaseClient.auth
+            final res = await supabaseClient.auth
                 .signUp(_emailController.text, _passwordController.text);
+            final error = res.error;
+            if (error != null) {
+              setState(() {
+                _isLoading = false;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(error.message),
+                ),
+              );
+
+              return;
+            }
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } catch (e) {
             setState(() {

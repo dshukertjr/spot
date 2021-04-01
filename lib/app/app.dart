@@ -31,6 +31,14 @@ class App extends StatelessWidget {
           ),
           isDense: true,
         ),
+        snackBarTheme: SnackBarThemeData(
+          backgroundColor: const Color(0xFFFFFFFF).withOpacity(0.7),
+          elevation: 10,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
       ),
       localizationsDelegates: [
         AppLocalizations.delegate,
