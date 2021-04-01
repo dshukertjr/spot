@@ -281,6 +281,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             final res = await supabaseClient.auth.signIn(
                 email: _emailController.text,
                 password: _passwordController.text);
+            final data = res.data;
             final error = res.error;
             if (error != null) {
               setState(() {
@@ -291,6 +292,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
               return;
             }
+
+            // Store current session
+            await localStorage.write(
+                key: persistantSessionKey, value: data!.persistSessionString);
+
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } catch (e) {
             setState(() {
@@ -352,6 +358,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             });
             final res = await supabaseClient.auth
                 .signUp(_emailController.text, _passwordController.text);
+            final data = res.data;
             final error = res.error;
             if (error != null) {
               setState(() {
@@ -365,6 +372,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
               return;
             }
+
+            // Store current session
+            await localStorage.write(
+                key: persistantSessionKey, value: data!.persistSessionString);
+
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } catch (e) {
             setState(() {

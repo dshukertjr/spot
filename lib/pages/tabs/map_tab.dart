@@ -60,7 +60,7 @@ class __MapState extends State<_Map> {
       mapType: MapType.normal,
       zoomControlsEnabled: false,
       myLocationEnabled: true,
-      myLocationButtonEnabled: true,
+      myLocationButtonEnabled: false,
       initialCameraPosition: const CameraPosition(
         target: LatLng(37.43296265331129, -122.08832357078792),
         tilt: 59.440717697143555,
