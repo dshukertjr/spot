@@ -13,7 +13,9 @@
         "--flavor",
         "development",
         "--target",
-        "lib/main_development.dart"
+        "lib/main_development.dart",
+        "--dart-define=SUPABASE_URL=https://uolvtdzkvkolsynuhmzh.supabase.co",
+        "--dart-define=SUPABASE_ANNON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYxNjUzOTE5MSwiZXhwIjoxOTMyMTE1MTkxfQ.wBv3mCxuQzf-xdn9c6m262t_j2sTiMOLPRRB6U77G7U"
       ]
     },
     {

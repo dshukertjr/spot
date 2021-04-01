@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:supabase/supabase.dart';
+
+const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+const supabaseannonKey = String.fromEnvironment('SUPABASE_ANNON_KEY');
+final supabaseClient = SupabaseClient(supabaseUrl, supabaseannonKey);
 
 const appRed = Color(0xFFD73763);
 const appOrange = Color(0xFFF6935C);

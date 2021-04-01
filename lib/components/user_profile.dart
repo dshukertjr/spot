@@ -22,6 +22,8 @@ class UserProfile extends StatelessWidget {
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
+      gifUrl:
+          'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
       videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
       position: const LatLng(37.43296265331129, -122.08832357078792),
     ),

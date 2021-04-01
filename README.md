@@ -22,6 +22,7 @@ create table if not exists public.posts (
     creator_uid uuid references public.users not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
     video_url text,
+    video_image_url text,
     thumbnail_url text,
     gif_url text,
     description varchar(320),
