@@ -24,6 +24,7 @@ dependencies:
     path: ../supabase-dart
   flutter_feather_icons: ^2.0.0+1
   flutter_secure_storage: ^4.1.0
+  webview_flutter: ^2.0.2
 
 dev_dependencies:
   flutter_test:

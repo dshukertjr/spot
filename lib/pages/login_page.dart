@@ -5,6 +5,7 @@ import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:supabase/supabase.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../components/app_scaffold.dart';
 import 'tab_page.dart';
@@ -155,8 +156,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   ),
                   label: 'Sign in with Google',
                   onPressed: () async {
-                    final res = await supabaseClient.auth
-                        .signIn(provider: Provider.google);
+                    await _openOAuthWebView(provider: Provider.google);
                     await Navigator.of(context)
                         .pushReplacement(TabPage.route());
                   },
@@ -204,6 +204,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _yellowBlobAnimationController..forward();
     await Future.delayed(const Duration(milliseconds: 200));
     _redBlobAnimationController..forward();
+  }
+
+  Future<void> _openOAuthWebView({required Provider provider}) async {
+    var url = '$supabaseUrl/auth/v1/authorize';
+    if (provider == Provider.google) {
+      url = '$url?provider=google';
+    } else {
+      url = '$url?provider=apple';
+    }
+    await showDialog(
+        context: context,
+        builder: (context) => Center(
+              child: WebView(
+                initialUrl: url,
+              ),
+            ));
   }
 }
 
