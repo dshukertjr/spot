@@ -1,13 +1,21 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
-import 'package:supabase/supabase.dart';
+import 'package:spot/pages/splash_page.dart';
 
 import '../components/app_scaffold.dart';
 import 'tab_page.dart';
+
+/// Indicates which dialog is currently openeds
+enum _DialogPage {
+  loginOrSignup,
+  login,
+  signUp,
+}
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,6 +23,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   late final _controller = AnimationController(
     duration: const Duration(seconds: 2),
     vsync: this,
@@ -44,6 +55,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     parent: _redBlobAnimationController,
     curve: Curves.easeOutCubic,
   );
+
+  _DialogPage _currentDialogPage = _DialogPage.loginOrSignup;
+
+  double _dialogOpacity = 1;
+  static const _dialogOpacityAnimationDuration = Duration(milliseconds: 200);
+
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -138,46 +156,26 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
           ),
           FrostedDialog(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Sign in',
-                  style: TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 24.5),
-                _LoginButton(
-                  icon: Image.asset(
-                    'assets/images/google.png',
-                    width: 16,
-                    height: 16,
-                  ),
-                  label: 'Sign in with Google',
-                  onPressed: () async {
-                    final res = await supabaseClient.auth
-                        .signIn(provider: Provider.google);
-                    await Navigator.of(context)
-                        .pushReplacement(TabPage.route());
-                  },
-                ),
-                const SizedBox(height: 24.5),
-                _LoginButton(
-                  icon: Image.asset(
-                    'assets/images/apple.png',
-                    width: 16,
-                    height: 16,
-                  ),
-                  label: 'Sign in with Apple',
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(TabPage.route());
-                  },
-                ),
-                const SizedBox(height: 24.5),
-                const Text(
-                  'By signing in, you agree to the Terms of Service and Privacy Policy',
-                ),
-              ],
+            child: AnimatedOpacity(
+              duration: _dialogOpacityAnimationDuration,
+              opacity: _dialogOpacity,
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 150,
+                      child: preloader,
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_currentDialogPage == _DialogPage.loginOrSignup)
+                          ..._loginOrSignup(),
+                        if (_currentDialogPage == _DialogPage.login)
+                          ..._login(),
+                        if (_currentDialogPage == _DialogPage.signUp)
+                          ..._signUp(),
+                      ],
+                    ),
             ),
           ),
         ],
@@ -196,7 +194,168 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _controller.dispose();
     _yellowBlobAnimationController.dispose();
     _redBlobAnimationController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  List<Widget> _loginOrSignup() {
+    return [
+      const Text(
+        'Would you like to...',
+        style: TextStyle(fontSize: 18),
+      ),
+      const SizedBox(height: 24.5),
+      _LoginButton(
+        label: 'Sign in',
+        onPressed: () {
+          _fadeDialog(action: () {
+            setState(() {
+              _currentDialogPage = _DialogPage.login;
+            });
+          });
+        },
+      ),
+      const SizedBox(height: 24.5),
+      _LoginButton(
+        label: 'Create an Account',
+        onPressed: () {
+          _fadeDialog(action: () {
+            setState(() {
+              _currentDialogPage = _DialogPage.signUp;
+            });
+          });
+        },
+      ),
+    ];
+  }
+
+  List<Widget> _login() {
+    return [
+      Row(
+        children: [
+          IconButton(
+            icon: const Icon(FeatherIcons.chevronLeft),
+            onPressed: () {
+              _fadeDialog(action: () {
+                setState(() {
+                  _currentDialogPage = _DialogPage.loginOrSignup;
+                });
+              });
+            },
+          ),
+          const Text(
+            'Sign in',
+            style: TextStyle(fontSize: 18),
+          ),
+        ],
+      ),
+      const SizedBox(height: 24.5),
+      TextFormField(
+        controller: _emailController,
+        keyboardType: TextInputType.emailAddress,
+        decoration: const InputDecoration(
+          labelText: 'Email',
+          prefixIcon: Icon(FeatherIcons.mail),
+        ),
+      ),
+      const SizedBox(height: 24.5),
+      TextFormField(
+        controller: _passwordController,
+        obscureText: true,
+        decoration: const InputDecoration(
+          labelText: 'Password',
+          prefixIcon: Icon(FeatherIcons.lock),
+        ),
+      ),
+      const SizedBox(height: 24.5),
+      _LoginButton(
+        label: 'Sign in',
+        onPressed: () async {
+          try {
+            setState(() {
+              _isLoading = true;
+            });
+            final res = await supabaseClient.auth.signIn(
+                email: _emailController.text,
+                password: _passwordController.text);
+            await Navigator.of(context).pushReplacement(SplashPage.route());
+          } catch (e) {
+            setState(() {
+              _isLoading = false;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Error signing up')));
+          }
+        },
+      ),
+    ];
+  }
+
+  List<Widget> _signUp() {
+    return [
+      Row(
+        children: [
+          IconButton(
+            icon: const Icon(FeatherIcons.chevronLeft),
+            onPressed: () {
+              _fadeDialog(action: () {
+                setState(() {
+                  _currentDialogPage = _DialogPage.loginOrSignup;
+                });
+              });
+            },
+          ),
+          const Text(
+            'Create an Account',
+            style: TextStyle(fontSize: 18),
+          ),
+        ],
+      ),
+      const SizedBox(height: 24.5),
+      TextFormField(
+        controller: _emailController,
+        keyboardType: TextInputType.emailAddress,
+        decoration: const InputDecoration(
+          labelText: 'Email',
+          prefixIcon: Icon(FeatherIcons.mail),
+        ),
+      ),
+      const SizedBox(height: 24.5),
+      TextFormField(
+        controller: _passwordController,
+        obscureText: true,
+        decoration: const InputDecoration(
+          labelText: 'Password',
+          prefixIcon: Icon(FeatherIcons.lock),
+        ),
+      ),
+      const SizedBox(height: 24.5),
+      _LoginButton(
+        label: 'Sign Up',
+        onPressed: () async {
+          try {
+            setState(() {
+              _isLoading = true;
+            });
+            final res = supabaseClient.auth
+                .signUp(_emailController.text, _passwordController.text);
+            await Navigator.of(context).pushReplacement(SplashPage.route());
+          } catch (e) {
+            setState(() {
+              _isLoading = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Error signing up')));
+          }
+        },
+      ),
+      const SizedBox(height: 24.5),
+      const Text(
+        'By signing in, you agree to the Terms of Service and Privacy Policy',
+      ),
+    ];
   }
 
   Future<void> _playDelayedAnimation() async {
@@ -205,35 +364,39 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     await Future.delayed(const Duration(milliseconds: 200));
     _redBlobAnimationController..forward();
   }
+
+  Future<void> _fadeDialog({required void Function() action}) async {
+    setState(() {
+      _dialogOpacity = 0;
+    });
+    await Future.delayed(_dialogOpacityAnimationDuration);
+    action();
+    await Future.delayed(_dialogOpacityAnimationDuration);
+    setState(() {
+      _dialogOpacity = 1;
+    });
+  }
 }
 
 class _LoginButton extends StatelessWidget {
   const _LoginButton(
-      {Key? key,
-      required void Function() onPressed,
-      required String label,
-      required Widget icon})
+      {Key? key, required void Function() onPressed, required String label})
       : _onPressed = onPressed,
         _label = label,
-        _icon = icon,
         super(key: key);
 
   final void Function() _onPressed;
   final String _label;
-  final Widget _icon;
 
   @override
   Widget build(BuildContext context) {
     return GradientButton(
       onPressed: _onPressed,
-      child: Row(
-        children: [
-          _icon,
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(_label),
-          ),
-        ],
+      child: Expanded(
+        child: Text(
+          _label,
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

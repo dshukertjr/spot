@@ -23,7 +23,13 @@ class App extends StatelessWidget {
           color: Color(0xFF13B9FF),
         ),
         inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(width: 1),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(width: 1, color: Color(0xFFFFFFFF)),
+          ),
+          isDense: true,
         ),
       ),
       localizationsDelegates: [
