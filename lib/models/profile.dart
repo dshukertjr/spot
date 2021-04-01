@@ -11,6 +11,15 @@ class Profile {
   final String? description;
   final String? imageUrl;
 
+  static Profile fromData(Map<String, dynamic> data) {
+    return Profile(
+      id: data['id'] as String,
+      name: data['name'] as String,
+      description: data['description'] as String,
+      imageUrl: data['imageUrl'] as String,
+    );
+  }
+
   static Map<String, dynamic> toMap(
       {required String id,
       required String name,

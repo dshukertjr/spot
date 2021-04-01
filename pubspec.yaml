@@ -24,6 +24,7 @@ dependencies:
     path: ../supabase-dart
   flutter_feather_icons: ^2.0.0+1
   flutter_secure_storage: ^4.1.0
+  image_picker: ^0.7.4
 
 dev_dependencies:
   flutter_test:
