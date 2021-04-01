@@ -30,20 +30,31 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _restoreSession() async {
-    // final prefs = await SharedPreferences.getInstance();
-    // final hasSession = prefs.containsKey(PERSIST_SESSION_KEY);
-    // if (!hasSession) {
-    //   return;
-    // }
+    final hasSession =
+        await localStorage.containsKey(key: persistantSessionKey);
+    if (!hasSession) {
+      return;
+    }
 
-    // final jsonStr = prefs.getString(PERSIST_SESSION_KEY);
-    // final response = await supabase.auth.recoverSession(jsonStr);
-    // if (response.error != null) {
-    //   prefs.remove(PERSIST_SESSION_KEY);
-    //   return;
-    // }
+    final jsonStr = await localStorage.read(key: persistantSessionKey);
+    if (jsonStr == null) {
+      await localStorage.delete(key: persistantSessionKey);
+      return;
+    }
+    final response = await supabaseClient.auth.recoverSession(jsonStr);
+    if (response.error != null) {
+      await localStorage.delete(key: persistantSessionKey);
+      return;
+    }
 
-    // prefs.setString(PERSIST_SESSION_KEY, response.data.persistSessionString);
+    final session = response.data;
+    if (session == null) {
+      await localStorage.delete(key: persistantSessionKey);
+      return;
+    }
+
+    await localStorage.write(
+        key: persistantSessionKey, value: session.persistSessionString);
   }
 
   Future<void> redirect() async {
@@ -51,25 +62,27 @@ class _SplashPageState extends State<SplashPage> {
     await _restoreSession();
 
     /// Check Auth State
-    // final authUser = supabase.auth.currentUser;
-    // if (authUser == null) {
-    //   _redirectToLoginPage();
-    //   return;
-    // }
-    // final snap =
-    //     await supabase.from('users').select().eq('id', authUser.id).execute();
-    // final error = snap.error;
-    // if (error != null) {
-    //   print(error);
-    //   return;
-    // }
-    // final data = snap.data as List<dynamic>;
-    // if (data.isEmpty) {
-    //   _redirectToEditProfilePage();
-    //   return;
-    // }
-    _redirectToLoginPage();
-    // _redirectToTabsPage();
+    final authUser = supabaseClient.auth.currentUser;
+    if (authUser == null) {
+      _redirectToLoginPage();
+      return;
+    }
+    final snap = await supabaseClient
+        .from('users')
+        .select()
+        .eq('id', authUser.id)
+        .execute();
+    final error = snap.error;
+    if (error != null) {
+      print(error);
+      return;
+    }
+    final data = snap.data as List<dynamic>;
+    if (data.isEmpty) {
+      _redirectToEditProfilePage();
+      return;
+    }
+    _redirectToTabsPage();
   }
 
   void _redirectToLoginPage() {

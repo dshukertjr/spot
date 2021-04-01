@@ -1,5 +1,5 @@
 name: spot
-description: A new Flutter project.
+description: Find local video posts
 version: 1.0.0+1
 publish_to: none
 
@@ -14,15 +14,16 @@ dependencies:
   camera: ^0.8.0
   flutter_bloc: ^7.0.0
   intl: ^0.17.0
-  shared_preferences: ^2.0.3
   google_maps_flutter: ^2.0.1
   video_player: ^2.0.2
   flutter_ffmpeg: ^0.4.0
   path_provider: ^2.0.1
   http: ^0.13.1
   geolocator: ^7.0.1
-  supabase: ^0.0.1-dev.10
+  supabase:
+    path: ../supabase-dart
   flutter_feather_icons: ^2.0.0+1
+  flutter_secure_storage: ^4.1.0
 
 dev_dependencies:
   flutter_test:

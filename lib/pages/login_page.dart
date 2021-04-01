@@ -1,8 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
+import 'package:supabase/supabase.dart';
 
 import '../components/app_scaffold.dart';
 import 'tab_page.dart';
@@ -152,8 +154,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                     height: 16,
                   ),
                   label: 'Sign in with Google',
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(TabPage.route());
+                  onPressed: () async {
+                    final res = await supabaseClient.auth
+                        .signIn(provider: Provider.google);
+                    await Navigator.of(context)
+                        .pushReplacement(TabPage.route());
                   },
                 ),
                 const SizedBox(height: 24.5),
