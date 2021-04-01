@@ -85,7 +85,7 @@ create policy "Users can unfollow their follows and ssers can remove their follo
 insert into storage.buckets (id, name) values ('posts', 'posts');
 insert into storage.buckets (id, name) values ('profiles', 'profiles');
 create policy "Posts buckets are public" on storage.objects for select using (bucket_id = 'posts');
-create policy "Posts and profiles buckets are public" on storage.objects for select using (bucket_id = 'profiles');
+create policy "Profiles buckets are public" on storage.objects for select using (bucket_id = 'profiles');
 create policy "uid has to be the first element in path_tokens" on storage.objects for insert with check (auth.uid()::text = path_tokens[1] and array_length(path_tokens, 1) = 2);
 ```
 

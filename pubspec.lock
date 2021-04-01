@@ -163,12 +163,10 @@ packages:
   flutter_feather_icons:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "2f432a16d2e75385b7f54a071d0605dffae1a858"
-      url: "https://github.com/NikSWE/flutter_feather_icons"
-    source: git
-    version: "1.0.5-nullsafety.0"
+      name: flutter_feather_icons
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0+1"
   flutter_ffmpeg:
     dependency: "direct main"
     description:
@@ -240,6 +238,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  gotrue:
+    dependency: transitive
+    description:
+      name: gotrue
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.9"
   http:
     dependency: "direct main"
     description:
@@ -408,6 +413,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.5.0"
+  postgrest:
+    dependency: transitive
+    description:
+      name: postgrest
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.8"
   process:
     dependency: transitive
     description:
@@ -436,6 +448,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.0"
+  realtime_client:
+    dependency: transitive
+    description:
+      name: realtime_client
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.8"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -560,6 +579,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
+  supabase:
+    dependency: "direct main"
+    description:
+      name: supabase
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.10"
   term_glyph:
     dependency: transitive
     description:
