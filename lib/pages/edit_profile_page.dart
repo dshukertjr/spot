@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/app_scaffold.dart';
 import 'package:spot/components/gradient_button.dart';
@@ -38,6 +41,8 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _userNameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  String? _currentProfileImageUrl;
+  File? _selectedImageFile;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -77,11 +82,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
           Row(
             children: [
               ClipOval(
-                child: Image.network(
-                  'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-                  width: 120,
-                  height: 120,
-                  fit: BoxFit.cover,
+                child: GestureDetector(
+                  onTap: () async {
+                    try {
+                      final pickedImage = await ImagePicker().getImage(
+                        source: ImageSource.gallery,
+                        maxWidth: 360,
+                        maxHeight: 360,
+                        imageQuality: 75,
+                      );
+                      if (pickedImage == null) {
+                        return;
+                      }
+                      setState(() {
+                        _selectedImageFile = File(pickedImage.path);
+                      });
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Error while selecting image'),
+                        ),
+                      );
+                    }
+                  },
+                  child: SizedBox(
+                    width: 120,
+                    height: 120,
+                    child: _profileImage(),
+                  ),
                 ),
               ),
               const SizedBox(width: 14),
@@ -154,6 +182,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ],
       ),
     );
+  }
+
+  Widget _profileImage() {
+    if (_selectedImageFile != null) {
+      return Image.file(
+        _selectedImageFile!,
+        fit: BoxFit.cover,
+      );
+    } else if (_currentProfileImageUrl != null) {
+      return Image.network(
+        _currentProfileImageUrl!,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return Image.asset(
+        'assets/images/user.png',
+        fit: BoxFit.cover,
+      );
+    }
   }
 
   @override
