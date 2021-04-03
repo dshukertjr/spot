@@ -103,7 +103,7 @@ create or replace function nearby_videos(location text)
 returns table(id uuid, image_url text, thumbnail_url text, gif_url text, location geography(POINT))
 as 
 $func$
-    select id, image_url, thumbnail_url, gif_url, location
+    select id, image_url, thumbnail_url, gif_url, st_astext(location) as location
     from videos
     order by location <-> extensions.ST_GeogFromText($1);
 $func$
