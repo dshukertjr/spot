@@ -25,7 +25,7 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   void initState() {
-    redirect();
+    _redirect();
     super.initState();
   }
 
@@ -57,7 +57,7 @@ class _SplashPageState extends State<SplashPage> {
         key: persistantSessionKey, value: session.persistSessionString);
   }
 
-  Future<void> redirect() async {
+  Future<void> _redirect() async {
     await Future.delayed(const Duration(milliseconds: 100));
     await _restoreSession();
 
@@ -74,12 +74,12 @@ class _SplashPageState extends State<SplashPage> {
         .execute();
     final error = snap.error;
     if (error != null) {
-      print(error);
-      return;
+      await localStorage.delete(key: persistantSessionKey);
+      _redirectToLoginPage();
     }
     final data = snap.data as List<dynamic>;
     if (data.isEmpty) {
-      _redirectToEditProfilePage();
+      _redirectToEditProfilePage(authUser.id);
       return;
     }
     _redirectToTabsPage();
@@ -93,11 +93,9 @@ class _SplashPageState extends State<SplashPage> {
     );
   }
 
-  void _redirectToEditProfilePage() {
+  void _redirectToEditProfilePage(String uid) {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => const EditProfilePage(isCreatingAccount: true),
-      ),
+      EditProfilePage.route(isCreatingAccount: true, uid: uid),
     );
   }
 

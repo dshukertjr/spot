@@ -54,6 +54,18 @@ class VideosCubit extends Cubit<VideosState> {
 
   Future<void> initialize() async {
     final position = await _determinePosition();
+    // final res = await supabaseClient.rpc('nearby_videos',
+    //     params: {'location': 'POINT(37.611100 55.756926)'}).execute();
+    final res = await supabaseClient
+        .rpc('nearby_videos',
+            params: {'location': 'POINT(37.611100 55.756926)'})
+        .limit(20)
+        .execute();
+    final data = res.data;
+    final error = res.error;
+    if (error != null) {
+      return;
+    }
     // TODO receive geo point and get videos
     await Future.delayed(const Duration(seconds: 1));
     emit(VideosLoaded(_videos));

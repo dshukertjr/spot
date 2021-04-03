@@ -3,11 +3,11 @@
 ```sql
 create table if not exists public.users (
   id uuid references auth.users not null primary key,
-  name varchar(18) UNIQUE,
-  description varchar(320),
+  name varchar(18) not null unique,
+  description varchar(320) not null,
   image_url text,
   
-  constraint username_length check (char_length(name) >= 4)
+  constraint username_validation check (char_length(name) >= 4)
 );
 comment on table public.users is 'Holds all of users profile information';
 
@@ -17,30 +17,30 @@ create policy "Users can insert their own profile." on public.users for insert w
 create policy "Users can update own profile." on public.users for update with check (auth.uid() = id);
 
 
-create table if not exists public.posts (
+create table if not exists public.videos (
     id uuid not null primary key DEFAULT uuid_generate_v4 (),
-    creator_uid uuid references public.users not null,
+    user_id uuid references public.users not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    video_url text,
-    video_image_url text,
+    url text,
+    image_url text,
     thumbnail_url text,
     gif_url text,
     description varchar(320),
     location geography(POINT)
 );
-comment on table public.posts is 'Holds all the video posts.';
+comment on table public.videos is 'Holds all the video videos.';
 
-alter table public.posts enable row level security;
-create policy "Posts are viewable by everyone. " on public.posts for select using (true);
-create policy "Users can insert their own posts." on public.posts for insert with check (auth.uid() = creator_uid);
-create policy "Users can update own posts." on public.posts for update with check (auth.uid() = creator_uid);
-create policy "Users can delete own posts." on public.posts for delete using (auth.uid() = creator_uid);
+alter table public.videos enable row level security;
+create policy "Videos are viewable by everyone. " on public.videos for select using (true);
+create policy "Users can insert their own videos." on public.videos for insert with check (auth.uid() = user_id);
+create policy "Users can update own videos." on public.videos for update with check (auth.uid() = user_id);
+create policy "Users can delete own videos." on public.videos for delete using (auth.uid() = user_id);
 
 
 create table if not exists public.comments (
     id uuid not null primary key,
-    post_id uuid references public.posts not null,
-    creator_uid uuid references public.users not null,
+    video_id uuid references public.videos not null,
+    user_id uuid references public.users not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
     text varchar(320),
 
@@ -50,16 +50,16 @@ comment on table public.comments is 'Holds all of the comments created by the us
 
 alter table public.comments enable row level security;
 create policy "Comments are viewable by everyone. " on public.comments for select using (true);
-create policy "Users can insert their own comments." on public.comments for insert with check (auth.uid() = creator_uid);
-create policy "Users can update own comments." on public.comments for update with check (auth.uid() = creator_uid);
-create policy "Users can delete own comments." on public.comments for delete using (auth.uid() = creator_uid);
+create policy "Users can insert their own comments." on public.comments for insert with check (auth.uid() = user_id);
+create policy "Users can update own comments." on public.comments for update with check (auth.uid() = user_id);
+create policy "Users can delete own comments." on public.comments for delete using (auth.uid() = user_id);
 
 
 create table if not exists public.likes (
-    post_id uuid references public.posts not null,
+    video_id uuid references public.videos not null,
     liked_uid uuid references public.users not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    PRIMARY KEY (post_id, liked_uid)
+    PRIMARY KEY (video_id, liked_uid)
 );
 comment on table public.likes is 'Holds all of the like data created by thee users.';
 
@@ -82,12 +82,44 @@ create policy "Follows are viewable by everyone. " on public.follow for select u
 create policy "Users can follow anyone" on public.follow for insert with check (auth.uid() = following_user_id);
 create policy "Users can unfollow their follows and ssers can remove their followers" on public.follow for delete using (auth.uid() = following_user_id or auth.uid() = followed_user_id);
 
+create view public.video_detail as
+select
+    videos.id,
+    videos.url,
+    videos.image_url,
+    videos.description,
+    videos.created_at,
+    videos.location,
+    (select count(*) from likes where video_id = videos.id) as like_count,
+    (select count(*) from comments where video_id = videos.id) as comment_count,
+    users.name as user_name,
+    users.image_url as user_image_url
+from
+    videos
+    join users on videos.user_id = users.id;
+comment on view public.video_detail is 'Table to create video detail page';
+
+create or replace function nearby_videos(location text)
+returns table(id uuid, image_url text, thumbnail_url text, gif_url text, location geography(POINT))
+as 
+$func$
+    select id, image_url, thumbnail_url, gif_url, location
+    from videos
+    order by location <-> extensions.ST_GeogFromText($1);
+$func$
+language sql;
+
 -- Configure storage
-insert into storage.buckets (id, name) values ('posts', 'posts');
+insert into storage.buckets (id, name) values ('videos', 'videos');
 insert into storage.buckets (id, name) values ('profiles', 'profiles');
-create policy "Posts buckets are public" on storage.objects for select using (bucket_id = 'posts');
+create policy "Videos buckets are public" on storage.objects for select using (bucket_id = 'videos');
 create policy "Profiles buckets are public" on storage.objects for select using (bucket_id = 'profiles');
 create policy "uid has to be the first element in path_tokens" on storage.objects for insert with check (auth.uid()::text = path_tokens[1] and array_length(path_tokens, 1) = 2);
+
+
+-- Needed to use extensions from the app
+grant usage on schema extensions to anon;
+grant usage on schema extensions to authenticated;
 ```
 
 [![Very Good Ventures][logo]][very_good_ventures_link]

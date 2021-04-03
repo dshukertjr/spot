@@ -55,22 +55,30 @@ class _TabPageState extends State<TabPage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _bottomNavigationButton(
                   label: 'Home',
-                  icon: const Icon(FeatherIcons.home),
+                  icon: const Icon(
+                    FeatherIcons.home,
+                    size: 22,
+                  ),
                   tabIndex: 0,
                 ),
                 _bottomNavigationButton(
                   label: 'Search',
-                  icon: const Icon(FeatherIcons.search),
+                  icon: const Icon(
+                    FeatherIcons.search,
+                    size: 22,
+                  ),
                   tabIndex: 1,
                 ),
                 const _RecordButton(),
                 _bottomNavigationButton(
                   label: 'Notifications',
-                  icon: const Icon(FeatherIcons.bell),
+                  icon: const Icon(
+                    FeatherIcons.bell,
+                    size: 22,
+                  ),
                   tabIndex: 2,
                 ),
                 _bottomNavigationButton(
@@ -102,11 +110,11 @@ class _TabPageState extends State<TabPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: 24,
-              height: 24,
+              width: 22,
+              height: 22,
               child: icon,
             ),
-            const SizedBox(height: 4.5),
+            const SizedBox(height: 5),
             Text(
               label,
               style: const TextStyle(
