@@ -10,3 +10,9 @@ class VideosLoaded extends VideosState {
 
   final List<Video> videos;
 }
+
+class VideosError extends VideosState {
+  VideosError({required this.message});
+
+  final String message;
+}

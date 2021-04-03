@@ -1,5 +1,8 @@
 # Spot
 
+## Figma
+https://www.figma.com/file/OBSvD6eG4eDno3aQ76Ovzo/Spot?node-id=2%3A1023
+
 ```sql
 create table if not exists public.users (
   id uuid references auth.users not null primary key,
@@ -99,12 +102,34 @@ from
     join users on videos.user_id = users.id;
 comment on view public.video_detail is 'Table to create video detail page';
 
+    -- id uuid not null primary key DEFAULT uuid_generate_v4 (),
+    -- user_id uuid references public.users not null,
+    -- created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
+    -- url text,
+    -- image_url text,
+    -- thumbnail_url text,
+    -- gif_url text,
+    -- description varchar(320),
+    -- location geography(POINT)
+
+
 create or replace function nearby_videos(location text)
 returns table(id uuid, image_url text, thumbnail_url text, gif_url text, location geography(POINT))
 as 
 $func$
-    select id, image_url, thumbnail_url, gif_url, st_astext(location) as location
+    select
+        videos.id,
+        videos.url,
+        videos.image_url,
+        videos.thumbnail_url,
+        videos.gif_url,
+        videos.st_astext(location) as location,
+        user.id as user_id,
+        user.name as user_name,
+        user.description as user_description,
+        user.image_url as user_image_url,
     from videos
+    join users on videos.user_id = users.id;
     order by location <-> extensions.ST_GeogFromText($1);
 $func$
 language sql;
