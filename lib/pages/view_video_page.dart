@@ -65,7 +65,7 @@ class _VideoScreen extends StatefulWidget {
   }) : super(key: key);
 
   final VideoPlayerController? controller;
-  final Video video;
+  final VideoDetail video;
 
   @override
   __VideoScreenState createState() => __VideoScreenState();

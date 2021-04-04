@@ -1,10 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/app/constants.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../models/profile.dart';
 import '../../models/video.dart';
 
 part 'video_state.dart';
@@ -15,7 +13,7 @@ class VideoCubit extends Cubit<VideoState> {
   VideoCubit() : super(VideoInitial());
 
   late final String _videoId;
-  late final Video _video;
+  late final VideoDetail _video;
   late final VideoPlayerController _videoPlayerController;
   bool _videoInitialized = false;
 
@@ -37,7 +35,7 @@ class VideoCubit extends Cubit<VideoState> {
       return;
     }
 
-    _video = Video.videoFromData(Map.from(List.from(data).first));
+    _video = VideoDetail.fromData(Map.from(List.from(data).first));
 
     emit(VideoLoading(_video));
 

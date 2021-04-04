@@ -8,7 +8,7 @@ class VideoInitial extends VideoState {}
 class VideoLoading extends VideoState {
   VideoLoading(this.video);
 
-  final Video video;
+  final VideoDetail video;
 }
 
 class VideoPlaying extends VideoState {
@@ -17,7 +17,7 @@ class VideoPlaying extends VideoState {
     required this.videoPlayerController,
   });
 
-  final Video video;
+  final VideoDetail video;
   final VideoPlayerController videoPlayerController;
 }
 
@@ -27,7 +27,7 @@ class VideoPaused extends VideoState {
     required this.videoPlayerController,
   });
 
-  final Video video;
+  final VideoDetail video;
   final VideoPlayerController videoPlayerController;
 }
 

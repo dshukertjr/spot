@@ -69,8 +69,43 @@ class Video {
         .toList();
   }
 
-  static Video videoFromData(Map<String, dynamic> data) {
-    return Video(
+  static LatLng _locationFromPoint(String point) {
+    final splits =
+        point.replaceAll('POINT(', '').replaceAll(')', '').split(' ');
+    return LatLng(double.parse(splits.last), double.parse(splits.first));
+  }
+}
+
+class VideoDetail extends Video {
+  VideoDetail({
+    required String id,
+    required String url,
+    required String imageUrl,
+    required String thumbnailUrl,
+    required String gifUrl,
+    required DateTime createdAt,
+    required String description,
+    required Profile createdBy,
+    required LatLng location,
+    required this.likeCount,
+    required this.commentCount,
+  }) : super(
+          id: id,
+          url: url,
+          imageUrl: imageUrl,
+          thumbnailUrl: thumbnailUrl,
+          gifUrl: gifUrl,
+          createdAt: createdAt,
+          description: description,
+          createdBy: createdBy,
+          location: location,
+        );
+
+  final int likeCount;
+  final int commentCount;
+
+  static VideoDetail fromData(Map<String, dynamic> data) {
+    return VideoDetail(
       id: data['id'] as String,
       url: data['url'] as String,
       imageUrl: data['image_url'] as String,
@@ -83,14 +118,10 @@ class Video {
         imageUrl: data['user_image_url'] as String,
         description: data['user_description'] as String,
       ),
-      location: _locationFromPoint(data['location'] as String),
+      location: Video._locationFromPoint(data['location'] as String),
       createdAt: DateTime.parse(data['created_at'] as String),
+      likeCount: data['like_count'] as int,
+      commentCount: data['comment_count'] as int,
     );
-  }
-
-  static LatLng _locationFromPoint(String point) {
-    final splits =
-        point.replaceAll('POINT(', '').replaceAll(')', '').split(' ');
-    return LatLng(double.parse(splits.last), double.parse(splits.first));
   }
 }
