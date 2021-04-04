@@ -24,12 +24,12 @@ create table if not exists public.videos (
     id uuid not null primary key DEFAULT uuid_generate_v4 (),
     user_id uuid references public.users not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    url text,
-    image_url text,
-    thumbnail_url text,
-    gif_url text,
-    description varchar(320),
-    location geography(POINT)
+    url text not null,
+    image_url text not null,
+    thumbnail_url text not null,
+    gif_url text not null,
+    description varchar(320) not null,
+    location geography(POINT) not null
 );
 comment on table public.videos is 'Holds all the video videos.';
 
