@@ -26,10 +26,10 @@ class VideosCubit extends Cubit<VideosState> {
     final error = res.error;
     final data = res.data;
     if (error != null) {
-      emit(VideosError(message: 'Error loading videos. Please refresh. '));
+      emit(VideosError(message: 'Error loading videos. Please refresh.'));
       return;
     } else if (data == null) {
-      emit(VideosError(message: 'Error loading videos. Please refresh. '));
+      emit(VideosError(message: 'Error loading videos. Please refresh.'));
       return;
     }
 

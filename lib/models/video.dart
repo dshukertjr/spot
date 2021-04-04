@@ -28,7 +28,7 @@ class Video {
     return 1000;
   }
 
-  static Map<String, dynamic> creation({
+  static Map<String, String> creation({
     required String videoUrl,
     required String videoImageUrl,
     required String thumbnailUrl,
@@ -44,7 +44,7 @@ class Video {
       'gif_url': gifUrl,
       'description': description,
       'user_id': creatorUid,
-      'location': 'POINT(${location.latitude} ${location.longitude})',
+      'location': 'POINT(${location.longitude} ${location.latitude})',
     };
   }
 
@@ -91,6 +91,6 @@ class Video {
   static LatLng _locationFromPoint(String point) {
     final splits =
         point.replaceAll('POINT(', '').replaceAll(')', '').split(' ');
-    return LatLng(double.parse(splits.first), double.parse(splits.last));
+    return LatLng(double.parse(splits.last), double.parse(splits.first));
   }
 }

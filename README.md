@@ -127,6 +127,7 @@ $func$
 $func$
 language sql;
 
+
 -- Configure storage
 insert into storage.buckets (id, name) values ('videos', 'videos');
 insert into storage.buckets (id, name) values ('profiles', 'profiles');
