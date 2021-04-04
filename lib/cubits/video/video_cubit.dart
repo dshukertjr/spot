@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
+import 'package:spot/app/constants.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../models/profile.dart';
@@ -21,33 +22,26 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> initialize(String videoId) async {
     _videoId = videoId;
 
-    // TODO get video data with videoId
-    final video = Video(
-      id: 'fsda',
-      createdAt: DateTime.now(),
-      createdBy: Profile(
-        id: 'fsa',
-        name: 'aaa',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
-      description: 'This is just a sample description',
-      imageUrl:
-          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      thumbnailUrl:
-          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      gifUrl:
-          'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      location: const LatLng(37.43296265331129, -122.08832357078792),
-    );
+    final res = await supabaseClient
+        .from('video_detail')
+        .select()
+        .eq('id', _videoId)
+        .execute();
+    final data = res.data;
+    final error = res.error;
+    if (error != null) {
+      emit(VideoError(message: 'Error loading video. Please refresh. '));
+      return;
+    } else if (data == null) {
+      emit(VideoError(message: 'Error loading video. Please refresh. '));
+      return;
+    }
 
-    _video = video;
+    _video = Video.videoFromData(Map.from(List.from(data).first));
 
-    emit(VideoLoading(video));
+    emit(VideoLoading(_video));
 
-    _videoPlayerController = VideoPlayerController.network(
-        'https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_20mb.mp4');
+    _videoPlayerController = VideoPlayerController.network(_video.url);
     await _videoPlayerController.initialize();
     _videoInitialized = true;
     await _videoPlayerController.setLooping(true);

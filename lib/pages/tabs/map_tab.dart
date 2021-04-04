@@ -11,11 +11,14 @@ import 'package:spot/cubits/videos/videos_cubit.dart';
 import 'package:http/http.dart' as http;
 import 'package:spot/models/video.dart';
 import 'package:spot/pages/view_video_page.dart';
+import 'package:spot/repositories/repository.dart';
 
 class MapTab extends StatelessWidget {
   static Widget create() {
     return BlocProvider<VideosCubit>(
-      create: (context) => VideosCubit()..initialize(),
+      create: (context) => VideosCubit(
+        databaseRepository: RepositoryProvider.of<Repository>(context),
+      )..initialize(),
       child: MapTab(),
     );
   }

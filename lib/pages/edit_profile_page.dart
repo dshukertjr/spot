@@ -8,7 +8,7 @@ import 'package:spot/components/app_scaffold.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/pages/splash_page.dart';
-import 'package:spot/repositories/database_repository.dart';
+import 'package:spot/repositories/repository.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({
@@ -25,8 +25,7 @@ class EditProfilePage extends StatefulWidget {
     return MaterialPageRoute(
       builder: (context) => BlocProvider<ProfileCubit>(
         create: (context) => ProfileCubit(
-          databaseRepository:
-              RepositoryProvider.of<DatabaseRepository>(context),
+          databaseRepository: RepositoryProvider.of<Repository>(context),
         )..loadProfile(uid),
         child: EditProfilePage(
           isCreatingAccount: isCreatingAccount,

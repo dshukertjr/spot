@@ -30,3 +30,9 @@ class VideoPaused extends VideoState {
   final Video video;
   final VideoPlayerController videoPlayerController;
 }
+
+class VideoError extends VideoState {
+  VideoError({required this.message});
+
+  final String message;
+}

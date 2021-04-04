@@ -85,17 +85,19 @@ create policy "Follows are viewable by everyone. " on public.follow for select u
 create policy "Users can follow anyone" on public.follow for insert with check (auth.uid() = following_user_id);
 create policy "Users can unfollow their follows and ssers can remove their followers" on public.follow for delete using (auth.uid() = following_user_id or auth.uid() = followed_user_id);
 
-create view public.video_detail as
+create or replace view public.video_detail as
 select
     videos.id,
     videos.url,
     videos.image_url,
     videos.description,
     videos.created_at,
-    videos.location,
+    st_astext(videos.location) as location,
     (select count(*) from likes where video_id = videos.id) as like_count,
     (select count(*) from comments where video_id = videos.id) as comment_count,
+    videos.user_id as user_id,
     users.name as user_name,
+    users.description as user_description,
     users.image_url as user_image_url
 from
     videos
@@ -123,7 +125,7 @@ $func$
         videos.image_url,
         videos.thumbnail_url,
         videos.gif_url,
-        videos.st_astext(location) as location,
+        st_astext(videos.location) as location,
         user.id as user_id,
         user.name as user_name,
         user.description as user_description,

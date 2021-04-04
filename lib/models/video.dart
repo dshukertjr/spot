@@ -48,14 +48,14 @@ class Video {
     };
   }
 
-  static List<Video> fromData(List<dynamic> data) {
+  static List<Video> videosFromData(List<dynamic> data) {
     return data
         .map<Video>((res) => Video(
               id: res['id'] as String,
-              url: res['videoUrl'] as String,
-              imageUrl: res['videoImageUrl'] as String,
-              thumbnailUrl: res['thumbnailUrl'] as String,
-              gifUrl: res['gifUrl'] as String,
+              url: res['url'] as String,
+              imageUrl: res['mage_url'] as String,
+              thumbnailUrl: res['thumbnail_url'] as String,
+              gifUrl: res['gif_url'] as String,
               description: res['description'] as String,
               createdBy: Profile(
                 id: res['user_id'] as String,
@@ -64,9 +64,28 @@ class Video {
                 imageUrl: res['user_image_description'] as String,
               ),
               location: _locationFromPoint(res['location'] as String),
-              createdAt: DateTime.parse(res['createdAt'] as String),
+              createdAt: DateTime.parse(res['created_at'] as String),
             ))
         .toList();
+  }
+
+  static Video videoFromData(Map<String, dynamic> data) {
+    return Video(
+      id: data['id'] as String,
+      url: data['url'] as String,
+      imageUrl: data['image_rl'] as String,
+      thumbnailUrl: data['thumbnail_url'] as String,
+      gifUrl: data['gif_url'] as String,
+      description: data['description'] as String,
+      createdBy: Profile(
+        id: data['user_id'] as String,
+        name: data['user_name'] as String,
+        imageUrl: data['user_image_url'] as String,
+        description: data['user_description'] as String,
+      ),
+      location: _locationFromPoint(data['location'] as String),
+      createdAt: DateTime.parse(data['created_at'] as String),
+    );
   }
 
   static LatLng _locationFromPoint(String point) {

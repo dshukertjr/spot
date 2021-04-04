@@ -5,17 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/models/profile.dart';
-import 'package:spot/repositories/database_repository.dart';
+import 'package:spot/repositories/repository.dart';
 
 part 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit({
-    required DatabaseRepository databaseRepository,
+    required Repository databaseRepository,
   })   : _databaseRepository = databaseRepository,
         super(ProfileLoading());
 
-  final DatabaseRepository _databaseRepository;
+  final Repository _databaseRepository;
 
   Future<void> loadProfile(String uid) async {
     final profile = await _databaseRepository.getProfile(uid);

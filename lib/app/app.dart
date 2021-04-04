@@ -10,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:spot/l10n/l10n.dart';
 import 'package:spot/pages/splash_page.dart';
-import 'package:spot/repositories/database_repository.dart';
+import 'package:spot/repositories/repository.dart';
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
@@ -19,8 +19,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<DatabaseRepository>(
-          create: (context) => DatabaseRepository(),
+        RepositoryProvider<Repository>(
+          create: (context) => Repository(),
         ),
       ],
       child: MaterialApp(

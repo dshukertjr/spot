@@ -10,12 +10,17 @@ import 'package:meta/meta.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/models/video.dart';
+import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
 part 'confirm_video_state.dart';
 
 class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
-  ConfirmVideoCubit() : super(ConfirmVideoInitial());
+  ConfirmVideoCubit({required Repository repository})
+      : _repository = repository,
+        super(ConfirmVideoInitial());
+
+  final Repository _repository;
 
   late final VideoPlayerController _videoPlayerController;
 
@@ -75,6 +80,9 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       return !_doneCompressingVideo;
     });
 
+    final location = await _repository.determinePosition();
+    final authUser = supabaseClient.auth.currentUser;
+
     final videoMap = Video.creation(
       videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
       videoImageUrl:
@@ -84,8 +92,8 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       gifUrl:
           'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
       description: 'This is just a sample',
-      creatorUid: 'ce25db5f-01c8-4b34-ba5e-fc32cce5456b',
-      location: const LatLng(37, 55),
+      creatorUid: authUser!.id,
+      location: location,
     );
     final res = await supabaseClient.from('posts').insert([videoMap]).execute();
 

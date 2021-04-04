@@ -9,6 +9,7 @@ import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/confirm_video/confirm_video_cubit.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tab_page.dart';
+import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
 import '../components/app_scaffold.dart';
@@ -17,8 +18,9 @@ class ConfirmRecordingPage extends StatelessWidget {
   static Route<void> route({required XFile videoFile}) {
     return MaterialPageRoute(
       builder: (context) => BlocProvider<ConfirmVideoCubit>(
-        create: (context) =>
-            ConfirmVideoCubit()..initialize(videoFile: videoFile),
+        create: (context) => ConfirmVideoCubit(
+            repository: RepositoryProvider.of<Repository>(context))
+          ..initialize(videoFile: videoFile),
         child: ConfirmRecordingPage(),
       ),
     );
