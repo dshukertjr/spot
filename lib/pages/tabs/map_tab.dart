@@ -28,7 +28,9 @@ class MapTab extends StatelessWidget {
     return BlocBuilder<VideosCubit, VideosState>(
       builder: (context, state) {
         if (state is VideosInitial) {
-          return _Map();
+          return preloader;
+        } else if (state is VideosLoading) {
+          return _Map(location: state.location);
         } else if (state is VideosLoaded) {
           return _Map(videos: state.videos);
         }
@@ -42,10 +44,13 @@ class _Map extends StatefulWidget {
   _Map({
     Key? key,
     List<Video>? videos,
+    LatLng? location,
   })  : _videos = videos ?? [],
+        _location = location ?? const LatLng(0, 0),
         super(key: key);
 
   final List<Video> _videos;
+  final LatLng _location;
 
   @override
   __MapState createState() => __MapState();
@@ -64,8 +69,8 @@ class __MapState extends State<_Map> {
       zoomControlsEnabled: false,
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
-      initialCameraPosition: const CameraPosition(
-        target: LatLng(37.43296265331129, -122.08832357078792),
+      initialCameraPosition: CameraPosition(
+        target: widget._location,
         tilt: 59.440717697143555,
         zoom: 16,
       ),

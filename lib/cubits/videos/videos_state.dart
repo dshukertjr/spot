@@ -5,6 +5,12 @@ abstract class VideosState {}
 
 class VideosInitial extends VideosState {}
 
+class VideosLoading extends VideosState {
+  VideosLoading(this.location);
+
+  final LatLng location;
+}
+
 class VideosLoaded extends VideosState {
   VideosLoaded(this.videos);
 

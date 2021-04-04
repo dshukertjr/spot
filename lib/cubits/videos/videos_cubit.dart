@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/models/video.dart';
@@ -17,6 +18,7 @@ class VideosCubit extends Cubit<VideosState> {
 
   Future<void> initialize() async {
     final location = await _databaseRepository.determinePosition();
+    emit(VideosLoading(location));
     final res = await supabaseClient
         .rpc('nearby_videos', params: {
           'location': 'POINT(${location.latitude} ${location.longitude})'
