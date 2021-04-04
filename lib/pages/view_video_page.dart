@@ -9,6 +9,7 @@ import 'package:spot/components/gradient_button.dart';
 import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/video.dart';
+import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
 import '../components/app_scaffold.dart';
@@ -16,8 +17,10 @@ import '../components/app_scaffold.dart';
 class ViewVideoPage extends StatelessWidget {
   static Route<void> route(String videoId) {
     return MaterialPageRoute(
-      builder: (_) => BlocProvider(
-        create: (_) => VideoCubit()..initialize(videoId),
+      builder: (context) => BlocProvider(
+        create: (context) =>
+            VideoCubit(repository: RepositoryProvider.of<Repository>(context))
+              ..initialize(videoId),
         child: ViewVideoPage(),
       ),
     );

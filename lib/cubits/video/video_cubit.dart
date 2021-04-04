@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../models/video.dart';
@@ -10,7 +11,11 @@ part 'video_state.dart';
 /// Takes care of actions done on single video
 /// like viewing liking, blocking and such
 class VideoCubit extends Cubit<VideoState> {
-  VideoCubit() : super(VideoInitial());
+  VideoCubit({required Repository repository})
+      : _repository = repository,
+        super(VideoInitial());
+
+  final Repository _repository;
 
   late final String _videoId;
   late final VideoDetail _video;
@@ -18,36 +23,24 @@ class VideoCubit extends Cubit<VideoState> {
   bool _videoInitialized = false;
 
   Future<void> initialize(String videoId) async {
-    _videoId = videoId;
+    try {
+      _videoId = videoId;
+      _video = await _repository.getVideoDetail(videoId);
+      emit(VideoLoading(_video));
 
-    final res = await supabaseClient
-        .from('video_detail')
-        .select()
-        .eq('id', _videoId)
-        .execute();
-    final data = res.data;
-    final error = res.error;
-    if (error != null) {
-      emit(VideoError(message: 'Error loading video. Please refresh. '));
-      return;
-    } else if (data == null) {
+      _videoPlayerController = VideoPlayerController.network(_video.url);
+      await _videoPlayerController.initialize();
+      _videoInitialized = true;
+      await _videoPlayerController.setLooping(true);
+      await _videoPlayerController.play();
+      emit(VideoPlaying(
+        video: _video,
+        videoPlayerController: _videoPlayerController,
+      ));
+    } catch (e) {
       emit(VideoError(message: 'Error loading video. Please refresh. '));
       return;
     }
-
-    _video = VideoDetail.fromData(Map.from(List.from(data).first));
-
-    emit(VideoLoading(_video));
-
-    _videoPlayerController = VideoPlayerController.network(_video.url);
-    await _videoPlayerController.initialize();
-    _videoInitialized = true;
-    await _videoPlayerController.setLooping(true);
-    await _videoPlayerController.play();
-    emit(VideoPlaying(
-      video: _video,
-      videoPlayerController: _videoPlayerController,
-    ));
   }
 
   Future<void> pause() async {

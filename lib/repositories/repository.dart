@@ -9,6 +9,7 @@ class Repository {
   // Local Cache
   final Map<String, Profile> _profiles = {};
   final Map<String, Video> _videos = {};
+  final Map<String, VideoDetail> _videoDetails = {};
 
   Future<Profile?> getProfile(String uid) async {
     final targetProfile = _profiles[uid];
@@ -58,6 +59,28 @@ class Repository {
     final profile = Profile.fromData(data[0]);
     _profiles[uid] = profile;
     return profile;
+  }
+
+  Future<VideoDetail> getVideoDetail(String videoId) async {
+    final res = await supabaseClient
+        .from('video_detail')
+        .select()
+        .eq('id', videoId)
+        .execute();
+    final data = res.data;
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'Get Video Detail',
+        message: error.message,
+      );
+    } else if (data == null) {
+      throw PlatformException(
+        code: 'Get Video Detail no data',
+        message: 'No data found for this videoId',
+      );
+    }
+    return VideoDetail.fromData(Map.from(List.from(data).first));
   }
 
   Future<LatLng> determinePosition() async {
