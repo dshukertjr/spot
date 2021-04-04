@@ -85,28 +85,9 @@ create policy "Follows are viewable by everyone. " on public.follow for select u
 create policy "Users can follow anyone" on public.follow for insert with check (auth.uid() = following_user_id);
 create policy "Users can unfollow their follows and ssers can remove their followers" on public.follow for delete using (auth.uid() = following_user_id or auth.uid() = followed_user_id);
 
-create or replace view public.video_detail as
-select
-    videos.id,
-    videos.url,
-    videos.image_url,
-    videos.description,
-    videos.created_at,
-    st_astext(videos.location) as location,
-    (select count(*) from likes where video_id = videos.id) as like_count,
-    (select count(*) from comments where video_id = videos.id) as comment_count,
-    videos.user_id as user_id,
-    users.name as user_name,
-    users.description as user_description,
-    users.image_url as user_image_url
-from
-    videos
-    join users on videos.user_id = users.id;
-comment on view public.video_detail is 'Table to create video detail page';
-
 
 create or replace function nearby_videos(location text)
-returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, user_id uuid, user_name text, description text, user_image_url text)
+returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, description text, user_image_url text)
 as 
 $func$
     select
@@ -117,6 +98,7 @@ $func$
         videos.gif_url,
         st_astext(videos.location) as location,
         videos.created_at,
+        videos.description,
         users.id as user_id,
         users.name as user_name,
         users.description as user_description,
@@ -128,8 +110,8 @@ $func$
 language sql;
 
 
-create or replace function get_video_detail(videoId uuid)
-return table(id uuid, url text image_url text, thumbnail_url text, gif_url text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text, location text, like_count int, comment_count int, have_liked int)
+create or replace function get_video_detail(video_id uuid)
+returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text, location text, like_count int, comment_count int, have_liked int)
 as
 $func$
     select
@@ -138,18 +120,19 @@ $func$
         videos.image_url,
         videos.thumbnail_url,
         videos.gif_url,
-        st_astext(videos.location) as location,
         videos.created_at,
+        videos.description,
         users.id as user_id,
         users.name as user_name,
         users.description as user_description,
-        users.image_url as user_image_url
-        (select count(*) from likes where video_id = videos.id) as like_count,
-        (select count(*) from comments where video_id = videos.id) as comment_count,
-        (select counnt(*) from likes where video_id = videos.id and videos.user_id = auth.uid()) as have_liked
+        users.image_url as user_image_url,
+        st_astext(videos.location) as location,
+        (select count(*) from likes where video_id = videos.id)::int as like_count,
+        (select count(*) from comments where video_id = videos.id)::int as comment_count,
+        (select count(*) from likes where video_id = videos.id and videos.user_id = auth.uid())::int as have_liked
     from videos
     join users on videos.user_id = users.id
-    order by location <-> st_geogfromtext($1);
+    where videos.id = $1;
 $func$
 language sql;
 

@@ -66,10 +66,7 @@ class Repository {
 
   Future<void> getVideoDetailStream(String videoId) async {
     final res = await supabaseClient
-        .from('video_detail')
-        .select()
-        .eq('id', videoId)
-        .execute();
+        .rpc('get_video_detail', params: {'video_id': videoId}).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
