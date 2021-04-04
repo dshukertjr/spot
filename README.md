@@ -60,9 +60,9 @@ create policy "Users can delete own comments." on public.comments for delete usi
 
 create table if not exists public.likes (
     video_id uuid references public.videos not null,
-    liked_uid uuid references public.users not null,
+    user_id uuid references public.users not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    PRIMARY KEY (video_id, liked_uid)
+    PRIMARY KEY (video_id, user_id)
 );
 comment on table public.likes is 'Holds all of the like data created by thee users.';
 
@@ -127,6 +127,31 @@ $func$
 $func$
 language sql;
 
+
+create or replace function get_video_detail(videoId uuid)
+return table(id uuid, url text image_url text, thumbnail_url text, gif_url text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text, location text, like_count int, comment_count int, have_liked int)
+as
+$func$
+    select
+        videos.id,
+        videos.url,
+        videos.image_url,
+        videos.thumbnail_url,
+        videos.gif_url,
+        st_astext(videos.location) as location,
+        videos.created_at,
+        users.id as user_id,
+        users.name as user_name,
+        users.description as user_description,
+        users.image_url as user_image_url
+        (select count(*) from likes where video_id = videos.id) as like_count,
+        (select count(*) from comments where video_id = videos.id) as comment_count,
+        (select counnt(*) from likes where video_id = videos.id and videos.user_id = auth.uid()) as have_liked
+    from videos
+    join users on videos.user_id = users.id
+    order by location <-> st_geogfromtext($1);
+$func$
+language sql;
 
 -- Configure storage
 insert into storage.buckets (id, name) values ('videos', 'videos');

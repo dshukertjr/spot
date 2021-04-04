@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:spot/app/constants.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
@@ -22,6 +21,12 @@ class VideoCubit extends Cubit<VideoState> {
   late final VideoPlayerController _videoPlayerController;
   bool _videoInitialized = false;
 
+  @override
+  Future<void> close() {
+    _videoPlayerController.dispose();
+    return super.close();
+  }
+
   Future<void> initialize(String videoId) async {
     try {
       _videoId = videoId;
@@ -38,7 +43,7 @@ class VideoCubit extends Cubit<VideoState> {
         videoPlayerController: _videoPlayerController,
       ));
     } catch (e) {
-      emit(VideoError(message: 'Error loading video. Please refresh. '));
+      emit(VideoError(message: 'Error loading video. Please refresh.'));
       return;
     }
   }
@@ -63,9 +68,11 @@ class VideoCubit extends Cubit<VideoState> {
     }
   }
 
-  @override
-  Future<void> close() {
-    _videoPlayerController.dispose();
-    return super.close();
+  Future<void> like() {
+    return _repository.like(_videoId);
+  }
+
+  Future<void> unlike() {
+    return _repository.unlike(_videoId);
   }
 }

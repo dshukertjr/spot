@@ -124,7 +124,13 @@ class __VideoScreenState extends State<_VideoScreen> {
                   const SizedBox(height: 36),
                   IconButton(
                     icon: const Icon(FeatherIcons.heart),
-                    onPressed: () {},
+                    onPressed: () {
+                      if (widget.video.haveLiked) {
+                        BlocProvider.of<VideoCubit>(context).unlike();
+                      } else {
+                        BlocProvider.of<VideoCubit>(context).like();
+                      }
+                    },
                   ),
                   const SizedBox(height: 36),
                   IconButton(

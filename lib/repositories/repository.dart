@@ -83,6 +83,37 @@ class Repository {
     return VideoDetail.fromData(Map.from(List.from(data).first));
   }
 
+  Future<void> like(String videoId) async {
+    final uid = supabaseClient.auth.currentUser!.id;
+    final res = await supabaseClient.from('likes').insert([
+      VideoDetail.like(videoId: videoId, uid: uid),
+    ]).execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'Like Video',
+        message: error.message,
+      );
+    }
+  }
+
+  Future<void> unlike(String videoId) async {
+    final uid = supabaseClient.auth.currentUser!.id;
+    final res = await supabaseClient
+        .from('likes')
+        .delete()
+        .eq('video_id', videoId)
+        .eq('user_id', uid)
+        .execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'Unlike Video',
+        message: error.message,
+      );
+    }
+  }
+
   Future<LatLng> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;

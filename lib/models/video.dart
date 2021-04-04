@@ -124,7 +124,17 @@ class VideoDetail extends Video {
       createdAt: DateTime.parse(data['created_at'] as String),
       likeCount: data['like_count'] as int,
       commentCount: data['comment_count'] as int,
-      haveLiked: data['have_liked'] as bool,
+      haveLiked: (data['have_liked'] as int > 0),
     );
+  }
+
+  static Map<String, dynamic> like({
+    required String videoId,
+    required String uid,
+  }) {
+    return {
+      'video_id': videoId,
+      'user_id': uid,
+    };
   }
 }
