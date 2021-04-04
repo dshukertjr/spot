@@ -12,16 +12,26 @@ class FullScreenVideoPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: OverflowBox(
-        alignment: Alignment.center,
-        child: FittedBox(
-          fit: BoxFit.cover,
-          child: SizedBox(
-            height: 1,
-            child: AspectRatio(
-              aspectRatio: _videoPlayerController.value.aspectRatio,
-              child: VideoPlayer(_videoPlayerController),
+    return GestureDetector(
+      onTap: () {
+        // Toggle video play
+        if (_videoPlayerController.value.isPlaying) {
+          _videoPlayerController.pause();
+        } else {
+          _videoPlayerController.play();
+        }
+      },
+      child: ClipRect(
+        child: OverflowBox(
+          alignment: Alignment.center,
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              height: 1,
+              child: AspectRatio(
+                aspectRatio: _videoPlayerController.value.aspectRatio,
+                child: VideoPlayer(_videoPlayerController),
+              ),
             ),
           ),
         ),

@@ -45,13 +45,6 @@ class ViewVideoPage extends StatelessWidget {
               controller: controller,
               video: video,
             );
-          } else if (state is VideoPaused) {
-            final controller = state.videoPlayerController;
-            final video = state.video;
-            return _VideoScreen(
-              controller: controller,
-              video: video,
-            );
           }
           return Container();
         },
@@ -115,7 +108,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                   IconButton(
                     icon: const Icon(FeatherIcons.messageCircle),
                     onPressed: () async {
-                      await BlocProvider.of<VideoCubit>(context).pause();
+                      await widget.controller!.pause();
                       setState(() {
                         _isCommentsShown = true;
                       });
@@ -173,7 +166,7 @@ class __VideoScreenState extends State<_VideoScreen> {
           Positioned.fill(
             child: WillPopScope(
               onWillPop: () async {
-                await BlocProvider.of<VideoCubit>(context).resume();
+                await widget.controller!.play();
                 setState(() {
                   _isCommentsShown = false;
                 });

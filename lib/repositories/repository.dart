@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,6 +12,7 @@ class Repository {
   final Map<String, Profile> _profiles = {};
   final Map<String, Video> _videos = {};
   final Map<String, VideoDetail> _videoDetails = {};
+  final videoDetailStreamController = StreamController<VideoDetail>();
 
   Future<Profile?> getProfile(String uid) async {
     final targetProfile = _profiles[uid];
@@ -61,7 +64,7 @@ class Repository {
     return profile;
   }
 
-  Future<VideoDetail> getVideoDetail(String videoId) async {
+  Future<void> getVideoDetailStream(String videoId) async {
     final res = await supabaseClient
         .from('video_detail')
         .select()
@@ -80,11 +83,17 @@ class Repository {
         message: 'No data found for this videoId',
       );
     }
-    return VideoDetail.fromData(Map.from(List.from(data).first));
+    _videoDetails[videoId] =
+        VideoDetail.fromData(Map.from(List.from(data).first));
+    videoDetailStreamController.sink.add(_videoDetails[videoId]!);
   }
 
   Future<void> like(String videoId) async {
     final uid = supabaseClient.auth.currentUser!.id;
+    final currentVideoDetail = _videoDetails[videoId]!;
+    _videoDetails[videoId] = currentVideoDetail.copyWith(
+        likeCount: (currentVideoDetail.likeCount + 1), haveLiked: true);
+    videoDetailStreamController.sink.add(_videoDetails[videoId]!);
     final res = await supabaseClient.from('likes').insert([
       VideoDetail.like(videoId: videoId, uid: uid),
     ]).execute();

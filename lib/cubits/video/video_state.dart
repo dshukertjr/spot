@@ -21,16 +21,6 @@ class VideoPlaying extends VideoState {
   final VideoPlayerController videoPlayerController;
 }
 
-class VideoPaused extends VideoState {
-  VideoPaused({
-    required this.video,
-    required this.videoPlayerController,
-  });
-
-  final VideoDetail video;
-  final VideoPlayerController videoPlayerController;
-}
-
 class VideoError extends VideoState {
   VideoError({required this.message});
 

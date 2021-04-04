@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/repositories/repository.dart';
@@ -19,6 +21,8 @@ class VideoCubit extends Cubit<VideoState> {
   late final String _videoId;
   late final VideoDetail _video;
   late final VideoPlayerController _videoPlayerController;
+  late final StreamController<VideoDetail> _videoStreamController;
+  late final StreamSubscription<VideoDetail> _videoStreamSubscription;
   bool _videoInitialized = false;
 
   @override
@@ -30,8 +34,27 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> initialize(String videoId) async {
     try {
       _videoId = videoId;
-      _video = await _repository.getVideoDetail(videoId);
-      emit(VideoLoading(_video));
+      _videoStreamController = _repository.videoDetailStreamController;
+      await _repository.getVideoDetailStream(videoId);
+      _videoStreamSubscription =
+          _videoStreamController.stream.listen((videoDetail) {
+        _video = videoDetail;
+        if (state is VideoInitial) {
+          emit(VideoLoading(_video));
+        } else if (state is VideoLoading) {
+          emit(VideoLoading(_video));
+        } else if (state is VideoPlaying) {
+          emit(VideoPlaying(
+            video: _video,
+            videoPlayerController: _videoPlayerController,
+          ));
+        } else if (state is VideoError) {
+          emit(VideoPlaying(
+            video: _video,
+            videoPlayerController: _videoPlayerController,
+          ));
+        }
+      });
 
       _videoPlayerController = VideoPlayerController.network(_video.url);
       await _videoPlayerController.initialize();
@@ -45,26 +68,6 @@ class VideoCubit extends Cubit<VideoState> {
     } catch (e) {
       emit(VideoError(message: 'Error loading video. Please refresh.'));
       return;
-    }
-  }
-
-  Future<void> pause() async {
-    await _videoPlayerController.pause();
-    if (!(state is VideoLoading)) {
-      emit(VideoPaused(
-        video: _video,
-        videoPlayerController: _videoPlayerController,
-      ));
-    }
-  }
-
-  Future<void> resume() async {
-    await _videoPlayerController.play();
-    if (_videoInitialized) {
-      emit(VideoPlaying(
-        video: _video,
-        videoPlayerController: _videoPlayerController,
-      ));
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:spot/models/profile.dart';
 
 class Video {
@@ -136,5 +137,26 @@ class VideoDetail extends Video {
       'video_id': videoId,
       'user_id': uid,
     };
+  }
+
+  VideoDetail copyWith({
+    int? likeCount,
+    int? commentCount,
+    bool? haveLiked,
+  }) {
+    return VideoDetail(
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
+      haveLiked: haveLiked ?? this.haveLiked,
+      createdAt: createdAt,
+      createdBy: createdBy,
+      description: description,
+      gifUrl: gifUrl,
+      id: id,
+      imageUrl: imageUrl,
+      location: location,
+      thumbnailUrl: thumbnailUrl,
+      url: url,
+    );
   }
 }
