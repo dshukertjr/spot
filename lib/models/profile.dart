@@ -3,7 +3,7 @@ class Profile {
     required this.id,
     required this.name,
     this.description,
-    required this.imageUrl,
+    this.imageUrl,
   });
 
   final String id;

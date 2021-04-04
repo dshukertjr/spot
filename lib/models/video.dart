@@ -53,15 +53,15 @@ class Video {
         .map<Video>((res) => Video(
               id: res['id'] as String,
               url: res['url'] as String,
-              imageUrl: res['mage_url'] as String,
+              imageUrl: res['image_url'] as String,
               thumbnailUrl: res['thumbnail_url'] as String,
               gifUrl: res['gif_url'] as String,
               description: res['description'] as String,
               createdBy: Profile(
                 id: res['user_id'] as String,
                 name: res['user_name'] as String,
-                description: res['user_description'] as String,
-                imageUrl: res['user_image_description'] as String,
+                description: res['user_description'] as String?,
+                imageUrl: res['user_image_description'] as String?,
               ),
               location: _locationFromPoint(res['location'] as String),
               createdAt: DateTime.parse(res['created_at'] as String),
@@ -73,7 +73,7 @@ class Video {
     return Video(
       id: data['id'] as String,
       url: data['url'] as String,
-      imageUrl: data['image_rl'] as String,
+      imageUrl: data['image_url'] as String,
       thumbnailUrl: data['thumbnail_url'] as String,
       gifUrl: data['gif_url'] as String,
       description: data['description'] as String,

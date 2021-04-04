@@ -76,6 +76,7 @@ class _SplashPageState extends State<SplashPage> {
     if (error != null) {
       await localStorage.delete(key: persistantSessionKey);
       _redirectToLoginPage();
+      return;
     }
     final data = snap.data as List<dynamic>;
     if (data.isEmpty) {

@@ -104,19 +104,9 @@ from
     join users on videos.user_id = users.id;
 comment on view public.video_detail is 'Table to create video detail page';
 
-    -- id uuid not null primary key DEFAULT uuid_generate_v4 (),
-    -- user_id uuid references public.users not null,
-    -- created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    -- url text,
-    -- image_url text,
-    -- thumbnail_url text,
-    -- gif_url text,
-    -- description varchar(320),
-    -- location geography(POINT)
-
 
 create or replace function nearby_videos(location text)
-returns table(id uuid, image_url text, thumbnail_url text, gif_url text, location geography(POINT))
+returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, user_id uuid, user_name text, description text, user_image_url text)
 as 
 $func$
     select
@@ -126,13 +116,14 @@ $func$
         videos.thumbnail_url,
         videos.gif_url,
         st_astext(videos.location) as location,
-        user.id as user_id,
-        user.name as user_name,
-        user.description as user_description,
-        user.image_url as user_image_url,
+        videos.created_at,
+        users.id as user_id,
+        users.name as user_name,
+        users.description as user_description,
+        users.image_url as user_image_url
     from videos
-    join users on videos.user_id = users.id;
-    order by location <-> extensions.ST_GeogFromText($1);
+    join users on videos.user_id = users.id
+    order by location <-> st_geogfromtext($1);
 $func$
 language sql;
 

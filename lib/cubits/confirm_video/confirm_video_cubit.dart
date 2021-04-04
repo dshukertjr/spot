@@ -79,7 +79,6 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       await Future.delayed(const Duration(milliseconds: 100));
       return !_doneCompressingVideo;
     });
-
     final location = await _repository.determinePosition();
     final authUser = supabaseClient.auth.currentUser;
 
@@ -95,7 +94,9 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       creatorUid: authUser!.id,
       location: location,
     );
-    final res = await supabaseClient.from('posts').insert([videoMap]).execute();
+    final res =
+        await supabaseClient.from('videos').insert([videoMap]).execute();
+    // TODO error hanndling
 
     /// TODO Upload the videos to supabase
     emit(ConfirmVideoUploaded());

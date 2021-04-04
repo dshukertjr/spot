@@ -8,7 +8,6 @@ import 'package:spot/pages/confirm_recording_page.dart';
 
 import '../components/app_scaffold.dart';
 import '../cubits/record/record_cubit.dart';
-import '../cubits/record/record_cubit.dart';
 
 class RecordPage extends StatelessWidget {
   static Route<void> route() {
