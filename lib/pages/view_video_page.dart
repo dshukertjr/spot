@@ -56,32 +56,35 @@ class ViewVideoPage extends StatelessWidget {
 class _VideoScreen extends StatefulWidget {
   const _VideoScreen({
     Key? key,
-    this.controller,
-    required this.video,
-  }) : super(key: key);
+    VideoPlayerController? controller,
+    required VideoDetail video,
+    bool? isCommentsShown,
+  })  : _controller = controller,
+        _video = video,
+        _isCommentsShown = isCommentsShown ?? false,
+        super(key: key);
 
-  final VideoPlayerController? controller;
-  final VideoDetail video;
+  final VideoPlayerController? _controller;
+  final VideoDetail _video;
+  final bool _isCommentsShown;
 
   @override
   __VideoScreenState createState() => __VideoScreenState();
 }
 
 class __VideoScreenState extends State<_VideoScreen> {
-  bool _isCommentsShown = false;
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        widget.controller == null
+        widget._controller == null
             ? Image.network(
-                widget.video.thumbnailUrl,
+                widget._video.imageUrl,
                 fit: BoxFit.cover,
               )
             : FullScreenVideoPlayer(
-                videoPlayerController: widget.controller!,
+                videoPlayerController: widget._controller!,
               ),
         Positioned(
           left: 18,
@@ -108,17 +111,15 @@ class __VideoScreenState extends State<_VideoScreen> {
                   IconButton(
                     icon: const Icon(FeatherIcons.messageCircle),
                     onPressed: () async {
-                      await widget.controller!.pause();
-                      setState(() {
-                        _isCommentsShown = true;
-                      });
+                      await widget._controller!.pause();
+                      await BlocProvider.of<VideoCubit>(context).showComments();
                     },
                   ),
                   const SizedBox(height: 36),
                   IconButton(
                     icon: const Icon(FeatherIcons.heart),
                     onPressed: () {
-                      if (widget.video.haveLiked) {
+                      if (widget._video.haveLiked) {
                         BlocProvider.of<VideoCubit>(context).unlike();
                       } else {
                         BlocProvider.of<VideoCubit>(context).like();
@@ -145,14 +146,14 @@ class __VideoScreenState extends State<_VideoScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '@${widget.video.createdBy.name}',
+                  '@${widget._video.createdBy.name}',
                   style: const TextStyle(
                     fontSize: 15,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  widget.video.description,
+                  widget._video.description,
                   style: const TextStyle(
                     fontSize: 15,
                     height: 1.3,
@@ -162,21 +163,17 @@ class __VideoScreenState extends State<_VideoScreen> {
             ),
           ),
         ),
-        if (_isCommentsShown)
+        if (widget._isCommentsShown)
           Positioned.fill(
             child: WillPopScope(
               onWillPop: () async {
-                await widget.controller!.play();
-                setState(() {
-                  _isCommentsShown = false;
-                });
+                await widget._controller!.play();
+                BlocProvider.of<VideoCubit>(context).hideComments();
                 return false;
               },
               child: _CommentsOverlay(
                 onClose: () {
-                  setState(() {
-                    _isCommentsShown = false;
-                  });
+                  BlocProvider.of<VideoCubit>(context).hideComments();
                 },
               ),
             ),

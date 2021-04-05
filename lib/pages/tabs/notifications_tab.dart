@@ -1,52 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:spot/components/profile_image.dart';
-import 'package:spot/models/comment.dart';
 import 'package:spot/models/notification.dart';
 
-import '../../models/profile.dart';
-import '../../models/video.dart';
-import '../../models/video.dart';
-
 class NotificationsTab extends StatelessWidget {
-  final notifications = [
-    AppNotification(
-      type: NotificationType.like,
-      profile: Profile(
-        id: 'aaa',
-        name: 'O\'niel',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      targetVideoId: 'aaa',
-    ),
-    AppNotification(
-      type: NotificationType.comment,
-      profile: Profile(
-        id: 'aaa',
-        name: 'O\'niel',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      comment: Comment(
-        id: '',
-        text: 'This is amazing',
-        createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-        videoId: '',
-      ),
-    ),
-    AppNotification(
-      type: NotificationType.follow,
-      profile: Profile(
-        id: 'aaa',
-        name: 'O\'niel',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-    ),
-  ];
+  final notifications = [];
 
   @override
   Widget build(BuildContext context) {

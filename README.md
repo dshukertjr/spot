@@ -85,6 +85,20 @@ create policy "Follows are viewable by everyone. " on public.follow for select u
 create policy "Users can follow anyone" on public.follow for insert with check (auth.uid() = following_user_id);
 create policy "Users can unfollow their follows and ssers can remove their followers" on public.follow for delete using (auth.uid() = following_user_id or auth.uid() = followed_user_id);
 
+create or replace view video_comments
+as
+    select 
+        comments.id,
+        comments.text,
+        comments.created_at,
+        comments.video_id,
+        users.id as user_id,
+        users.name as user_name,
+        users.description as user_description,
+        users.image_url as user_image_url
+    from comments
+    join users on comments.user_id = users.id;
+    
 
 create or replace function nearby_videos(location text)
 returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, description text, user_image_url text)

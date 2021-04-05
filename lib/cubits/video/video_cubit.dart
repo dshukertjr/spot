@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:spot/models/comment.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
@@ -24,6 +25,10 @@ class VideoCubit extends Cubit<VideoState> {
   late final StreamController<VideoDetail> _videoStreamController;
   late final StreamSubscription<VideoDetail> _videoStreamSubscription;
   bool _videoInitialized = false;
+
+  List<Comment>? _comments;
+
+  bool _isCommentsShown = false;
 
   @override
   Future<void> close() {
@@ -77,5 +82,30 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> unlike() {
     return _repository.unlike(_videoId);
+  }
+
+  Future<void> showComments() async {
+    _isCommentsShown = true;
+    emit(VideoPlaying(
+      video: _video,
+      videoPlayerController: _videoPlayerController,
+      isCommentsShown: _isCommentsShown,
+    ));
+    _comments ??= await _repository.getComments(_videoId);
+    emit(VideoPlaying(
+      video: _video,
+      videoPlayerController: _videoPlayerController,
+      isCommentsShown: _isCommentsShown,
+      comments: _comments,
+    ));
+  }
+
+  void hideComments() {
+    _isCommentsShown = false;
+    emit(VideoPlaying(
+      video: _video,
+      videoPlayerController: _videoPlayerController,
+      isCommentsShown: _isCommentsShown,
+    ));
   }
 }

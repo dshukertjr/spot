@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/models/comment.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 
@@ -118,6 +119,23 @@ class Repository {
         message: error.message,
       );
     }
+  }
+
+  Future<List<Comment>> getComments(String videoId) async {
+    final res = await supabaseClient
+        .from('video_comments')
+        .select()
+        .eq('video_id', videoId)
+        .execute();
+    final data = res.data;
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'Unlike Video',
+        message: error.message,
+      );
+    }
+    return Comment.commentsFromData(List.from(data));
   }
 
   Future<LatLng> determinePosition() async {

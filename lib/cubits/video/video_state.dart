@@ -15,10 +15,14 @@ class VideoPlaying extends VideoState {
   VideoPlaying({
     required this.video,
     required this.videoPlayerController,
-  });
+    bool? isCommentsShown,
+    this.comments,
+  }) : isCommentsShown = isCommentsShown ?? false;
 
   final VideoDetail video;
   final VideoPlayerController videoPlayerController;
+  final bool isCommentsShown;
+  final List<Comment>? comments;
 }
 
 class VideoError extends VideoState {

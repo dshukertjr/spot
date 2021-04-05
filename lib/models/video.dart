@@ -51,21 +51,21 @@ class Video {
 
   static List<Video> videosFromData(List<dynamic> data) {
     return data
-        .map<Video>((res) => Video(
-              id: res['id'] as String,
-              url: res['url'] as String,
-              imageUrl: res['image_url'] as String,
-              thumbnailUrl: res['thumbnail_url'] as String,
-              gifUrl: res['gif_url'] as String,
-              description: res['description'] as String,
+        .map<Video>((row) => Video(
+              id: row['id'] as String,
+              url: row['url'] as String,
+              imageUrl: row['image_url'] as String,
+              thumbnailUrl: row['thumbnail_url'] as String,
+              gifUrl: row['gif_url'] as String,
+              description: row['description'] as String,
               createdBy: Profile(
-                id: res['user_id'] as String,
-                name: res['user_name'] as String,
-                description: res['user_description'] as String?,
-                imageUrl: res['user_image_description'] as String?,
+                id: row['user_id'] as String,
+                name: row['user_name'] as String,
+                description: row['user_description'] as String?,
+                imageUrl: row['user_image_description'] as String?,
               ),
-              location: _locationFromPoint(res['location'] as String),
-              createdAt: DateTime.parse(res['created_at'] as String),
+              location: _locationFromPoint(row['location'] as String),
+              createdAt: DateTime.parse(row['created_at'] as String),
             ))
         .toList();
   }
