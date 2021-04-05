@@ -24,7 +24,6 @@ class VideoCubit extends Cubit<VideoState> {
   late final VideoPlayerController _videoPlayerController;
   late final StreamController<VideoDetail> _videoStreamController;
   late final StreamSubscription<VideoDetail> _videoStreamSubscription;
-  bool _videoInitialized = false;
 
   List<Comment>? _comments;
 
@@ -33,6 +32,7 @@ class VideoCubit extends Cubit<VideoState> {
   @override
   Future<void> close() {
     _videoPlayerController.dispose();
+    _videoStreamSubscription.cancel();
     return super.close();
   }
 
@@ -63,7 +63,6 @@ class VideoCubit extends Cubit<VideoState> {
 
       _videoPlayerController = VideoPlayerController.network(_video.url);
       await _videoPlayerController.initialize();
-      _videoInitialized = true;
       await _videoPlayerController.setLooping(true);
       await _videoPlayerController.play();
       emit(VideoPlaying(

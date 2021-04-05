@@ -1,33 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:spot/app/constants.dart';
+import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/pages/view_video_page.dart';
+import 'package:spot/repositories/repository.dart';
 
-import '../models/profile.dart';
-import '../models/video.dart';
 import 'profile_image.dart';
 
 class UserProfile extends StatelessWidget {
-  final videos = [
-    Video(
-      id: '',
-      createdAt: DateTime.now(),
-      createdBy: Profile(
-        id: '',
-        name: 'aaa',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
-      description: '',
-      imageUrl:
-          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      thumbnailUrl:
-          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      gifUrl:
-          'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      location: const LatLng(37.43296265331129, -122.08832357078792),
-    ),
-  ];
+  UserProfile({
+    Key? key,
+    required String userId,
+  })   : _userId = userId,
+        super(key: key);
+
+  final String _userId;
+  final videos = [];
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -35,28 +24,11 @@ class UserProfile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: MediaQuery.of(context).padding.top),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 31,
-              horizontal: 19,
-            ),
-            child: Row(
-              children: [
-                const ProfileImage(size: 120),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text('@Newyorker'),
-                      const SizedBox(height: 17),
-                      const Text('I enjoy using this app. '),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          BlocProvider(
+            create: (context) => ProfileCubit(
+              databaseRepository: RepositoryProvider.of<Repository>(context),
+            )..loadProfile(_userId),
+            child: const _Profile(),
           ),
           Material(
             color: Colors.transparent,
@@ -89,5 +61,48 @@ class UserProfile extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _Profile extends StatelessWidget {
+  const _Profile({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ProfileCubit, ProfileState>(builder: (context, state) {
+      if (state is ProfileLoading) {
+        return preloader;
+      } else if (state is ProfileNotFound) {
+        return const Text('Profile not found');
+      } else if (state is ProfileLoaded) {
+        final profile = state.profile;
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 31,
+            horizontal: 19,
+          ),
+          child: Row(
+            children: [
+              const ProfileImage(size: 120),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(profile.name),
+                    const SizedBox(height: 17),
+                    if (profile.description != null) Text(profile.description!),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+      throw UnimplementedError();
+    });
   }
 }

@@ -8,5 +8,7 @@ class ProfileLoading extends ProfileState {}
 class ProfileLoaded extends ProfileState {
   ProfileLoaded(this.profile);
 
-  final Profile? profile;
+  final Profile profile;
 }
+
+class ProfileNotFound extends ProfileState {}

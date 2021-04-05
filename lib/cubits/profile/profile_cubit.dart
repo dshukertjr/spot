@@ -19,6 +19,10 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<void> loadProfile(String uid) async {
     final profile = await _databaseRepository.getProfile(uid);
+    if (profile == null) {
+      emit(ProfileNotFound());
+      return;
+    }
     emit(ProfileLoaded(profile));
   }
 
@@ -30,7 +34,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(ProfileLoading());
     final user = supabaseClient.auth.currentUser;
     if (user == null) {
-      emit(ProfileLoaded(null));
+      emit(ProfileNotFound());
       throw PlatformException(
         code: 'Auth_Error',
         message: 'Session has expired',

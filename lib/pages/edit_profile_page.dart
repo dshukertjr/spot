@@ -53,9 +53,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           BlocConsumer<ProfileCubit, ProfileState>(listener: (context, state) {
         if (state is ProfileLoaded) {
           final profile = state.profile;
-          if (profile == null) {
-            return;
-          }
           setState(() {
             _userNameController.text = profile.name;
             _descriptionController.text = profile.description ?? '';
@@ -64,7 +61,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }, builder: (context, state) {
         if (state is ProfileLoading) {
           return preloader;
-        } else if (state is ProfileLoaded) {
+        } else if (state is ProfileLoaded || state is ProfileNotFound) {
           return _form(context);
         }
         return preloader;
