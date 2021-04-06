@@ -18,7 +18,7 @@ class MapTab extends StatelessWidget {
     return BlocProvider<VideosCubit>(
       create: (context) => VideosCubit(
         databaseRepository: RepositoryProvider.of<Repository>(context),
-      )..initialize(),
+      )..loadFromLocation(),
       child: MapTab(),
     );
   }

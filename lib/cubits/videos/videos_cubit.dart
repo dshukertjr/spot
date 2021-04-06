@@ -16,7 +16,7 @@ class VideosCubit extends Cubit<VideosState> {
 
   final List<Video> _videos = [];
 
-  Future<void> initialize() async {
+  Future<void> loadFromLocation() async {
     final location = await _databaseRepository.determinePosition();
     emit(VideosLoading(location));
     final res = await supabaseClient
@@ -37,7 +37,27 @@ class VideosCubit extends Cubit<VideosState> {
 
     _videos.addAll(Video.videosFromData(data));
 
-    // TODO receive geo point and get videos
+    emit(VideosLoaded(_videos));
+  }
+
+  Future<void> loadFromUid(String uid) async {
+    final res = await supabaseClient
+        .from('videos')
+        .select()
+        .eq('user_id', uid)
+        .execute();
+    final error = res.error;
+    final data = res.data;
+    if (error != null) {
+      emit(VideosError(message: 'Error loading videos. Please refresh.'));
+      return;
+    } else if (data == null) {
+      emit(VideosError(message: 'Error loading videos. Please refresh.'));
+      return;
+    }
+
+    _videos.addAll(Video.videosFromData(data));
+
     emit(VideosLoaded(_videos));
   }
 }
