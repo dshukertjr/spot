@@ -9,55 +9,32 @@ part 'videos_state.dart';
 
 class VideosCubit extends Cubit<VideosState> {
   VideosCubit({required Repository databaseRepository})
-      : _databaseRepository = databaseRepository,
+      : _repository = databaseRepository,
         super(VideosInitial());
 
-  final Repository _databaseRepository;
+  final Repository _repository;
 
   final List<Video> _videos = [];
 
   Future<void> loadFromLocation() async {
-    final location = await _databaseRepository.determinePosition();
+    final location = await _repository.determinePosition();
     emit(VideosLoading(location));
-    final res = await supabaseClient
-        .rpc('nearby_videos', params: {
-          'location': 'POINT(${location.latitude} ${location.longitude})'
-        })
-        .limit(20)
-        .execute();
-    final error = res.error;
-    final data = res.data;
-    if (error != null) {
+    try {
+      final videos = await _repository.getVideosFromLocation(location);
+      _videos.addAll(videos);
+      emit(VideosLoaded(_videos));
+    } catch (e) {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
-      return;
-    } else if (data == null) {
-      emit(VideosError(message: 'Error loading videos. Please refresh.'));
-      return;
     }
-
-    _videos.addAll(Video.videosFromData(data));
-
-    emit(VideosLoaded(_videos));
   }
 
   Future<void> loadFromUid(String uid) async {
-    final res = await supabaseClient
-        .from('videos')
-        .select()
-        .eq('user_id', uid)
-        .execute();
-    final error = res.error;
-    final data = res.data;
-    if (error != null) {
+    try {
+      final videos = await _repository.getVideosFromUid(uid);
+      _videos.addAll(videos);
+      emit(VideosLoaded(_videos));
+    } catch (e) {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
-      return;
-    } else if (data == null) {
-      emit(VideosError(message: 'Error loading videos. Please refresh.'));
-      return;
     }
-
-    _videos.addAll(Video.videosFromData(data));
-
-    emit(VideosLoaded(_videos));
   }
 }

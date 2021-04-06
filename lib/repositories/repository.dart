@@ -15,6 +15,40 @@ class Repository {
   final Map<String, VideoDetail> _videoDetails = {};
   final videoDetailStreamController = StreamController<VideoDetail>();
 
+  Future<List<Video>> getVideosFromLocation(LatLng location) async {
+    final res = await supabaseClient
+        .rpc('nearby_videos', params: {
+          'location': 'POINT(${location.latitude} ${location.longitude})'
+        })
+        .limit(20)
+        .execute();
+    final error = res.error;
+    final data = res.data;
+    if (error != null) {
+      throw PlatformException(code: 'getVideosFromLocation error');
+    } else if (data == null) {
+      throw PlatformException(code: 'getVideosFromLocation error');
+    }
+    return Video.videosFromData(data);
+  }
+
+  Future<List<Video>> getVideosFromUid(String uid) async {
+    final res = await supabaseClient
+        .from('videos')
+        .select()
+        .eq('user_id', uid)
+        .order('created_at')
+        .execute();
+    final error = res.error;
+    final data = res.data;
+    if (error != null) {
+      throw PlatformException(code: 'getVideosFromUid error');
+    } else if (data == null) {
+      throw PlatformException(code: 'getVideosFromUid error');
+    }
+    return Video.videosFromData(data);
+  }
+
   Future<Profile?> getProfile(String uid) async {
     final targetProfile = _profiles[uid];
     if (targetProfile != null) {
