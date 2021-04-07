@@ -150,6 +150,51 @@ $func$
 $func$
 language sql;
 
+
+create or replace view notifications
+as
+    select 
+        'like' as type,
+        videos.user_id as receiver_user_id,
+        null as comment_text,
+        videos.id as video_id,
+        videos.thumbnail_url as video_thumbnail_url,
+        likes.user_id as action_user_id,
+        users.name as action_user_name,
+        users.image_url as action_user_image_url,
+        likes.created_at
+    from likes
+    join users on likes.user_id = users.id
+    join videos on videos.id = likes.video_id
+    union all
+    select
+        'comment' as type,
+        videos.user_id as receiver_user_id,
+        comments.text as comment_text,
+        videos.id as video_id,
+        videos.thumbnail_url as video_thumbnail_url,
+        comments.user_id as action_user_id,
+        users.name as action_user_name,
+        users.image_url as action_user_image_url,
+        comments.created_at
+    from comments
+    join users on comments.user_id = users.id
+    join videos on videos.id = comments.video_id
+    union all
+    select
+        'follow' as type,
+        follow.followed_user_id as receiver_user_id,
+        null as commennt_text,
+        null as video_id,
+        null as video_thumbnail_url,
+        follow.following_user_id as action_user_id,
+        users.name as action_user_name,
+        users.image_url as action_user_image_url,
+        follow.followed_at as created_at
+    from follow
+    join users on follow.following_user_id = users.id
+    order by created_at desc;
+
 -- Configure storage
 insert into storage.buckets (id, name) values ('videos', 'videos');
 insert into storage.buckets (id, name) values ('profiles', 'profiles');
