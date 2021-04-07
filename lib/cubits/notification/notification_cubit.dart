@@ -1,11 +1,21 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/models/notification.dart';
+import 'package:spot/repositories/repository.dart';
 
 part 'notification_state.dart';
 
 class NotificationCubit extends Cubit<NotificationState> {
-  NotificationCubit() : super(NotificationInitial());
+  NotificationCubit({required Repository repository})
+      : _repository = repository,
+        super(NotificationInitial());
 
-  Future<void> initialize() async {}
+  final Repository _repository;
+  final _notifications = <AppNotification>[];
+
+  Future<void> initialize() async {
+    final notifications = await _repository.getNotifications();
+    _notifications.addAll(notifications);
+    emit(NotificationLoaded(_notifications));
+  }
 }
