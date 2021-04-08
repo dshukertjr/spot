@@ -20,10 +20,10 @@ class VideoCubit extends Cubit<VideoState> {
   final Repository _repository;
 
   late final String _videoId;
-  late final VideoDetail _video;
-  late final VideoPlayerController _videoPlayerController;
+  late final VideoDetail _videoDetail;
+  VideoPlayerController? _videoPlayerController;
   late final StreamController<VideoDetail> _videoStreamController;
-  late final StreamSubscription<VideoDetail> _videoStreamSubscription;
+  StreamSubscription<VideoDetail>? _videoStreamSubscription;
 
   List<Comment>? _comments;
 
@@ -31,8 +31,8 @@ class VideoCubit extends Cubit<VideoState> {
 
   @override
   Future<void> close() {
-    _videoPlayerController.dispose();
-    _videoStreamSubscription.cancel();
+    _videoPlayerController?.dispose();
+    _videoStreamSubscription?.cancel();
     return super.close();
   }
 
@@ -43,35 +43,22 @@ class VideoCubit extends Cubit<VideoState> {
       await _repository.getVideoDetailStream(videoId);
       _videoStreamSubscription =
           _videoStreamController.stream.listen((videoDetail) {
-        _video = videoDetail;
+        _videoDetail = videoDetail;
+        _initializeVideo();
         if (state is VideoInitial) {
-          emit(VideoLoading(_video));
+          emit(VideoLoading(_videoDetail));
         } else if (state is VideoLoading) {
-          emit(VideoLoading(_video));
+          emit(VideoLoading(_videoDetail));
         } else if (state is VideoPlaying) {
           emit(VideoPlaying(
-            video: _video,
-            videoPlayerController: _videoPlayerController,
-          ));
-        } else if (state is VideoError) {
-          emit(VideoPlaying(
-            video: _video,
-            videoPlayerController: _videoPlayerController,
+            video: _videoDetail,
+            videoPlayerController: _videoPlayerController!,
           ));
         }
       });
-
-      _videoPlayerController = VideoPlayerController.network(_video.url);
-      await _videoPlayerController.initialize();
-      await _videoPlayerController.setLooping(true);
-      await _videoPlayerController.play();
-      emit(VideoPlaying(
-        video: _video,
-        videoPlayerController: _videoPlayerController,
-      ));
-    } catch (e) {
+    } catch (err, stack) {
+      print(stack);
       emit(VideoError(message: 'Error loading video. Please refresh.'));
-      return;
     }
   }
 
@@ -86,14 +73,14 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> showComments() async {
     _isCommentsShown = true;
     emit(VideoPlaying(
-      video: _video,
-      videoPlayerController: _videoPlayerController,
+      video: _videoDetail,
+      videoPlayerController: _videoPlayerController!,
       isCommentsShown: _isCommentsShown,
     ));
     _comments ??= await _repository.getComments(_videoId);
     emit(VideoPlaying(
-      video: _video,
-      videoPlayerController: _videoPlayerController,
+      video: _videoDetail,
+      videoPlayerController: _videoPlayerController!,
       isCommentsShown: _isCommentsShown,
       comments: _comments,
     ));
@@ -102,9 +89,23 @@ class VideoCubit extends Cubit<VideoState> {
   void hideComments() {
     _isCommentsShown = false;
     emit(VideoPlaying(
-      video: _video,
-      videoPlayerController: _videoPlayerController,
+      video: _videoDetail,
+      videoPlayerController: _videoPlayerController!,
       isCommentsShown: _isCommentsShown,
     ));
+  }
+
+  Future<void> _initializeVideo() async {
+    if (_videoPlayerController == null) {
+      _videoPlayerController = VideoPlayerController.network(_videoDetail.url);
+      await _videoPlayerController!.initialize();
+      await _videoPlayerController!.setLooping(true);
+      await _videoPlayerController!.play();
+
+      emit(VideoPlaying(
+        video: _videoDetail,
+        videoPlayerController: _videoPlayerController!,
+      ));
+    }
   }
 }

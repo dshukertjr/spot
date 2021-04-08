@@ -102,8 +102,9 @@ class Repository {
   }
 
   Future<void> getVideoDetailStream(String videoId) async {
-    final res = await supabaseClient
-        .rpc('get_video_detail', params: {'video_id': videoId}).execute();
+    final userId = supabaseClient.auth.currentUser!.id;
+    final res = await supabaseClient.rpc('get_video_detail',
+        params: {'video_id': videoId, 'user_id': userId}).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
