@@ -36,7 +36,8 @@ class Repository {
   Future<List<Video>> getVideosFromUid(String uid) async {
     final res = await supabaseClient
         .from('videos')
-        .select()
+        .select(
+            'id, user_id, created_at, url, image_url, thumbnail_url, gif_url, description')
         .eq('user_id', uid)
         .order('created_at')
         .execute();

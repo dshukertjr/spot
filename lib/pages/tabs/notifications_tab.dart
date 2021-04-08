@@ -1,28 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:spot/app/constants.dart';
 import 'package:spot/components/profile_image.dart';
+import 'package:spot/cubits/notification/notification_cubit.dart';
 import 'package:spot/models/notification.dart';
+import 'package:spot/repositories/repository.dart';
 
 class NotificationsTab extends StatelessWidget {
-  final notifications = [];
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<NotificationCubit>(
+      create: (context) => NotificationCubit(
+          repository: RepositoryProvider.of<Repository>(context)),
+      child: _NotificationsList(),
+    );
+  }
+}
 
+class _NotificationsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safeAreaPadding = MediaQuery.of(context).padding;
-    return ListView.separated(
-      padding: EdgeInsets.only(
-        top: 16 + safeAreaPadding.top,
-        right: 16 + safeAreaPadding.right,
-        bottom: 16 + safeAreaPadding.bottom,
-        left: 16 + safeAreaPadding.left,
-      ),
-      itemCount: notifications.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 18),
-      itemBuilder: (context, index) {
-        return _NotificationCell(
-          notification: notifications[index],
+    return BlocBuilder<NotificationCubit, NotificationState>(
+        builder: (context, state) {
+      if (state is NotificationInitial) {
+        return preloader;
+      } else if (state is NotificationLoaded) {
+        final notifications = state.notifications;
+        return ListView.separated(
+          padding: EdgeInsets.only(
+            top: 16 + safeAreaPadding.top,
+            right: 16 + safeAreaPadding.right,
+            bottom: 16 + safeAreaPadding.bottom,
+            left: 16 + safeAreaPadding.left,
+          ),
+          itemCount: notifications.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 18),
+          itemBuilder: (context, index) {
+            return _NotificationCell(
+              notification: notifications[index],
+            );
+          },
         );
-      },
-    );
+      }
+      throw UnimplementedError();
+    });
   }
 }
 

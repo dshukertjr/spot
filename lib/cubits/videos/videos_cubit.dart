@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
-import 'package:spot/app/constants.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
 
@@ -23,7 +22,7 @@ class VideosCubit extends Cubit<VideosState> {
       final videos = await _repository.getVideosFromLocation(location);
       _videos.addAll(videos);
       emit(VideosLoaded(_videos));
-    } catch (e) {
+    } catch (err) {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
     }
   }
@@ -33,7 +32,7 @@ class VideosCubit extends Cubit<VideosState> {
       final videos = await _repository.getVideosFromUid(uid);
       _videos.addAll(videos);
       emit(VideosLoaded(_videos));
-    } catch (e) {
+    } catch (err) {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
     }
   }

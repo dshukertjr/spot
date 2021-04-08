@@ -195,7 +195,7 @@ class __MapState extends State<_Map> {
       onTap: onTap,
       consumeTapEvents: true,
       markerId: MarkerId(video.id),
-      position: video.location,
+      position: video.location!,
       icon: BitmapDescriptor.fromBytes(markerIcon),
     );
   }

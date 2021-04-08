@@ -11,12 +11,7 @@ class SearchTab extends StatelessWidget {
     Video(
       id: '',
       createdAt: DateTime.now(),
-      createdBy: Profile(
-        id: '',
-        name: 'aaa',
-        imageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      ),
+      userId: 'dfas',
       description: '',
       thumbnailUrl:
           'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',

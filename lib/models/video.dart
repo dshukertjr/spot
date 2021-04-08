@@ -11,7 +11,7 @@ class Video {
     required this.gifUrl,
     required this.createdAt,
     required this.description,
-    required this.createdBy,
+    required this.userId,
     required this.location,
   });
 
@@ -22,8 +22,8 @@ class Video {
   final String gifUrl;
   final DateTime createdAt;
   final String description;
-  final Profile createdBy;
-  final LatLng location;
+  final String userId;
+  final LatLng? location;
 
   Future<double> getDistanceInMeter() async {
     return 1000;
@@ -58,13 +58,10 @@ class Video {
               thumbnailUrl: row['thumbnail_url'] as String,
               gifUrl: row['gif_url'] as String,
               description: row['description'] as String,
-              createdBy: Profile(
-                id: row['user_id'] as String,
-                name: row['user_name'] as String,
-                description: row['user_description'] as String?,
-                imageUrl: row['user_image_description'] as String?,
-              ),
-              location: _locationFromPoint(row['location'] as String),
+              userId: row['user_id'] as String,
+              location: row['location'] == null
+                  ? null
+                  : _locationFromPoint(row['location'] as String),
               createdAt: DateTime.parse(row['created_at'] as String),
             ))
         .toList();
@@ -86,11 +83,12 @@ class VideoDetail extends Video {
     required String gifUrl,
     required DateTime createdAt,
     required String description,
-    required Profile createdBy,
     required LatLng location,
+    required String userId,
     required this.likeCount,
     required this.commentCount,
     required this.haveLiked,
+    required this.createdBy,
   }) : super(
           id: id,
           url: url,
@@ -98,14 +96,15 @@ class VideoDetail extends Video {
           thumbnailUrl: thumbnailUrl,
           gifUrl: gifUrl,
           createdAt: createdAt,
+          userId: userId,
           description: description,
-          createdBy: createdBy,
           location: location,
         );
 
   final int likeCount;
   final int commentCount;
   final bool haveLiked;
+  final Profile createdBy;
 
   static VideoDetail fromData(Map<String, dynamic> data) {
     return VideoDetail(
@@ -115,6 +114,7 @@ class VideoDetail extends Video {
       thumbnailUrl: data['thumbnail_url'] as String,
       gifUrl: data['gif_url'] as String,
       description: data['description'] as String,
+      userId: data['user_id'] as String,
       createdBy: Profile(
         id: data['user_id'] as String,
         name: data['user_name'] as String,
@@ -153,8 +153,9 @@ class VideoDetail extends Video {
       description: description,
       gifUrl: gifUrl,
       id: id,
+      userId: userId,
       imageUrl: imageUrl,
-      location: location,
+      location: location!,
       thumbnailUrl: thumbnailUrl,
       url: url,
     );
