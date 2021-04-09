@@ -41,11 +41,11 @@ create policy "Users can delete own videos." on public.videos for delete using (
 
 
 create table if not exists public.comments (
-    id uuid not null primary key,
+    id uuid not null primary key DEFAULT uuid_generate_v4 (),
     video_id uuid references public.videos not null,
     user_id uuid references public.users not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    text varchar(320),
+    text varchar(320) not null,
 
     constraint comment_length check (char_length(text) >= 1)
 );

@@ -37,3 +37,21 @@ const preloader = Center(
     valueColor: AlwaysStoppedAnimation<Color>(appRed),
   ),
 );
+
+final howLongAgo = (DateTime time) {
+  final now = DateTime.now();
+  final difference = now.difference(time);
+  if (difference < const Duration(minutes: 1)) {
+    return 'now';
+  } else if (difference < const Duration(hours: 1)) {
+    return '${difference.inMinutes}m';
+  } else if (difference < const Duration(days: 1)) {
+    return '${difference.inHours}h';
+  } else if (difference < const Duration(days: 30)) {
+    return '${difference.inDays}';
+  } else if (now.year == time.year) {
+    return '${time.month}-${time.day}';
+  } else {
+    return '${time.year}-${time.month}-${time.day}';
+  }
+};

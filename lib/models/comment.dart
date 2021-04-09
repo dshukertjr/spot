@@ -31,4 +31,13 @@ class Comment {
             ))
         .toList();
   }
+
+  static Map<String, dynamic> create(
+      {required String text, required String userId, required String videoId}) {
+    return {
+      'text': text,
+      'video_id': videoId,
+      'user_id': userId,
+    };
+  }
 }

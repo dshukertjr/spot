@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:spot/app/constants.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
@@ -83,19 +84,24 @@ class VideoCubit extends Cubit<VideoState> {
   }
 
   Future<void> showComments() async {
-    _isCommentsShown = true;
-    emit(VideoPlaying(
-      video: _videoDetail!,
-      videoPlayerController: _videoPlayerController!,
-      isCommentsShown: _isCommentsShown,
-    ));
-    _comments ??= await _repository.getComments(_videoId);
-    emit(VideoPlaying(
-      video: _videoDetail!,
-      videoPlayerController: _videoPlayerController!,
-      isCommentsShown: _isCommentsShown,
-      comments: _comments,
-    ));
+    try {
+      _isCommentsShown = true;
+      emit(VideoPlaying(
+        video: _videoDetail!,
+        videoPlayerController: _videoPlayerController!,
+        isCommentsShown: _isCommentsShown,
+        comments: _comments,
+      ));
+      _comments ??= await _repository.getComments(_videoId);
+      emit(VideoPlaying(
+        video: _videoDetail!,
+        videoPlayerController: _videoPlayerController!,
+        isCommentsShown: _isCommentsShown,
+        comments: _comments,
+      ));
+    } catch (err) {
+      emit(VideoError(message: 'Error opening comments of the video.'));
+    }
   }
 
   void hideComments() {
@@ -105,6 +111,30 @@ class VideoCubit extends Cubit<VideoState> {
       videoPlayerController: _videoPlayerController!,
       isCommentsShown: _isCommentsShown,
     ));
+  }
+
+  Future<void> comment(String text) async {
+    try {
+      final userId = supabaseClient.auth.currentUser!.id;
+      final user = await _repository.getProfile(userId);
+      final comment = Comment(
+        id: 'new',
+        text: text,
+        createdAt: DateTime.now(),
+        videoId: _videoId,
+        user: user!,
+      );
+      _comments!.insert(0, comment);
+      emit(VideoPlaying(
+        video: _videoDetail!,
+        videoPlayerController: _videoPlayerController!,
+        isCommentsShown: _isCommentsShown,
+        comments: _comments,
+      ));
+      await _repository.comment(text: text, videoId: _videoId);
+    } catch (err) {
+      emit(VideoError(message: 'Error commenting.'));
+    }
   }
 
   Future<void> _initializeVideo() async {

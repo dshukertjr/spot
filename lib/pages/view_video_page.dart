@@ -8,6 +8,7 @@ import 'package:spot/components/full_screen_video_player.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
+import 'package:spot/models/comment.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
@@ -39,13 +40,11 @@ class ViewVideoPage extends StatelessWidget {
               video: video,
             );
           } else if (state is VideoPlaying) {
-            final controller = state.videoPlayerController;
-            final video = state.video;
-            final isCommentsShown = state.isCommentsShown;
             return _VideoScreen(
-              controller: controller,
-              video: video,
-              isCommentsShown: isCommentsShown,
+              controller: state.videoPlayerController,
+              video: state.video,
+              isCommentsShown: state.isCommentsShown,
+              comments: state.comments,
             );
           }
           return Container();
@@ -61,14 +60,17 @@ class _VideoScreen extends StatefulWidget {
     VideoPlayerController? controller,
     required VideoDetail video,
     bool? isCommentsShown,
+    List<Comment>? comments,
   })  : _controller = controller,
         _video = video,
         _isCommentsShown = isCommentsShown ?? false,
+        _comments = comments,
         super(key: key);
 
   final VideoPlayerController? _controller;
   final VideoDetail _video;
   final bool _isCommentsShown;
+  final List<Comment>? _comments;
 
   @override
   __VideoScreenState createState() => __VideoScreenState();
@@ -176,6 +178,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                 return false;
               },
               child: _CommentsOverlay(
+                comments: widget._comments,
                 onClose: () async {
                   await widget._controller!.play();
                   BlocProvider.of<VideoCubit>(context).hideComments();
@@ -192,16 +195,21 @@ class _CommentsOverlay extends StatefulWidget {
   _CommentsOverlay({
     Key? key,
     required void Function() onClose,
+    required List<Comment>? comments,
   })   : _onClose = onClose,
+        _comments = comments,
         super(key: key);
 
   final void Function() _onClose;
+  final List<Comment>? _comments;
 
   @override
   __CommentsOverlayState createState() => __CommentsOverlayState();
 }
 
 class __CommentsOverlayState extends State<_CommentsOverlay> {
+  final _commentController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
@@ -227,52 +235,16 @@ class __CommentsOverlayState extends State<_CommentsOverlay> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 17),
-                itemCount: 20,
-                itemBuilder: (_, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Row(
-                      children: [
-                        ProfileImage(),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text('@TrueNewyorker'),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                        text:
-                                            'I would love to visit New York someday. I hope covid ends soon so that I can visit there.'),
-                                    TextSpan(
-                                      text: ' 1h',
-                                      style: TextStyle(
-                                        color: Color(0x88ffffff),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+              child: _commentsList(),
             ),
             Padding(
-              padding: EdgeInsets.all(4.0)
+              padding: const EdgeInsets.all(4.0)
                   .copyWith(bottom: MediaQuery.of(context).padding.bottom + 4),
               child: Row(
                 children: [
                   Expanded(
                     child: TextFormField(
+                      controller: _commentController,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: 'What did you think about the video?',
@@ -280,7 +252,11 @@ class __CommentsOverlayState extends State<_CommentsOverlay> {
                     ),
                   ),
                   GradientButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      BlocProvider.of<VideoCubit>(context)
+                          .comment(_commentController.text);
+                      _commentController.clear();
+                    },
                     child: const Text('Send'),
                   ),
                 ],
@@ -290,5 +266,56 @@ class __CommentsOverlayState extends State<_CommentsOverlay> {
         ),
       ),
     );
+  }
+
+  Widget _commentsList() {
+    if (widget._comments == null) {
+      return preloader;
+    } else if (widget._comments!.isEmpty) {
+      return const Center(child: Text('There are no comments yet.'));
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 17),
+      itemCount: widget._comments!.length,
+      itemBuilder: (_, index) {
+        final comment = widget._comments![index];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              ProfileImage(),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text('${comment.user.name}'),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(text: comment.text),
+                          TextSpan(
+                            text: ' ${howLongAgo(comment.createdAt)}',
+                            style: const TextStyle(
+                              color: Color(0x88ffffff),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
   }
 }

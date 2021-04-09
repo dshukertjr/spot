@@ -183,6 +183,24 @@ class Repository {
     return Comment.commentsFromData(List.from(data));
   }
 
+  Future<void> comment({
+    required String text,
+    required String videoId,
+  }) async {
+    final userId = supabaseClient.auth.currentUser!.id;
+    final res = await supabaseClient
+        .from('comments')
+        .insert(Comment.create(text: text, userId: userId, videoId: videoId))
+        .execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'commet Video',
+        message: error.message,
+      );
+    }
+  }
+
   Future<List<AppNotification>> getNotifications() async {
     final uid = supabaseClient.auth.currentUser!.id;
     final res = await supabaseClient
