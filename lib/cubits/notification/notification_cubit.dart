@@ -14,8 +14,12 @@ class NotificationCubit extends Cubit<NotificationState> {
   final _notifications = <AppNotification>[];
 
   Future<void> initialize() async {
-    final notifications = await _repository.getNotifications();
-    _notifications.addAll(notifications);
-    emit(NotificationLoaded(_notifications));
+    try {
+      final notifications = await _repository.getNotifications();
+      _notifications.addAll(notifications);
+      emit(NotificationLoaded(notifications: _notifications));
+    } catch (err) {
+      emit(NotificationInitial(errorMessage: 'Error loading notifications'));
+    }
   }
 }

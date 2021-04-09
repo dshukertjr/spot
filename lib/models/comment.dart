@@ -20,13 +20,13 @@ class Comment {
         .map((row) => Comment(
               id: row['id'] as String,
               text: row['text'] as String,
-              createdAt: DateTime.parse(row['createdAt'] as String),
-              videoId: row['videoId'] as String,
+              createdAt: DateTime.parse(row['created_at'] as String),
+              videoId: row['video_id'] as String,
               user: Profile(
                 id: row['user_id'] as String,
-                name: row['name'] as String,
-                description: row['description'] as String?,
-                imageUrl: row['imageUrl'] as String?,
+                name: row['user_name'] as String,
+                description: row['user_description'] as String?,
+                imageUrl: row['user_image_url'] as String?,
               ),
             ))
         .toList();

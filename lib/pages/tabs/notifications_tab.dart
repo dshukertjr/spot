@@ -4,6 +4,8 @@ import 'package:spot/app/constants.dart';
 import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
 import 'package:spot/models/notification.dart';
+import 'package:spot/pages/profile_page.dart';
+import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 
 class NotificationsTab extends StatelessWidget {
@@ -13,7 +15,10 @@ class NotificationsTab extends StatelessWidget {
       create: (context) => NotificationCubit(
         repository: RepositoryProvider.of<Repository>(context),
       )..initialize(),
-      child: _NotificationsList(),
+      child: Material(
+        color: Colors.transparent,
+        child: _NotificationsList(),
+      ),
     );
   }
 }
@@ -28,15 +33,12 @@ class _NotificationsList extends StatelessWidget {
         return preloader;
       } else if (state is NotificationLoaded) {
         final notifications = state.notifications;
-        return ListView.separated(
+        return ListView.builder(
           padding: EdgeInsets.only(
             top: 16 + safeAreaPadding.top,
-            right: 16 + safeAreaPadding.right,
             bottom: 16 + safeAreaPadding.bottom,
-            left: 16 + safeAreaPadding.left,
           ),
           itemCount: notifications.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 18),
           itemBuilder: (context, index) {
             return _NotificationCell(
               notification: notifications[index],
@@ -60,45 +62,67 @@ class _NotificationCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const ProfileImage(),
-        const SizedBox(width: 16),
-        Expanded(
-          child: RichText(
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            text: TextSpan(
-              children: [
-                TextSpan(text: _notificationText),
-                TextSpan(
-                  text: ' 1h',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
-                  ),
+    return InkWell(
+      onTap: () {
+        switch (_notification.type) {
+          case NotificationType.like:
+            Navigator.of(context)
+                .push(ViewVideoPage.route(_notification.targetVideoId!));
+            break;
+          case NotificationType.comment:
+            Navigator.of(context)
+                .push(ViewVideoPage.route(_notification.targetVideoId!));
+            break;
+          case NotificationType.follow:
+            Navigator.of(context)
+                .push(ProfilePage.route(_notification.actionUid!));
+            break;
+          default:
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 16),
+        child: Row(
+          children: [
+            const ProfileImage(),
+            const SizedBox(width: 16),
+            Expanded(
+              child: RichText(
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                  children: [
+                    TextSpan(text: _notificationText),
+                    TextSpan(
+                      text: ' 1h',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.5),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(width: 16),
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Image.asset(_notificationIconPath),
+            ),
+          ],
         ),
-        const SizedBox(width: 16),
-        SizedBox(
-          width: 24,
-          height: 24,
-          child: Image.asset(_notificationIconPath),
-        ),
-      ],
+      ),
     );
   }
 
   String get _notificationText {
     switch (_notification.type) {
       case NotificationType.like:
-        return '@${_notification.actionUserName} liked your video"';
+        return '${_notification.actionUserName} liked your video"';
       case NotificationType.comment:
-        return '@${_notification.actionUserName} commented "${_notification.commentText}"';
+        return '${_notification.actionUserName} commented "${_notification.commentText}"';
       case NotificationType.follow:
-        return '@${_notification.actionUserName} started following you"';
+        return '${_notification.actionUserName} started following you"';
       case NotificationType.other:
         return '';
     }
