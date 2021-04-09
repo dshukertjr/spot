@@ -20,10 +20,9 @@ class VideoCubit extends Cubit<VideoState> {
   final Repository _repository;
 
   late final String _videoId;
-  late final VideoDetail _videoDetail;
+  VideoDetail? _videoDetail;
   VideoPlayerController? _videoPlayerController;
-  late final StreamController<VideoDetail> _videoStreamController;
-  StreamSubscription<VideoDetail>? _videoStreamSubscription;
+  StreamSubscription<VideoDetail?>? _videoStreamSubscription;
 
   List<Comment>? _comments;
 
@@ -39,47 +38,60 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> initialize(String videoId) async {
     try {
       _videoId = videoId;
-      _videoStreamController = _repository.videoDetailStreamController;
-      await _repository.getVideoDetailStream(videoId);
+      final videoStreamController = _repository.videoDetailStreamController;
+
+      // ignore: unawaited_futures
+      _repository.getVideoDetailStream(videoId);
       _videoStreamSubscription =
-          _videoStreamController.stream.listen((videoDetail) {
-        _videoDetail = videoDetail;
-        _initializeVideo();
-        if (state is VideoInitial) {
-          emit(VideoLoading(_videoDetail));
-        } else if (state is VideoLoading) {
-          emit(VideoLoading(_videoDetail));
-        } else if (state is VideoPlaying) {
-          emit(VideoPlaying(
-            video: _videoDetail,
-            videoPlayerController: _videoPlayerController!,
-          ));
+          videoStreamController.stream.listen((videoDetail) {
+        if (videoDetail != null) {
+          _videoDetail = videoDetail;
+          _initializeVideo();
+          if (state is VideoInitial) {
+            emit(VideoLoading(_videoDetail!));
+          } else if (state is VideoLoading) {
+            emit(VideoLoading(_videoDetail!));
+          } else if (state is VideoPlaying) {
+            emit(VideoPlaying(
+              video: _videoDetail!,
+              videoPlayerController: _videoPlayerController!,
+            ));
+          }
         }
       });
-    } catch (err, stack) {
-      print(stack);
+    } catch (err) {
       emit(VideoError(message: 'Error loading video. Please refresh.'));
     }
   }
 
   Future<void> like() {
-    return _repository.like(_videoId);
+    try {
+      return _repository.like(_videoId);
+    } catch (err) {
+      emit(VideoError(message: 'Error liking the video'));
+      return Future.error(err);
+    }
   }
 
   Future<void> unlike() {
-    return _repository.unlike(_videoId);
+    try {
+      return _repository.unlike(_videoId);
+    } catch (err) {
+      emit(VideoError(message: 'Error unliking the video.'));
+      return Future.error(err);
+    }
   }
 
   Future<void> showComments() async {
     _isCommentsShown = true;
     emit(VideoPlaying(
-      video: _videoDetail,
+      video: _videoDetail!,
       videoPlayerController: _videoPlayerController!,
       isCommentsShown: _isCommentsShown,
     ));
     _comments ??= await _repository.getComments(_videoId);
     emit(VideoPlaying(
-      video: _videoDetail,
+      video: _videoDetail!,
       videoPlayerController: _videoPlayerController!,
       isCommentsShown: _isCommentsShown,
       comments: _comments,
@@ -89,7 +101,7 @@ class VideoCubit extends Cubit<VideoState> {
   void hideComments() {
     _isCommentsShown = false;
     emit(VideoPlaying(
-      video: _videoDetail,
+      video: _videoDetail!,
       videoPlayerController: _videoPlayerController!,
       isCommentsShown: _isCommentsShown,
     ));
@@ -97,13 +109,13 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> _initializeVideo() async {
     if (_videoPlayerController == null) {
-      _videoPlayerController = VideoPlayerController.network(_videoDetail.url);
+      _videoPlayerController = VideoPlayerController.network(_videoDetail!.url);
       await _videoPlayerController!.initialize();
       await _videoPlayerController!.setLooping(true);
       await _videoPlayerController!.play();
 
       emit(VideoPlaying(
-        video: _videoDetail,
+        video: _videoDetail!,
         videoPlayerController: _videoPlayerController!,
       ));
     }

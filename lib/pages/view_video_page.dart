@@ -41,9 +41,11 @@ class ViewVideoPage extends StatelessWidget {
           } else if (state is VideoPlaying) {
             final controller = state.videoPlayerController;
             final video = state.video;
+            final isCommentsShown = state.isCommentsShown;
             return _VideoScreen(
               controller: controller,
               video: video,
+              isCommentsShown: isCommentsShown,
             );
           }
           return Container();
@@ -115,6 +117,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                       await BlocProvider.of<VideoCubit>(context).showComments();
                     },
                   ),
+                  Text(widget._video.commentCount.toString()),
                   const SizedBox(height: 36),
                   IconButton(
                     icon: const Icon(FeatherIcons.heart),
@@ -126,6 +129,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                       }
                     },
                   ),
+                  Text(widget._video.likeCount.toString()),
                   const SizedBox(height: 36),
                   IconButton(
                     icon: const Icon(Icons.more_horiz),
@@ -172,7 +176,8 @@ class __VideoScreenState extends State<_VideoScreen> {
                 return false;
               },
               child: _CommentsOverlay(
-                onClose: () {
+                onClose: () async {
+                  await widget._controller!.play();
                   BlocProvider.of<VideoCubit>(context).hideComments();
                 },
               ),
