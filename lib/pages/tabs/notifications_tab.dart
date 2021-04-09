@@ -11,7 +11,8 @@ class NotificationsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<NotificationCubit>(
       create: (context) => NotificationCubit(
-          repository: RepositoryProvider.of<Repository>(context)),
+        repository: RepositoryProvider.of<Repository>(context),
+      )..initialize(),
       child: _NotificationsList(),
     );
   }
