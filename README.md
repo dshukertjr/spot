@@ -73,10 +73,10 @@ create policy "Users can delete own likes." on public.likes for delete using (au
 
 
 create table if not exists public.follow (
-    following_user_id uuid references auth.users not null,
-    followed_user_id uuid references auth.users not null,
+    following_user_id uuid references public.users not null,
+    followed_user_id uuid references public.users not null,
     followed_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    PRIMARY KEY (following_user_id, followed_user_id)
+    primary key (following_user_id, followed_user_id)
 );
 comment on table public.follow is 'Creates follow follower relationships.';
 
@@ -84,6 +84,34 @@ alter table public.follow enable row level security;
 create policy "Follows are viewable by everyone. " on public.follow for select using (true);
 create policy "Users can follow anyone" on public.follow for insert with check (auth.uid() = following_user_id);
 create policy "Users can unfollow their follows and ssers can remove their followers" on public.follow for delete using (auth.uid() = following_user_id or auth.uid() = followed_user_id);
+
+create table if not exists public.blocks (
+    user_id uuid references public.users not null,
+    blocked_user_id uuid references public.users not null,
+    created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
+    primary key (user_id, blocked_user_id),
+  
+    constraint username_validation check (user_id != blocked_user_id)
+);
+comment on table public.blocks is 'Holds information of who is blocking who.';
+
+alter table public.blocks enable row level security;
+create policy "Users can view who they are blocking." on public.blocks for select using (auth.uid() = user_id);
+create policy "Users can block anyone by themselves. " on public.blocks for insert with check (auth.uid() = user_id);
+
+create table if not exists public.reports (
+    id uuid not null primary key DEFAULT uuid_generate_v4 (),
+    user_id uuid references public.users not null,
+    video_id uuid references public.users not null,
+    reason text not null,
+    created_at timestamp with time zone default timezone('utc' :: text, now()) not null
+);
+comment on table public.reports is 'Who reported which video for what reason. ';
+
+alter table public.reports enable row level security;
+create policy "Admin can read the reports." on public.reports for select using (auth.role() = 'admin');
+create policy "Users can report a video." on public.reports for insert with check (auth.uid() = user_id);
+
 
 create or replace view video_comments
 as
@@ -100,7 +128,7 @@ as
     join users on comments.user_id = users.id;
     
 
-create or replace function nearby_videos(location text)
+create or replace function nearby_videos(location text, user_id uuid)
 returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, description text, user_image_url text)
 as 
 $func$
@@ -119,6 +147,7 @@ $func$
         users.image_url as user_image_url
     from videos
     join users on videos.user_id = users.id
+    where users.id not in (select blocked_user_id from blocks where user_id = user_id)
     order by location <-> st_geogfromtext($1);
 $func$
 language sql;
