@@ -18,9 +18,11 @@ class Repository {
       StreamController<VideoDetail?>.broadcast();
 
   Future<List<Video>> getVideosFromLocation(LatLng location) async {
+    final userId = supabaseClient.auth.currentUser!.id;
     final res = await supabaseClient
         .rpc('nearby_videos', params: {
-          'location': 'POINT(${location.latitude} ${location.longitude})'
+          'location': 'POINT(${location.latitude} ${location.longitude})',
+          'user_id': userId,
         })
         .limit(20)
         .execute();
