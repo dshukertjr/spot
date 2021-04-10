@@ -84,7 +84,11 @@ class _NotificationCell extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 16),
         child: Row(
           children: [
-            const ProfileImage(),
+            ProfileImage(
+              userId: _notification.actionUid!,
+              imageUrl: _notification.actionUserImageUrl,
+              openProfileOnTap: true,
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: RichText(

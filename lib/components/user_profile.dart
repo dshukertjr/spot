@@ -115,7 +115,11 @@ class _Profile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const ProfileImage(size: 120),
+              ProfileImage(
+                size: 120,
+                imageUrl: profile.imageUrl,
+                userId: profile.id,
+              ),
               const SizedBox(width: 18),
               Expanded(
                 child: Column(

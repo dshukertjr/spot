@@ -28,7 +28,8 @@ class App extends StatelessWidget {
           primaryColor: const Color(0xFFFFFFFF),
           accentColor: const Color(0xFFFFFFFF),
           appBarTheme: const AppBarTheme(
-            color: Color(0xFF13B9FF),
+            color: Colors.transparent,
+            shadowColor: Colors.transparent,
           ),
           inputDecorationTheme: const InputDecorationTheme(
             border: OutlineInputBorder(

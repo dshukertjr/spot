@@ -283,7 +283,11 @@ class __CommentsOverlayState extends State<_CommentsOverlay> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Row(
             children: [
-              ProfileImage(),
+              ProfileImage(
+                userId: comment.user.id,
+                imageUrl: comment.user.imageUrl,
+                openProfileOnTap: true,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

@@ -30,5 +30,6 @@ class AppScaffold extends Scaffold {
           ),
           floatingActionButton: floatingActionButton,
           bottomNavigationBar: bottomNavigationBar,
+          extendBodyBehindAppBar: true,
         );
 }

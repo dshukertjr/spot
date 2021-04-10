@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spot/components/app_scaffold.dart';
 import 'package:spot/components/user_profile.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -12,6 +13,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UserProfile(userId: userId);
+    return AppScaffold(
+      appBar: AppBar(),
+      body: UserProfile(userId: userId),
+    );
   }
 }
