@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/full_screen_video_player.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/components/profile_image.dart';
@@ -14,6 +15,12 @@ import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
 import '../components/app_scaffold.dart';
+import 'tab_page.dart';
+
+enum _VideoMenu {
+  block,
+  report,
+}
 
 class ViewVideoPage extends StatelessWidget {
   static Route<void> route(String videoId) {
@@ -105,11 +112,10 @@ class __VideoScreenState extends State<_VideoScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ClipOval(
-                    child: Image.network(
-                      'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-                      fit: BoxFit.cover,
-                    ),
+                  ProfileImage(
+                    userId: widget._video.userId,
+                    imageUrl: widget._video.createdBy.imageUrl,
+                    openProfileOnTap: true,
                   ),
                   const SizedBox(height: 36),
                   IconButton(
@@ -133,9 +139,29 @@ class __VideoScreenState extends State<_VideoScreen> {
                   ),
                   Text(widget._video.likeCount.toString()),
                   const SizedBox(height: 36),
-                  IconButton(
-                    icon: const Icon(Icons.more_horiz),
-                    onPressed: () {},
+                  PopupMenuButton<_VideoMenu>(
+                    onSelected: (_VideoMenu result) {
+                      switch (result) {
+                        case _VideoMenu.block:
+                          _showBlockDialog();
+                          break;
+                        case _VideoMenu.report:
+                          //TODO handle report
+                          break;
+                      }
+                    },
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<_VideoMenu>>[
+                      const PopupMenuItem<_VideoMenu>(
+                        value: _VideoMenu.block,
+                        child: Text('Block this user'),
+                      ),
+                      const PopupMenuItem<_VideoMenu>(
+                        value: _VideoMenu.report,
+                        child: Text('Report this video'),
+                      ),
+                    ],
+                    child: const Icon(FeatherIcons.moreHorizontal),
                   ),
                 ],
               ),
@@ -188,6 +214,93 @@ class __VideoScreenState extends State<_VideoScreen> {
           ),
       ],
     );
+  }
+
+  void _showBlockDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return FrostedDialog(
+            child: _BlockingDialogContent(
+          videoCubit: BlocProvider.of<VideoCubit>(context),
+          blockedUserId: widget._video.userId,
+        ));
+      },
+    );
+  }
+}
+
+class _BlockingDialogContent extends StatefulWidget {
+  _BlockingDialogContent({
+    Key? key,
+    required VideoCubit videoCubit,
+    required String blockedUserId,
+  })   : _videoCubit = videoCubit,
+        _blockedUserId = blockedUserId,
+        super(key: key);
+
+  final VideoCubit _videoCubit;
+  final String _blockedUserId;
+
+  @override
+  __BlockingDialogContentState createState() => __BlockingDialogContentState();
+}
+
+class __BlockingDialogContentState extends State<_BlockingDialogContent> {
+  var _loading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return _loading
+        ? const SizedBox(
+            height: 80,
+            child: preloader,
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Are you sure you want to block this user?'),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GradientButton(
+                    strokeWidth: 0,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 12),
+                  GradientButton(
+                    onPressed: () async {
+                      try {
+                        setState(() {
+                          _loading = true;
+                        });
+                        await widget._videoCubit.block(widget._blockedUserId);
+                        Navigator.of(context).popUntil(
+                          (route) => route.settings.name == TabPage.name,
+                        );
+                      } catch (err) {
+                        setState(() {
+                          _loading = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('Error occured while blocking the user.'),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('Block'),
+                  ),
+                ],
+              ),
+            ],
+          );
   }
 }
 

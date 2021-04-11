@@ -222,6 +222,25 @@ class Repository {
     return AppNotification.fromData(data);
   }
 
+  Future<void> block(String blockedUserId) async {
+    final uid = supabaseClient.auth.currentUser!.id;
+    final res = await supabaseClient.from('blocks').insert([
+      {
+        'user_id': uid,
+        'blocked_user_id': blockedUserId,
+      }
+    ]).execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'Unlike Video',
+        message: error.message,
+      );
+    }
+    _videos.removeWhere((key, value) => value.userId == blockedUserId);
+    //TODO make videos stream and push the new _videos without the blocked user's videos
+  }
+
   Future<LatLng> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;

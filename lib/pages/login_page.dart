@@ -428,11 +428,9 @@ class _LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GradientButton(
       onPressed: _onPressed,
-      child: Expanded(
-        child: Text(
-          _label,
-          textAlign: TextAlign.center,
-        ),
+      child: Text(
+        _label,
+        textAlign: TextAlign.center,
       ),
     );
   }

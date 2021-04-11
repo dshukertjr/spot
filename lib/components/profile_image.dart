@@ -21,26 +21,29 @@ class ProfileImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _openProfileOnTap
-          ? () {
-              Navigator.of(context).push(ProfilePage.route(_userId));
-            }
-          : null,
-      child: ClipOval(
-        child: _imageUrl == null
-            ? Image.asset(
-                'assets/images/user.png',
-                fit: BoxFit.cover,
-                width: _size,
-                height: _size,
-              )
-            : Image.network(
-                _imageUrl!,
-                width: _size,
-                height: _size,
-                fit: BoxFit.cover,
-              ),
+    return AspectRatio(
+      aspectRatio: 1,
+      child: GestureDetector(
+        onTap: _openProfileOnTap
+            ? () {
+                Navigator.of(context).push(ProfilePage.route(_userId));
+              }
+            : null,
+        child: ClipOval(
+          child: _imageUrl == null
+              ? Image.asset(
+                  'assets/images/user.png',
+                  fit: BoxFit.cover,
+                  width: _size,
+                  height: _size,
+                )
+              : Image.network(
+                  _imageUrl!,
+                  width: _size,
+                  height: _size,
+                  fit: BoxFit.cover,
+                ),
+        ),
       ),
     );
   }

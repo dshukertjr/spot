@@ -137,6 +137,10 @@ class VideoCubit extends Cubit<VideoState> {
     }
   }
 
+  Future<void> block(String blockedUserId) {
+    return _repository.block(blockedUserId);
+  }
+
   Future<void> _initializeVideo() async {
     if (_videoPlayerController == null) {
       _videoPlayerController = VideoPlayerController.network(_videoDetail!.url);
