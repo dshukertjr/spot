@@ -107,6 +107,20 @@ class Repository {
     return profile;
   }
 
+  Future<void> saveVideo(Video creatingVideo) async {
+    final res =
+        await supabaseClient.from('videos').insert([creatingVideo]).execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'saveVideo',
+        message: error.message,
+      );
+    }
+    _mapVideos.add(creatingVideo);
+    mapVideosStreamConntroller.sink.add(_mapVideos);
+  }
+
   Future<void> getVideoDetailStream(String videoId) async {
     videoDetailStreamController.sink.add(null);
     final userId = supabaseClient.auth.currentUser!.id;

@@ -81,24 +81,27 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     final location = await _repository.determinePosition();
     final authUser = supabaseClient.auth.currentUser;
 
-    final videoMap = Video.creation(
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      videoImageUrl:
-          'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      thumbnailUrl:
-          'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      gifUrl:
-          'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      description: 'This is just a sample',
-      creatorUid: authUser!.id,
-      location: location,
-    );
-    final res =
-        await supabaseClient.from('videos').insert([videoMap]).execute();
-    // TODO error hanndling
+    try {
+      /// TODO Upload the videos to supabase
+      final creatingVideo = Video.creation(
+        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        videoImageUrl:
+            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
+        thumbnailUrl:
+            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
+        gifUrl:
+            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
+        description: 'This is just a sample',
+        creatorUid: authUser!.id,
+        location: location,
+      );
 
-    /// TODO Upload the videos to supabase
-    emit(ConfirmVideoUploaded());
+      await _repository.saveVideo(creatingVideo);
+
+      emit(ConfirmVideoUploaded());
+    } catch (err) {
+      emit(ConfirmVideoError());
+    }
   }
 
   Future<File> _compressVideo({

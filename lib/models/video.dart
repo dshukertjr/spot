@@ -29,7 +29,7 @@ class Video {
     return 1000;
   }
 
-  static Map<String, String> creation({
+  static Video creation({
     required String videoUrl,
     required String videoImageUrl,
     required String thumbnailUrl,
@@ -38,14 +38,29 @@ class Video {
     required String creatorUid,
     required LatLng location,
   }) {
+    return Video(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      url: videoUrl,
+      imageUrl: videoImageUrl,
+      thumbnailUrl: thumbnailUrl,
+      gifUrl: gifUrl,
+      description: description,
+      userId: creatorUid,
+      location: location,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
     return {
-      'url': videoUrl,
-      'image_url': videoImageUrl,
+      'url': url,
+      'image_url': imageUrl,
       'thumbnail_url': thumbnailUrl,
       'gif_url': gifUrl,
       'description': description,
-      'user_id': creatorUid,
-      'location': 'POINT(${location.longitude} ${location.latitude})',
+      'user_id': userId,
+      if (location != null)
+        'location': 'POINT(${location!.longitude} ${location!.latitude})',
     };
   }
 
