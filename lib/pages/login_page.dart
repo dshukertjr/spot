@@ -20,6 +20,10 @@ enum _DialogPage {
 }
 
 class LoginPage extends StatefulWidget {
+  static Route<void> route() {
+    return MaterialPageRoute(builder: (context) => LoginPage());
+  }
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }

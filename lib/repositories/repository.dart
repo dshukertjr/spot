@@ -12,12 +12,14 @@ import 'package:spot/models/video.dart';
 class Repository {
   // Local Cache
   final Map<String, Profile> _profiles = {};
-  final Map<String, Video> _videos = {};
+  final List<Video> _mapVideos = [];
+  final mapVideosStreamConntroller = StreamController<List<Video>>.broadcast();
+
   final Map<String, VideoDetail> _videoDetails = {};
   final videoDetailStreamController =
       StreamController<VideoDetail?>.broadcast();
 
-  Future<List<Video>> getVideosFromLocation(LatLng location) async {
+  Future<void> getVideosFromLocation(LatLng location) async {
     final userId = supabaseClient.auth.currentUser!.id;
     final res = await supabaseClient
         .rpc('nearby_videos', params: {
@@ -33,7 +35,8 @@ class Repository {
     } else if (data == null) {
       throw PlatformException(code: 'getVideosFromLocation error');
     }
-    return Video.videosFromData(data);
+    _mapVideos.addAll(Video.videosFromData(data));
+    mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
   Future<List<Video>> getVideosFromUid(String uid) async {
@@ -237,8 +240,8 @@ class Repository {
         message: error.message,
       );
     }
-    _videos.removeWhere((key, value) => value.userId == blockedUserId);
-    //TODO make videos stream and push the new _videos without the blocked user's videos
+    _mapVideos.removeWhere((value) => value.userId == blockedUserId);
+    mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
   Future<LatLng> determinePosition() async {

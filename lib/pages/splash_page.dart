@@ -87,11 +87,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void _redirectToLoginPage() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => LoginPage(),
-      ),
-    );
+    Navigator.of(context).pushReplacement(LoginPage.route());
   }
 
   void _redirectToEditProfilePage(String uid) {
@@ -101,10 +97,6 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void _redirectToTabsPage() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => TabPage(),
-      ),
-    );
+    Navigator.of(context).pushReplacement(TabPage.route());
   }
 }

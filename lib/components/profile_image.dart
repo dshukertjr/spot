@@ -21,8 +21,9 @@ class ProfileImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1,
+    return SizedBox(
+      width: _size,
+      height: _size,
       child: GestureDetector(
         onTap: _openProfileOnTap
             ? () {
@@ -34,13 +35,9 @@ class ProfileImage extends StatelessWidget {
               ? Image.asset(
                   'assets/images/user.png',
                   fit: BoxFit.cover,
-                  width: _size,
-                  height: _size,
                 )
               : Image.network(
                   _imageUrl!,
-                  width: _size,
-                  height: _size,
                   fit: BoxFit.cover,
                 ),
         ),

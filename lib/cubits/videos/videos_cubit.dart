@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
@@ -13,15 +15,23 @@ class VideosCubit extends Cubit<VideosState> {
 
   final Repository _repository;
 
-  final List<Video> _videos = [];
+  StreamSubscription<List<Video>>? _mapVideosSubscription;
+
+  @override
+  Future<void> close() {
+    _mapVideosSubscription?.cancel();
+    return super.close();
+  }
 
   Future<void> loadFromLocation() async {
-    final location = await _repository.determinePosition();
-    emit(VideosLoading(location));
     try {
-      final videos = await _repository.getVideosFromLocation(location);
-      _videos.addAll(videos);
-      emit(VideosLoaded(_videos));
+      final location = await _repository.determinePosition();
+      emit(VideosLoading(location));
+      _mapVideosSubscription =
+          _repository.mapVideosStreamConntroller.stream.listen((videos) {
+        emit(VideosLoaded(videos));
+      });
+      await _repository.getVideosFromLocation(location);
     } catch (err) {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
     }
@@ -30,8 +40,7 @@ class VideosCubit extends Cubit<VideosState> {
   Future<void> loadFromUid(String uid) async {
     try {
       final videos = await _repository.getVideosFromUid(uid);
-      _videos.addAll(videos);
-      emit(VideosLoaded(_videos));
+      emit(VideosLoaded(videos));
     } catch (err) {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
     }

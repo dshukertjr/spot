@@ -116,6 +116,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                     userId: widget._video.userId,
                     imageUrl: widget._video.createdBy.imageUrl,
                     openProfileOnTap: true,
+                    size: 36,
                   ),
                   const SizedBox(height: 36),
                   IconButton(

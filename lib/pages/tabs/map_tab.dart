@@ -84,10 +84,7 @@ class __MapState extends State<_Map> {
 
   @override
   void didUpdateWidget(covariant _Map oldWidget) {
-    if (widget._videos.isNotEmpty &&
-        widget._videos.length != oldWidget._videos.length) {
-      _createMarkers(videos: widget._videos, context: context);
-    }
+    _createMarkers(videos: widget._videos, context: context);
     super.didUpdateWidget(oldWidget);
   }
 
@@ -95,11 +92,20 @@ class __MapState extends State<_Map> {
     required List<Video> videos,
     required BuildContext context,
   }) async {
+    /// Only create markers for videos that the marker does not exist yet.
+    final markerIds = _markers.map((marker) => marker.markerId).toList();
     final markers = await Future.wait(
-      videos.map<Future<Marker>>(
-        (video) => _createMarkerImageFromAsset(video: video, context: context),
-      ),
+      videos
+          .where((video) => !markerIds.contains(video.id))
+          .map<Future<Marker>>(
+            (video) =>
+                _createMarkerImageFromAsset(video: video, context: context),
+          ),
     );
+
+    /// Delete marker for videos that is not included in videos
+    final videoIds = videos.map((video) => video.id).toList();
+    _markers.removeWhere((marker) => !videoIds.contains(marker.markerId));
     setState(() {
       _markers = markers.toSet();
     });
