@@ -149,10 +149,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                         case _VideoMenu.report:
                           final reported = await _showReportDialog();
                           if (reported == true) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Thanks for reporting')),
-                            );
+                            context.showSnackbar('Thanks for reporting');
                           }
                           break;
                       }
@@ -307,12 +304,8 @@ class __BlockingDialogContentState extends State<_BlockingDialogContent> {
                         setState(() {
                           _loading = false;
                         });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content:
-                                Text('Error occured while blocking the user.'),
-                          ),
-                        );
+                        context.showErrorSnackbar(
+                            'Error occured while blocking the user.');
                       }
                     },
                     child: const Text('Block User'),
@@ -393,12 +386,8 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
                         setState(() {
                           _loading = false;
                         });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content:
-                                Text('Error occured while blocking the user.'),
-                          ),
-                        );
+                        context.showErrorSnackbar(
+                            'Error occured while blocking the user.');
                       }
                     },
                     child: const Text('Report'),

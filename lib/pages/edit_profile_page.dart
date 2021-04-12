@@ -95,11 +95,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         _selectedImageFile = File(pickedImage.path);
                       });
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Error while selecting image'),
-                        ),
-                      );
+                      context.showErrorSnackbar('Error while selecting image');
                     }
                   },
                   child: SizedBox(
@@ -150,8 +146,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 try {
                   final user = supabaseClient.auth.currentUser;
                   if (user == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Your session has expired')));
+                    context.showSnackbar('Your session has expired');
                     return;
                   }
                   final name = _userNameController.text;
@@ -168,9 +163,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   } else {
                     Navigator.of(context).pop();
                   }
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('Error occured while saving profile')));
+                } catch (err) {
+                  context
+                      .showErrorSnackbar('Error occured while saving profile');
                 }
               },
               child: const Text('Save'),

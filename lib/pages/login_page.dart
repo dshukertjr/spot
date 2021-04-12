@@ -291,9 +291,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               setState(() {
                 _isLoading = false;
               });
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(error.message)));
-
+              context.showErrorSnackbar(error.message);
               return;
             }
 
@@ -306,8 +304,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Error signing in')));
+            context.showErrorSnackbar('Error signing in');
           }
         },
       ),
@@ -368,12 +365,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               setState(() {
                 _isLoading = false;
               });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(error.message),
-                ),
-              );
-
+              context.showSnackbar(error.message);
               return;
             }
 
@@ -382,12 +374,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 key: persistantSessionKey, value: data!.persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
-          } catch (e) {
+          } catch (err) {
             setState(() {
               _isLoading = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Error signing up')));
+            context.showErrorSnackbar('Error signing up');
           }
         },
       ),
