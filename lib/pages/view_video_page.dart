@@ -141,13 +141,19 @@ class __VideoScreenState extends State<_VideoScreen> {
                   Text(widget._video.likeCount.toString()),
                   const SizedBox(height: 36),
                   PopupMenuButton<_VideoMenu>(
-                    onSelected: (_VideoMenu result) {
+                    onSelected: (_VideoMenu result) async {
                       switch (result) {
                         case _VideoMenu.block:
                           _showBlockDialog();
                           break;
                         case _VideoMenu.report:
-                          //TODO handle report
+                          final reported = await _showReportDialog();
+                          if (reported == true) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Thanks for reporting')),
+                            );
+                          }
                           break;
                       }
                     },
@@ -229,6 +235,19 @@ class __VideoScreenState extends State<_VideoScreen> {
       },
     );
   }
+
+  Future<bool?> _showReportDialog() {
+    return showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return FrostedDialog(
+            child: _ReportingDialogContent(
+          videoCubit: BlocProvider.of<VideoCubit>(context),
+          videoId: widget._video.id,
+        ));
+      },
+    );
+  }
 }
 
 class _BlockingDialogContent extends StatefulWidget {
@@ -296,12 +315,104 @@ class __BlockingDialogContentState extends State<_BlockingDialogContent> {
                         );
                       }
                     },
-                    child: const Text('Block'),
+                    child: const Text('Block User'),
                   ),
                 ],
               ),
             ],
           );
+  }
+}
+
+class _ReportingDialogContent extends StatefulWidget {
+  _ReportingDialogContent({
+    Key? key,
+    required VideoCubit videoCubit,
+    required String videoId,
+  })   : _videoCubit = videoCubit,
+        _videoId = videoId,
+        super(key: key);
+
+  final VideoCubit _videoCubit;
+  final String _videoId;
+
+  @override
+  __ReportingDialogContentState createState() =>
+      __ReportingDialogContentState();
+}
+
+class __ReportingDialogContentState extends State<_ReportingDialogContent> {
+  var _loading = false;
+  final _reasonController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return _loading
+        ? const SizedBox(
+            height: 80,
+            child: preloader,
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                  'Could you please tell us why you would like to report this video?'),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _reasonController,
+                decoration: const InputDecoration(
+                  labelText: 'Report Reason',
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GradientButton(
+                    strokeWidth: 0,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 12),
+                  GradientButton(
+                    onPressed: () async {
+                      try {
+                        setState(() {
+                          _loading = true;
+                        });
+                        final reason = _reasonController.text;
+                        await widget._videoCubit.report(
+                          reason: reason,
+                          videoId: widget._videoId,
+                        );
+                        Navigator.of(context).pop(true);
+                      } catch (err) {
+                        setState(() {
+                          _loading = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('Error occured while blocking the user.'),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('Report'),
+                  ),
+                ],
+              ),
+            ],
+          );
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
   }
 }
 

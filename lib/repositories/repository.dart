@@ -258,6 +258,27 @@ class Repository {
     mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
+  Future<void> report({
+    required String videoId,
+    required String reason,
+  }) async {
+    final uid = supabaseClient.auth.currentUser!.id;
+    final res = await supabaseClient.from('reports').insert([
+      {
+        'user_id': uid,
+        'video_id': videoId,
+        'reason': reason,
+      }
+    ]).execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'Unlike Video',
+        message: error.message,
+      );
+    }
+  }
+
   Future<LatLng> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
