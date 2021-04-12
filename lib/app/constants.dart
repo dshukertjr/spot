@@ -55,3 +55,19 @@ final howLongAgo = (DateTime time) {
     return '${time.year}-${time.month}-${time.day}';
   }
 };
+
+extension ShowSnackBar on BuildContext {
+  void showSnackbar(String text) {
+    ScaffoldMessenger.of(this).showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  void showErrorSnackbar(String text) {
+    ScaffoldMessenger.of(this).showSnackBar(SnackBar(
+      content: Text(
+        text,
+        style: const TextStyle(color: Color(0xFFFFFFFF)),
+      ),
+      backgroundColor: appRed,
+    ));
+  }
+}
