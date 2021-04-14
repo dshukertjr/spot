@@ -92,6 +92,8 @@ class __VideoConfirmationPageState extends State<_VideoConfirmationPage> {
   bool _showDescriptionDialog = false;
   bool _showStartOverConfirmationDialog = false;
 
+  final _descriptionController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -124,7 +126,6 @@ class __VideoConfirmationPageState extends State<_VideoConfirmationPage> {
         },
         child: Row(
           children: [
-            /// TODO update icons to feather icons
             const Icon(Icons.refresh),
             const SizedBox(width: 4),
             const Text('Start Over'),
@@ -146,7 +147,6 @@ class __VideoConfirmationPageState extends State<_VideoConfirmationPage> {
         },
         child: Row(
           children: [
-            /// TODO update icons to feather icons
             const Icon(FeatherIcons.thumbsUp),
             const SizedBox(width: 4),
             const Text('Looks Good'),
@@ -167,6 +167,7 @@ class __VideoConfirmationPageState extends State<_VideoConfirmationPage> {
             Form(
               key: _formKey,
               child: TextFormField(
+                controller: _descriptionController,
                 autofocus: true,
                 maxLines: 4,
                 minLines: 1,
@@ -194,7 +195,8 @@ class __VideoConfirmationPageState extends State<_VideoConfirmationPage> {
                     if (!_formKey.currentState!.validate()) {
                       return;
                     }
-                    BlocProvider.of<ConfirmVideoCubit>(context).post();
+                    BlocProvider.of<ConfirmVideoCubit>(context)
+                        .post(description: _descriptionController.text);
                   },
                   child: const Text('Post'),
                 ),
@@ -247,5 +249,11 @@ class __VideoConfirmationPageState extends State<_VideoConfirmationPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
   }
 }

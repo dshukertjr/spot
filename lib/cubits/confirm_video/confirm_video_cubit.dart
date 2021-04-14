@@ -69,7 +69,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     }
   }
 
-  Future<void> post() async {
+  Future<void> post({required String description}) async {
     emit(
         ConfirmVideoTranscoding(videoPlayerController: _videoPlayerController));
 
@@ -80,23 +80,38 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     });
     final location = await _repository.determinePosition();
     final authUser = supabaseClient.auth.currentUser;
+    if (authUser == null) {
+      throw PlatformException(code: 'Not Signed In');
+    }
 
     try {
-      /// TODO Upload the videos to supabase
       final now = DateTime.now();
       final videoPath =
-          '${authUser!.id}/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('/').last}';
+          '${authUser.id}/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('/').last}';
       final videoUrl = await _repository.uploadVideo(
           videoFile: _compressedVideo, path: videoPath);
+
+      final videoImagePath =
+          '${authUser.id}/${now.millisecondsSinceEpoch}.${_videoImage.path.split('/').last}';
+      final videoImageUrl = await _repository.uploadVideo(
+          videoFile: _videoImage, path: videoImagePath);
+
+      final videoThumbPath =
+          '${authUser.id}/thumb-${now.millisecondsSinceEpoch}.${_videoImage.path.split('/').last}';
+      final videoThumbUrl = await _repository.uploadVideo(
+          videoFile: _videoImage, path: videoThumbPath);
+
+      final videoGifPath =
+          '${authUser.id}/${now.millisecondsSinceEpoch}.${_videoImage.path.split('/').last}';
+      final videoGifUrl = await _repository.uploadVideo(
+          videoFile: _videoImage, path: videoGifPath);
+
       final creatingVideo = Video.creation(
         videoUrl: videoUrl,
-        videoImageUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-        thumbnailUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-        gifUrl:
-            'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-        description: 'This is just a sample',
+        videoImageUrl: videoImageUrl,
+        thumbnailUrl: videoThumbUrl,
+        gifUrl: videoGifUrl,
+        description: description,
         creatorUid: authUser!.id,
         location: location,
       );
