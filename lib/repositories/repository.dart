@@ -134,8 +134,9 @@ class Repository {
   }
 
   Future<void> saveVideo(Video creatingVideo) async {
-    final res =
-        await supabaseClient.from('videos').insert([creatingVideo]).execute();
+    final res = await supabaseClient
+        .from('videos')
+        .insert([creatingVideo.toMap()]).execute();
     final error = res.error;
     if (error != null) {
       throw PlatformException(

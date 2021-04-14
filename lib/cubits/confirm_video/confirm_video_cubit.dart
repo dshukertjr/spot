@@ -97,12 +97,12 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
           videoFile: _videoImage, path: videoImagePath);
 
       final videoThumbPath =
-          '${authUser.id}/thumb-${now.millisecondsSinceEpoch}.${_videoImage.path.split('/').last}';
+          '${authUser.id}/thumb-${now.millisecondsSinceEpoch}.${_thumbnail.path.split('/').last}';
       final videoThumbUrl = await _repository.uploadVideo(
           videoFile: _videoImage, path: videoThumbPath);
 
       final videoGifPath =
-          '${authUser.id}/${now.millisecondsSinceEpoch}.${_videoImage.path.split('/').last}';
+          '${authUser.id}/${now.millisecondsSinceEpoch}.${_gif.path.split('/').last}';
       final videoGifUrl = await _repository.uploadVideo(
           videoFile: _videoImage, path: videoGifPath);
 
@@ -112,7 +112,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
         thumbnailUrl: videoThumbUrl,
         gifUrl: videoGifUrl,
         description: description,
-        creatorUid: authUser!.id,
+        creatorUid: authUser.id,
         location: location,
       );
 
