@@ -21,7 +21,9 @@ dependencies:
   http: ^0.13.1
   geolocator: ^7.0.1
   supabase:
-    path: ../supabase-dart
+    git:
+      url: https://github.com/thalkz/supabase-dart.git
+      ref: thalkz/storage
   flutter_feather_icons: ^2.0.0+1
   flutter_secure_storage: ^4.1.0
   image_picker: ^0.7.4

@@ -83,8 +83,13 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
 
     try {
       /// TODO Upload the videos to supabase
+      final now = DateTime.now();
+      final videoPath =
+          '${authUser!.id}/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('/').last}';
+      final videoUrl = await _repository.uploadVideo(
+          videoFile: _compressedVideo, path: videoPath);
       final creatingVideo = Video.creation(
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        videoUrl: videoUrl,
         videoImageUrl:
             'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
         thumbnailUrl:

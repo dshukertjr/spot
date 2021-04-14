@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -105,6 +106,31 @@ class Repository {
     final profile = Profile.fromData(data[0]);
     _profiles[uid] = profile;
     return profile;
+  }
+
+  /// Uploads the video and returns the download URL
+  Future<String> uploadVideo(
+      {required File videoFile, required String path}) async {
+    final res =
+        await supabaseClient.storage.from('videos').upload(path, videoFile);
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.error ?? 'saveVideo',
+        message: error.message,
+      );
+    }
+    final urlRes = await supabaseClient.storage
+        .from('videos')
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 50);
+    final urlError = urlRes.error;
+    if (urlError != null) {
+      throw PlatformException(
+        code: urlError.error ?? 'saveVideo',
+        message: urlError.message,
+      );
+    }
+    return urlRes.data!;
   }
 
   Future<void> saveVideo(Video creatingVideo) async {
