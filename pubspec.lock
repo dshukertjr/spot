@@ -568,11 +568,9 @@ packages:
   supabase:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "thalkz/storage"
-      resolved-ref: e4c6bccc4489aef324632e2d0da9d42382255c6e
-      url: "https://github.com/thalkz/supabase-dart.git"
-    source: git
+      path: "../supabase-dart"
+      relative: true
+    source: path
     version: "0.0.1-dev.10"
   term_glyph:
     dependency: transitive
