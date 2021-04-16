@@ -143,7 +143,7 @@ class Repository {
       );
     }
     final data = res.data;
-    final createdVideo = creatingVideo.updateId(id: data['id'] as String);
+    final createdVideo = creatingVideo.updateId(id: data[0]['id'] as String);
     _mapVideos.add(createdVideo);
     mapVideosStreamConntroller.sink.add(_mapVideos);
   }

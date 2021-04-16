@@ -14,6 +14,7 @@ import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
+import '../app/constants.dart';
 import '../components/app_scaffold.dart';
 import 'tab_page.dart';
 
@@ -90,9 +91,15 @@ class __VideoScreenState extends State<_VideoScreen> {
       fit: StackFit.expand,
       children: [
         widget._controller == null
-            ? Image.network(
-                widget._video.imageUrl,
-                fit: BoxFit.cover,
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    widget._video.imageUrl,
+                    fit: BoxFit.cover,
+                  ),
+                  const Center(child: preloader),
+                ],
               )
             : FullScreenVideoPlayer(
                 videoPlayerController: widget._controller!,

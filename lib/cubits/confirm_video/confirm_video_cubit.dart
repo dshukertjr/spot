@@ -14,6 +14,8 @@ import 'package:video_player/video_player.dart';
 
 part 'confirm_video_state.dart';
 
+// ignore_for_file: lines_longer_than_80_chars
+
 class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   ConfirmVideoCubit({required Repository repository})
       : _repository = repository,
@@ -128,8 +130,10 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     required String videoPath,
     required String tempPath,
   }) async {
+    ///  -movflags +faststart optimizes video for web streaming
+    /// by bringing some of the headers upfront
     final command =
-        '-y -i $videoPath -c:v libx264 -preset veryfast -tune zerolatency -filter:v scale=-2:720 $tempPath';
+        '-y -i $videoPath -c:v libx264 -preset veryfast -tune zerolatency -movflags +faststart -filter:v scale=-2:720 $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(
