@@ -88,23 +88,23 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       final now = DateTime.now();
       final videoPath =
           '${authUser.id}/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('.').last}';
-      final videoUrl = await _repository.uploadVideo(
-          videoFile: _compressedVideo, path: videoPath);
+      final videoUrl =
+          await _repository.uploadFile(file: _compressedVideo, path: videoPath);
 
       final videoImagePath =
           '${authUser.id}/${now.millisecondsSinceEpoch}.${_videoImage.path.split('.').last}';
-      final videoImageUrl = await _repository.uploadVideo(
-          videoFile: _videoImage, path: videoImagePath);
+      final videoImageUrl =
+          await _repository.uploadFile(file: _videoImage, path: videoImagePath);
 
       final videoThumbPath =
           '${authUser.id}/thumb-${now.millisecondsSinceEpoch}.${_thumbnail.path.split('.').last}';
-      final videoThumbUrl = await _repository.uploadVideo(
-          videoFile: _thumbnail, path: videoThumbPath);
+      final videoThumbUrl =
+          await _repository.uploadFile(file: _thumbnail, path: videoThumbPath);
 
       final videoGifPath =
           '${authUser.id}/${now.millisecondsSinceEpoch}.${_gif.path.split('.').last}';
       final videoGifUrl =
-          await _repository.uploadVideo(videoFile: _gif, path: videoGifPath);
+          await _repository.uploadFile(file: _gif, path: videoGifPath);
 
       final creatingVideo = Video.creation(
         videoUrl: videoUrl,
@@ -145,7 +145,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     required String tempPath,
   }) async {
     final command =
-        '-y -i $videoPath -vframes 1 -filter:v scale="-2:-720" $tempPath';
+        '-y -i $videoPath -vframes 1 -filter:v scale="-2:720" $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(
@@ -176,7 +176,11 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     required String videoPath,
     required String tempPath,
   }) async {
-    final command = '-y -t 3 -i $videoPath -vf scale=-2:120 -r 10 $tempPath';
+    /// -y overrides the output file
+    /// -t 2 creates a 2 second gif
+    /// -i ${filePath} input file path
+    /// -vf scale=-2:120
+    final command = '-y -t 2 -i $videoPath -vf scale=-2:120 -r 10 $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(

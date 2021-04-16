@@ -109,10 +109,8 @@ class Repository {
   }
 
   /// Uploads the video and returns the download URL
-  Future<String> uploadVideo(
-      {required File videoFile, required String path}) async {
-    final res =
-        await supabaseClient.storage.from('videos').upload(path, videoFile);
+  Future<String> uploadFile({required File file, required String path}) async {
+    final res = await supabaseClient.storage.from('videos').upload(path, file);
     final error = res.error;
     if (error != null) {
       throw PlatformException(
@@ -144,7 +142,9 @@ class Repository {
         message: error.message,
       );
     }
-    _mapVideos.add(creatingVideo);
+    final data = res.data;
+    final createdVideo = creatingVideo.updateId(id: data['id'] as String);
+    _mapVideos.add(createdVideo);
     mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 

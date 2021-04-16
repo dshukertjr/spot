@@ -51,6 +51,22 @@ class Video {
     );
   }
 
+  Video updateId({
+    String? id,
+  }) {
+    return Video(
+      id: id ?? this.id,
+      url: url,
+      imageUrl: imageUrl,
+      thumbnailUrl: thumbnailUrl,
+      gifUrl: gifUrl,
+      description: description,
+      userId: userId,
+      location: location,
+      createdAt: createdAt,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'url': url,
@@ -154,6 +170,7 @@ class VideoDetail extends Video {
     };
   }
 
+  @override
   VideoDetail copyWith({
     int? likeCount,
     int? commentCount,
