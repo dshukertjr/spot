@@ -87,24 +87,24 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     try {
       final now = DateTime.now();
       final videoPath =
-          '${authUser.id}/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('/').last}';
+          '${authUser.id}/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('.').last}';
       final videoUrl = await _repository.uploadVideo(
           videoFile: _compressedVideo, path: videoPath);
 
       final videoImagePath =
-          '${authUser.id}/${now.millisecondsSinceEpoch}.${_videoImage.path.split('/').last}';
+          '${authUser.id}/${now.millisecondsSinceEpoch}.${_videoImage.path.split('.').last}';
       final videoImageUrl = await _repository.uploadVideo(
           videoFile: _videoImage, path: videoImagePath);
 
       final videoThumbPath =
-          '${authUser.id}/thumb-${now.millisecondsSinceEpoch}.${_thumbnail.path.split('/').last}';
+          '${authUser.id}/thumb-${now.millisecondsSinceEpoch}.${_thumbnail.path.split('.').last}';
       final videoThumbUrl = await _repository.uploadVideo(
-          videoFile: _videoImage, path: videoThumbPath);
+          videoFile: _thumbnail, path: videoThumbPath);
 
       final videoGifPath =
-          '${authUser.id}/${now.millisecondsSinceEpoch}.${_gif.path.split('/').last}';
-      final videoGifUrl = await _repository.uploadVideo(
-          videoFile: _videoImage, path: videoGifPath);
+          '${authUser.id}/${now.millisecondsSinceEpoch}.${_gif.path.split('.').last}';
+      final videoGifUrl =
+          await _repository.uploadVideo(videoFile: _gif, path: videoGifPath);
 
       final creatingVideo = Video.creation(
         videoUrl: videoUrl,
