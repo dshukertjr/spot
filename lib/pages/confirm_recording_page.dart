@@ -1,3 +1,4 @@
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +11,6 @@ import 'package:spot/cubits/confirm_video/confirm_video_cubit.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tab_page.dart';
 import 'package:spot/repositories/repository.dart';
-import 'package:video_player/video_player.dart';
 
 import '../components/app_scaffold.dart';
 
@@ -18,9 +18,9 @@ class ConfirmRecordingPage extends StatelessWidget {
   static Route<void> route({required XFile videoFile}) {
     return MaterialPageRoute(
       builder: (context) => BlocProvider<ConfirmVideoCubit>(
-        create: (context) => ConfirmVideoCubit(
-            repository: RepositoryProvider.of<Repository>(context))
-          ..initialize(videoFile: videoFile),
+        create: (context) =>
+            ConfirmVideoCubit(repository: RepositoryProvider.of<Repository>(context))
+              ..initialize(videoFile: videoFile),
         child: ConfirmRecordingPage(),
       ),
     );
@@ -78,11 +78,11 @@ class ConfirmRecordingPage extends StatelessWidget {
 class _VideoConfirmationPage extends StatefulWidget {
   _VideoConfirmationPage({
     Key? key,
-    required VideoPlayerController videoPlayerController,
+    required CachedVideoPlayerController videoPlayerController,
   })   : _videoPlayerController = videoPlayerController,
         super(key: key);
 
-  final VideoPlayerController _videoPlayerController;
+  final CachedVideoPlayerController _videoPlayerController;
 
   @override
   __VideoConfirmationPageState createState() => __VideoConfirmationPageState();
@@ -107,8 +107,7 @@ class __VideoConfirmationPageState extends State<_VideoConfirmationPage> {
         if (!_showDescriptionDialog) _startOverButton(context),
         if (!_showDescriptionDialog) _looksGoodButton(context),
         if (_showDescriptionDialog) _descriptionDialog(),
-        if (_showStartOverConfirmationDialog)
-          _startOverConfirmationDialog(context),
+        if (_showStartOverConfirmationDialog) _startOverConfirmationDialog(context),
       ],
     );
   }

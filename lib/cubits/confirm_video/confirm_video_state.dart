@@ -8,13 +8,13 @@ class ConfirmVideoInitial extends ConfirmVideoState {}
 class ConfirmVideoPlaying extends ConfirmVideoState {
   ConfirmVideoPlaying({required this.videoPlayerController});
 
-  final VideoPlayerController videoPlayerController;
+  final CachedVideoPlayerController videoPlayerController;
 }
 
 class ConfirmVideoTranscoding extends ConfirmVideoState {
   ConfirmVideoTranscoding({required this.videoPlayerController});
 
-  final VideoPlayerController videoPlayerController;
+  final CachedVideoPlayerController videoPlayerController;
 }
 
 class ConfirmVideoUploaded extends ConfirmVideoState {}

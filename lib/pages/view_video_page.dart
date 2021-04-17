@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -12,7 +13,6 @@ import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
-import 'package:video_player/video_player.dart';
 
 import '../app/constants.dart';
 import '../components/app_scaffold.dart';
@@ -28,8 +28,7 @@ class ViewVideoPage extends StatelessWidget {
     return MaterialPageRoute(
       builder: (context) => BlocProvider(
         create: (context) =>
-            VideoCubit(repository: RepositoryProvider.of<Repository>(context))
-              ..initialize(videoId),
+            VideoCubit(repository: RepositoryProvider.of<Repository>(context))..initialize(videoId),
         child: ViewVideoPage(),
       ),
     );
@@ -65,7 +64,7 @@ class ViewVideoPage extends StatelessWidget {
 class _VideoScreen extends StatefulWidget {
   const _VideoScreen({
     Key? key,
-    VideoPlayerController? controller,
+    CachedVideoPlayerController? controller,
     required VideoDetail video,
     bool? isCommentsShown,
     List<Comment>? comments,
@@ -75,7 +74,7 @@ class _VideoScreen extends StatefulWidget {
         _comments = comments,
         super(key: key);
 
-  final VideoPlayerController? _controller;
+  final CachedVideoPlayerController? _controller;
   final VideoDetail _video;
   final bool _isCommentsShown;
   final List<Comment>? _comments;
@@ -161,8 +160,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                           break;
                       }
                     },
-                    itemBuilder: (BuildContext context) =>
-                        <PopupMenuEntry<_VideoMenu>>[
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<_VideoMenu>>[
                       const PopupMenuItem<_VideoMenu>(
                         value: _VideoMenu.block,
                         child: Text('Block this user'),
@@ -311,8 +309,7 @@ class __BlockingDialogContentState extends State<_BlockingDialogContent> {
                         setState(() {
                           _loading = false;
                         });
-                        context.showErrorSnackbar(
-                            'Error occured while blocking the user.');
+                        context.showErrorSnackbar('Error occured while blocking the user.');
                       }
                     },
                     child: const Text('Block User'),
@@ -337,8 +334,7 @@ class _ReportingDialogContent extends StatefulWidget {
   final String _videoId;
 
   @override
-  __ReportingDialogContentState createState() =>
-      __ReportingDialogContentState();
+  __ReportingDialogContentState createState() => __ReportingDialogContentState();
 }
 
 class __ReportingDialogContentState extends State<_ReportingDialogContent> {
@@ -356,8 +352,7 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                  'Could you please tell us why you would like to report this video?'),
+              const Text('Could you please tell us why you would like to report this video?'),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _reasonController,
@@ -393,8 +388,7 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
                         setState(() {
                           _loading = false;
                         });
-                        context.showErrorSnackbar(
-                            'Error occured while blocking the user.');
+                        context.showErrorSnackbar('Error occured while blocking the user.');
                       }
                     },
                     child: const Text('Report'),
@@ -474,8 +468,7 @@ class __CommentsOverlayState extends State<_CommentsOverlay> {
                   ),
                   GradientButton(
                     onPressed: () {
-                      BlocProvider.of<VideoCubit>(context)
-                          .comment(_commentController.text);
+                      BlocProvider.of<VideoCubit>(context).comment(_commentController.text);
                       _commentController.clear();
                     },
                     child: const Text('Send'),

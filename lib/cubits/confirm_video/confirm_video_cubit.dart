@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +11,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
-import 'package:video_player/video_player.dart';
 
 part 'confirm_video_state.dart';
 
@@ -23,7 +23,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
 
   final Repository _repository;
 
-  late final VideoPlayerController _videoPlayerController;
+  late final CachedVideoPlayerController _videoPlayerController;
 
   final _flutterFFmpeg = FlutterFFmpeg();
 
@@ -42,7 +42,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   Future<void> initialize({required XFile videoFile}) async {
     try {
       final videoPath = videoFile.path;
-      _videoPlayerController = VideoPlayerController.file(File(videoPath));
+      _videoPlayerController = CachedVideoPlayerController.file(File(videoPath));
       await _videoPlayerController.setLooping(true);
       await _videoPlayerController.initialize();
       await _videoPlayerController.play();
@@ -50,16 +50,14 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
 
       final tempDir = await getTemporaryDirectory();
       final videoTempPath = '${tempDir.path}/temp.mp4';
-      _compressedVideo =
-          await _compressVideo(videoPath: videoPath, tempPath: videoTempPath);
+      _compressedVideo = await _compressVideo(videoPath: videoPath, tempPath: videoTempPath);
 
       final videoImageTempPath = '${tempDir.path}/tempImage.jpg';
-      _videoImage = await _getVideoImage(
-          videoPath: videoPath, tempPath: videoImageTempPath);
+      _videoImage = await _getVideoImage(videoPath: videoPath, tempPath: videoImageTempPath);
 
       final thubmnailTempPath = '${tempDir.path}/tempThumb.jpg';
-      _thumbnail = await _getVideoThumbnail(
-          videoPath: _videoImage.path, tempPath: thubmnailTempPath);
+      _thumbnail =
+          await _getVideoThumbnail(videoPath: _videoImage.path, tempPath: thubmnailTempPath);
 
       final gifTempPath = '${tempDir.path}/temp.gif';
       _gif = await _getGif(videoPath: videoPath, tempPath: gifTempPath);
@@ -72,8 +70,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   }
 
   Future<void> post({required String description}) async {
-    emit(
-        ConfirmVideoTranscoding(videoPlayerController: _videoPlayerController));
+    emit(ConfirmVideoTranscoding(videoPlayerController: _videoPlayerController));
 
     /// wait until video processing is complete
     await Future.doWhile(() async {
@@ -90,23 +87,19 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       final now = DateTime.now();
       final videoPath =
           '${authUser.id}/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('.').last}';
-      final videoUrl =
-          await _repository.uploadFile(file: _compressedVideo, path: videoPath);
+      final videoUrl = await _repository.uploadFile(file: _compressedVideo, path: videoPath);
 
       final videoImagePath =
           '${authUser.id}/${now.millisecondsSinceEpoch}.${_videoImage.path.split('.').last}';
-      final videoImageUrl =
-          await _repository.uploadFile(file: _videoImage, path: videoImagePath);
+      final videoImageUrl = await _repository.uploadFile(file: _videoImage, path: videoImagePath);
 
       final videoThumbPath =
           '${authUser.id}/thumb-${now.millisecondsSinceEpoch}.${_thumbnail.path.split('.').last}';
-      final videoThumbUrl =
-          await _repository.uploadFile(file: _thumbnail, path: videoThumbPath);
+      final videoThumbUrl = await _repository.uploadFile(file: _thumbnail, path: videoThumbPath);
 
       final videoGifPath =
           '${authUser.id}/${now.millisecondsSinceEpoch}.${_gif.path.split('.').last}';
-      final videoGifUrl =
-          await _repository.uploadFile(file: _gif, path: videoGifPath);
+      final videoGifUrl = await _repository.uploadFile(file: _gif, path: videoGifPath);
 
       final creatingVideo = Video.creation(
         videoUrl: videoUrl,
@@ -148,8 +141,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     required String videoPath,
     required String tempPath,
   }) async {
-    final command =
-        '-y -i $videoPath -vframes 1 -filter:v scale="-2:720" $tempPath';
+    final command = '-y -i $videoPath -vframes 1 -filter:v scale="-2:720" $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(
@@ -164,8 +156,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     required String videoPath,
     required String tempPath,
   }) async {
-    final command =
-        '-y -i $videoPath -vf "scale=200:-2, crop=200:200:exact=1" $tempPath';
+    final command = '-y -i $videoPath -vf "scale=200:-2, crop=200:200:exact=1" $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(

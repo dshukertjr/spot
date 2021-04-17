@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/repositories/repository.dart';
-import 'package:video_player/video_player.dart';
 
 import '../../models/video.dart';
 
@@ -22,7 +22,7 @@ class VideoCubit extends Cubit<VideoState> {
 
   late final String _videoId;
   VideoDetail? _videoDetail;
-  VideoPlayerController? _videoPlayerController;
+  CachedVideoPlayerController? _videoPlayerController;
   StreamSubscription<VideoDetail?>? _videoStreamSubscription;
 
   List<Comment>? _comments;
@@ -43,8 +43,7 @@ class VideoCubit extends Cubit<VideoState> {
 
       // ignore: unawaited_futures
       _repository.getVideoDetailStream(videoId);
-      _videoStreamSubscription =
-          videoStreamController.stream.listen((videoDetail) {
+      _videoStreamSubscription = videoStreamController.stream.listen((videoDetail) {
         if (videoDetail != null) {
           _videoDetail = videoDetail;
           _initializeVideo();
@@ -153,7 +152,7 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> _initializeVideo() async {
     if (_videoPlayerController == null) {
-      _videoPlayerController = VideoPlayerController.network(_videoDetail!.url);
+      _videoPlayerController = CachedVideoPlayerController.network(_videoDetail!.url);
       await _videoPlayerController!.initialize();
       await _videoPlayerController!.setLooping(true);
       await _videoPlayerController!.play();
