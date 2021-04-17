@@ -444,9 +444,9 @@ packages:
   postgrest:
     dependency: transitive
     description:
-      name: postgrest
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "../postgrest-dart"
+      relative: true
+    source: path
     version: "0.0.8"
   process:
     dependency: transitive

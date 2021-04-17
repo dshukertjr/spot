@@ -10,6 +10,8 @@ import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 
+import '../app/constants.dart';
+
 class Repository {
   // Local Cache
   final Map<String, Profile> _profiles = {};
@@ -17,8 +19,7 @@ class Repository {
   final mapVideosStreamConntroller = StreamController<List<Video>>.broadcast();
 
   final Map<String, VideoDetail> _videoDetails = {};
-  final videoDetailStreamController =
-      StreamController<VideoDetail?>.broadcast();
+  final videoDetailStreamController = StreamController<VideoDetail?>.broadcast();
 
   Future<void> getVideosFromLocation(LatLng location) async {
     final userId = supabaseClient.auth.currentUser!.id;
@@ -43,8 +44,7 @@ class Repository {
   Future<List<Video>> getVideosFromUid(String uid) async {
     final res = await supabaseClient
         .from('videos')
-        .select(
-            'id, user_id, created_at, url, image_url, thumbnail_url, gif_url, description')
+        .select('id, user_id, created_at, url, image_url, thumbnail_url, gif_url, description')
         .eq('user_id', uid)
         .order('created_at')
         .execute();
@@ -63,8 +63,7 @@ class Repository {
     if (targetProfile != null) {
       return targetProfile;
     }
-    final res =
-        await supabaseClient.from('users').select().eq('id', uid).execute();
+    final res = await supabaseClient.from('users').select().eq('id', uid).execute();
     final data = res.data as List;
     final error = res.error;
     if (error != null) {
@@ -118,9 +117,8 @@ class Repository {
         message: error.message,
       );
     }
-    final urlRes = await supabaseClient.storage
-        .from('videos')
-        .createSignedUrl(path, 60 * 60 * 24 * 365 * 50);
+    final urlRes =
+        await supabaseClient.storage.from('videos').createSignedUrl(path, 60 * 60 * 24 * 365 * 50);
     final urlError = urlRes.error;
     if (urlError != null) {
       throw PlatformException(
@@ -132,9 +130,7 @@ class Repository {
   }
 
   Future<void> saveVideo(Video creatingVideo) async {
-    final res = await supabaseClient
-        .from('videos')
-        .insert([creatingVideo.toMap()]).execute();
+    final res = await supabaseClient.from('videos').insert([creatingVideo.toMap()]).execute();
     final error = res.error;
     if (error != null) {
       throw PlatformException(
@@ -151,8 +147,8 @@ class Repository {
   Future<void> getVideoDetailStream(String videoId) async {
     videoDetailStreamController.sink.add(null);
     final userId = supabaseClient.auth.currentUser!.id;
-    final res = await supabaseClient.rpc('get_video_detail',
-        params: {'video_id': videoId, 'user_id': userId}).execute();
+    final res = await supabaseClient
+        .rpc('get_video_detail', params: {'video_id': videoId, 'user_id': userId}).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
@@ -166,15 +162,14 @@ class Repository {
         message: 'No data found for this videoId',
       );
     }
-    _videoDetails[videoId] =
-        VideoDetail.fromData(Map.from(List.from(data).first));
+    _videoDetails[videoId] = VideoDetail.fromData(Map.from(List.from(data).first));
     videoDetailStreamController.sink.add(_videoDetails[videoId]!);
   }
 
   Future<void> like(String videoId) async {
     final currentVideoDetail = _videoDetails[videoId]!;
-    _videoDetails[videoId] = currentVideoDetail.copyWith(
-        likeCount: (currentVideoDetail.likeCount + 1), haveLiked: true);
+    _videoDetails[videoId] =
+        currentVideoDetail.copyWith(likeCount: (currentVideoDetail.likeCount + 1), haveLiked: true);
     videoDetailStreamController.sink.add(_videoDetails[videoId]!);
 
     final uid = supabaseClient.auth.currentUser!.id;
@@ -213,11 +208,8 @@ class Repository {
   }
 
   Future<List<Comment>> getComments(String videoId) async {
-    final res = await supabaseClient
-        .from('video_comments')
-        .select()
-        .eq('video_id', videoId)
-        .execute();
+    final res =
+        await supabaseClient.from('video_comments').select().eq('video_id', videoId).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
@@ -304,6 +296,23 @@ class Repository {
         message: error.message,
       );
     }
+  }
+
+  Future<List<Video>> search(String queryString) async {
+    final res = await supabaseClient
+        .from('videos')
+        .select()
+        .textSearch('description', queryString, config: 'english')
+        .execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'Unlike Video',
+        message: error.message,
+      );
+    }
+    final data = res.data as List;
+    return Video.videosFromData(data);
   }
 
   Future<LatLng> determinePosition() async {

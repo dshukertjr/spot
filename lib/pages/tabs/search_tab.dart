@@ -1,74 +1,120 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:spot/models/video.dart';
+import 'package:spot/cubits/search/search_cubit.dart';
 
-import '../../models/profile.dart';
+import '../../repositories/repository.dart';
 import '../view_video_page.dart';
 
-class SearchTab extends StatelessWidget {
-  final videos = [
-    Video(
-      id: '',
-      createdAt: DateTime.now(),
-      userId: 'dfas',
-      description: '',
-      thumbnailUrl:
-          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      imageUrl:
-          'https://tblg.k-img.com/restaurant/images/Rvw/91056/640x640_rect_91056529.jpg',
-      gifUrl:
-          'https://www.muscleandfitness.com/wp-content/uploads/2015/08/what_makes_a_man_more_manly_main0.jpg?quality=86&strip=all',
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      location: LatLng(37.43296265331129, -122.08832357078792),
-    ),
-  ];
+class SearchTab extends StatefulWidget {
+  static Widget create() {
+    return BlocProvider<SearchCubit>(
+      create: (context) => SearchCubit(repository: RepositoryProvider.of<Repository>(context)),
+      child: SearchTab(),
+    );
+  }
+
+  @override
+  _SearchTabState createState() => _SearchTabState();
+}
+
+class _SearchTabState extends State<SearchTab> {
+  final _queryStringController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 24,
-              horizontal: 30,
-            ),
-            child: TextFormField(
-              decoration: const InputDecoration(
-                hintText: 'Search away my friend',
-                suffixIcon: Icon(FeatherIcons.search),
+    return ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 24,
+            horizontal: 30,
+          ),
+          child: TextFormField(
+            onEditingComplete: _search,
+            decoration: InputDecoration(
+              hintText: 'Search away my friend',
+              suffixIcon: IconButton(
+                icon: const Icon(FeatherIcons.search),
+                onPressed: _search,
               ),
             ),
           ),
-          Material(
-            color: Colors.transparent,
-            child: Wrap(
-              children: List.generate(videos.length, (index) {
-                final video = videos[index];
-                return FractionallySizedBox(
-                  widthFactor: 0.5,
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(video.thumbnailUrl),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.of(context)
-                              .push(ViewVideoPage.route(video.id));
-                        },
-                      ),
-                    ),
+        ),
+        BlocBuilder<SearchCubit, SearchState>(
+          builder: (context, state) {
+            if (state is SearchInitial) {
+              return const Center(
+                child: Text('Search anything you would like'),
+              );
+            } else if (state is SearchLoaded) {
+              final videos = state.videos;
+              return _SearchResults(videos: videos);
+            } else if (state is SearchEmpty) {
+              return const Center(
+                child: Text('Sorry, we couldn\'t find what you are looking for'),
+              );
+            } else if (state is SearchError) {
+              return const Center(
+                child: Text('Something went wrong'),
+              );
+            }
+            throw UnimplementedError('Search Tab Unimplemented State ${state.runtimeType}');
+          },
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _queryStringController.dispose();
+    super.dispose();
+  }
+
+  void _search() {
+    if (_queryStringController.text.isEmpty) {
+      return;
+    }
+    BlocProvider.of<SearchCubit>(context).search(_queryStringController.text);
+  }
+}
+
+class _SearchResults extends StatelessWidget {
+  const _SearchResults({
+    Key? key,
+    required this.videos,
+  }) : super(key: key);
+
+  final List videos;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: Wrap(
+        children: List.generate(videos.length, (index) {
+          final video = videos[index];
+          return FractionallySizedBox(
+            widthFactor: 0.5,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Ink(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(video.thumbnailUrl),
+                    fit: BoxFit.cover,
                   ),
-                );
-              }),
+                ),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(ViewVideoPage.route(video.id));
+                  },
+                ),
+              ),
             ),
-          ),
-        ],
+          );
+        }),
       ),
     );
   }
