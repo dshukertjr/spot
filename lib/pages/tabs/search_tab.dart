@@ -81,6 +81,11 @@ class _SearchTabState extends State<SearchTab> {
       return;
     }
     BlocProvider.of<SearchCubit>(context).search(_queryStringController.text);
+    final currentFocus = FocusScope.of(context);
+
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
   }
 }
 

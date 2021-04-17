@@ -303,6 +303,8 @@ class Repository {
         .from('videos')
         .select('id, url, image_url, thumbnail_url, gif_url, description, user_id, created_at')
         .textSearch('description', queryString, config: 'english')
+        .order('created_at')
+        .limit(50)
         .execute();
     final error = res.error;
     if (error != null) {
