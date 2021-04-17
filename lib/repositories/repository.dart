@@ -301,7 +301,7 @@ class Repository {
   Future<List<Video>> search(String queryString) async {
     final res = await supabaseClient
         .from('videos')
-        .select()
+        .select('id, url, image_url, thumbnail_url, gif_url, description, user_id, created_at')
         .textSearch('description', queryString, config: 'english')
         .execute();
     final error = res.error;

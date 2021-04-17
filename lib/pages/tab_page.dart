@@ -35,7 +35,7 @@ class _TabPageState extends State<TabPage> {
         index: _currentIndex,
         children: [
           MapTab.create(),
-          SearchTab(),
+          SearchTab.create(),
           NotificationsTab(),
           ProfileTab(),
         ],

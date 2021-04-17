@@ -3,8 +3,6 @@ import 'package:meta/meta.dart';
 
 import '../../models/video.dart';
 import '../../repositories/repository.dart';
-import '../../repositories/repository.dart';
-
 part 'search_state.dart';
 
 class SearchCubit extends Cubit<SearchState> {
@@ -16,6 +14,7 @@ class SearchCubit extends Cubit<SearchState> {
 
   Future<void> search(String queryString) async {
     try {
+      emit(SearchLoading());
       final videos = await _repository.search(queryString);
       if (videos.isEmpty) {
         emit(SearchEmpty());

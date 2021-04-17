@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/cubits/search/search_cubit.dart';
 
+import '../../app/constants.dart';
 import '../../repositories/repository.dart';
 import '../view_video_page.dart';
 
@@ -31,6 +32,7 @@ class _SearchTabState extends State<SearchTab> {
             horizontal: 30,
           ),
           child: TextFormField(
+            controller: _queryStringController,
             onEditingComplete: _search,
             decoration: InputDecoration(
               hintText: 'Search away my friend',
@@ -47,6 +49,8 @@ class _SearchTabState extends State<SearchTab> {
               return const Center(
                 child: Text('Search anything you would like'),
               );
+            } else if (state is SearchLoading) {
+              return preloader;
             } else if (state is SearchLoaded) {
               final videos = state.videos;
               return _SearchResults(videos: videos);
