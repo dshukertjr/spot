@@ -37,7 +37,9 @@ class Repository {
     } else if (data == null) {
       throw PlatformException(code: 'getVideosFromLocation error');
     }
-    _mapVideos.addAll(Video.videosFromData(data));
+    final videoIds = _mapVideos.map((video) => video.id);
+    final newVideos = Video.videosFromData(data).where((video) => !videoIds.contains(video.id));
+    _mapVideos.addAll(newVideos);
     mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 

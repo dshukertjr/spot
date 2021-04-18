@@ -16,16 +16,22 @@ import 'package:spot/repositories/repository.dart';
 import '../../cubits/videos/videos_cubit.dart';
 
 class MapTab extends StatelessWidget {
-  static Widget create() {
+  const MapTab({Key? key, required GlobalKey<MapState> mapKey})
+      : _mapKey = mapKey,
+        super(key: key);
+
+  static Widget create(
+    GlobalKey<MapState> mapKey,
+  ) {
     return BlocProvider<VideosCubit>(
       create: (context) => VideosCubit(
         databaseRepository: RepositoryProvider.of<Repository>(context),
-      )..loadFromLocation(),
-      child: MapTab(),
+      )..loadInitialVideos(),
+      child: MapTab(mapKey: mapKey),
     );
   }
 
-  final _mapKey = GlobalKey<__MapState>();
+  final GlobalKey<MapState> _mapKey;
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +52,30 @@ class MapTab extends StatelessWidget {
           );
         } else if (state is VideosLoaded) {
           return _Map(key: _mapKey, videos: state.videos);
+        } else if (state is VideosLoadingMore) {
+          final videos = state.videos;
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              _Map(
+                key: _mapKey,
+                videos: videos,
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 12, right: 12),
+                  child: const SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: preloader,
+                  ),
+                ),
+              ),
+            ],
+          );
         }
-        return _Map(
-          key: _mapKey,
-        );
+        throw UnimplementedError();
       },
     );
   }
@@ -68,10 +94,10 @@ class _Map extends StatefulWidget {
   final LatLng _location;
 
   @override
-  __MapState createState() => __MapState();
+  MapState createState() => MapState();
 }
 
-class __MapState extends State<_Map> {
+class MapState extends State<_Map> {
   final Completer<GoogleMapController> _controller = Completer();
 
   /// Holds all the markers for the map
@@ -92,8 +118,13 @@ class __MapState extends State<_Map> {
         target: widget._location,
         zoom: 16,
       ),
-      onCameraMove: (position) {
-        // BlocProvider.of<VideosCubit>(context).loadFromLocation(position.target);
+      onCameraIdle: () async {
+        // Finds the center of the map and load videos around that location
+        final controller = await _controller.future;
+        final bounds = await controller.getVisibleRegion();
+        final center = LatLng((bounds.northeast.latitude + bounds.southwest.latitude) / 2,
+            (bounds.northeast.longitude + bounds.southwest.longitude) / 2);
+        return BlocProvider.of<VideosCubit>(context).loadFromLocation(center);
       },
       onMapCreated: (GoogleMapController controller) {
         controller.setMapStyle(
@@ -111,6 +142,9 @@ class __MapState extends State<_Map> {
   }
 
   Future<void> _moveCameraToShowAllMarkers() async {
+    if (_markers.isEmpty) {
+      return;
+    }
     if (_hasLoadedMarkers) {
       return;
     }
@@ -141,19 +175,23 @@ class __MapState extends State<_Map> {
     required BuildContext context,
   }) async {
     /// Only create markers for videos that the marker does not exist yet.
-    final markerIds = _markers.map((marker) => marker.markerId).toList();
-    final markers = await Future.wait(
-      videos.where((video) => !markerIds.contains(video.id)).map<Future<Marker>>(
-            (video) => _createMarkerImageFromAsset(video: video, context: context),
-          ),
+    final markerIds = _markers.toList().map((marker) => marker.markerId.value).toList();
+    final newVideos = videos.where((video) => !markerIds.contains(video.id));
+    final newMarkers = await Future.wait(
+      newVideos.map<Future<Marker>>(
+        (video) => _createMarkerImageFromAsset(video: video, context: context),
+      ),
     );
 
     /// Delete marker for videos that is not included in videos
     final videoIds = videos.map((video) => video.id).toList();
-    _markers.removeWhere((marker) => !videoIds.contains(marker.markerId));
-    setState(() {
-      _markers = markers.toSet();
-    });
+    _markers.removeWhere((marker) => !videoIds.contains(marker.markerId.value));
+
+    if (newMarkers.isNotEmpty) {
+      setState(() {
+        _markers.addAll(newMarkers.toSet());
+      });
+    }
   }
 
   Future<Marker> _createMarkerImageFromAsset({

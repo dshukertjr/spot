@@ -11,6 +11,12 @@ class VideosLoading extends VideosState {
   final LatLng location;
 }
 
+class VideosLoadingMore extends VideosState {
+  VideosLoadingMore(this.videos);
+  
+  final List<Video> videos;
+}
+
 class VideosLoaded extends VideosState {
   VideosLoaded(this.videos);
 

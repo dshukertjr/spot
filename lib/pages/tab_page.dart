@@ -28,13 +28,14 @@ class TabPage extends StatefulWidget {
 
 class _TabPageState extends State<TabPage> {
   int _currentIndex = 0;
+  final _mapKey = GlobalKey<MapState>();
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          MapTab.create(),
+          MapTab.create(_mapKey),
           SearchTab.create(),
           NotificationsTab(),
           ProfileTab(),

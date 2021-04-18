@@ -16,6 +16,7 @@ class VideosCubit extends Cubit<VideosState> {
   final Repository _repository;
 
   StreamSubscription<List<Video>>? _mapVideosSubscription;
+  var _videos = <Video>[];
 
   @override
   Future<void> close() {
@@ -23,13 +24,24 @@ class VideosCubit extends Cubit<VideosState> {
     return super.close();
   }
 
-  Future<void> loadFromLocation([LatLng? location]) async {
+  Future<void> loadInitialVideos() async {
     try {
-      final searchLocation = location ??= await _repository.determinePosition();
+      final searchLocation = await _repository.determinePosition();
       emit(VideosLoading(searchLocation));
       _mapVideosSubscription = _repository.mapVideosStreamConntroller.stream.listen((videos) {
-        emit(VideosLoaded(videos));
+        _videos = videos;
+        emit(VideosLoaded(_videos));
       });
+      await _repository.getVideosFromLocation(searchLocation);
+    } catch (err) {
+      emit(VideosError(message: 'Error loading videos. Please refresh.'));
+    }
+  }
+
+  Future<void> loadFromLocation(LatLng location) async {
+    try {
+      final searchLocation = location;
+      emit(VideosLoadingMore(_videos));
       await _repository.getVideosFromLocation(searchLocation);
     } catch (err) {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
