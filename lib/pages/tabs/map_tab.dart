@@ -40,40 +40,22 @@ class MapTab extends StatelessWidget {
         if (state is VideosInitial) {
           return preloader;
         } else if (state is VideosLoading) {
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              _Map(
-                key: _mapKey,
-                location: state.location,
-              ),
-              preloader,
-            ],
+          return _Map(
+            key: _mapKey,
+            location: state.location,
+            isLoading: true,
           );
         } else if (state is VideosLoaded) {
           return _Map(key: _mapKey, videos: state.videos);
         } else if (state is VideosLoadingMore) {
           final videos = state.videos;
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              _Map(
-                key: _mapKey,
-                videos: videos,
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 12, right: 12),
-                  child: const SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: preloader,
-                  ),
-                ),
-              ),
-            ],
+          return _Map(
+            key: _mapKey,
+            videos: videos,
+            isLoading: true,
           );
+        } else if (state is VideosError) {
+          return const Center(child: Text('Something went wrong'));
         }
         throw UnimplementedError();
       },
@@ -86,12 +68,15 @@ class _Map extends StatefulWidget {
     Key? key,
     List<Video>? videos,
     LatLng? location,
+    bool? isLoading,
   })  : _videos = videos ?? [],
         _location = location ?? const LatLng(0, 0),
+        _isLoading = isLoading ?? false,
         super(key: key);
 
   final List<Video> _videos;
   final LatLng _location;
+  final bool _isLoading;
 
   @override
   MapState createState() => MapState();
@@ -101,36 +86,60 @@ class MapState extends State<_Map> {
   final Completer<GoogleMapController> _controller = Completer();
 
   /// Holds all the markers for the map
-  var _markers = <Marker>{};
+  final _markers = <Marker>{};
 
   /// false if there hasn't been marker being loaded yet
   var _hasLoadedMarkers = false;
 
+  var _loading = false;
+
   @override
   Widget build(BuildContext context) {
-    return GoogleMap(
-      markers: _markers,
-      mapType: MapType.normal,
-      zoomControlsEnabled: false,
-      myLocationEnabled: true,
-      myLocationButtonEnabled: false,
-      initialCameraPosition: CameraPosition(
-        target: widget._location,
-        zoom: 16,
-      ),
-      onCameraIdle: () async {
-        // Finds the center of the map and load videos around that location
-        final controller = await _controller.future;
-        final bounds = await controller.getVisibleRegion();
-        final center = LatLng((bounds.northeast.latitude + bounds.southwest.latitude) / 2,
-            (bounds.northeast.longitude + bounds.southwest.longitude) / 2);
-        return BlocProvider.of<VideosCubit>(context).loadFromLocation(center);
-      },
-      onMapCreated: (GoogleMapController controller) {
-        controller.setMapStyle(
-            '[{"featureType":"all","elementType":"geometry","stylers":[{"color":"#202c3e"}]},{"featureType":"all","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"gamma":0.01},{"lightness":20},{"weight":"1.39"},{"color":"#ffffff"},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"weight":"0.96"},{"saturation":"9"},{"visibility":"off"},{"color":"#000000"}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"lightness":30},{"saturation":"9"},{"color":"#273556"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"saturation":20}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"lightness":20},{"saturation":-20}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":10},{"saturation":-30}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#3f499d"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"saturation":25},{"lightness":25},{"weight":"0.01"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#ff0000"}]},{"featureType":"water","elementType":"all","stylers":[{"lightness":-20}]}]');
-        _controller.complete(controller);
-      },
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        GoogleMap(
+          markers: _markers,
+          mapType: MapType.normal,
+          zoomControlsEnabled: false,
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          initialCameraPosition: CameraPosition(
+            target: widget._location,
+            zoom: 16,
+          ),
+          onCameraIdle: () async {
+            if (_loading) {
+              return;
+            }
+            _loading = true;
+            // Finds the center of the map and load videos around that location
+            final controller = await _controller.future;
+            final bounds = await controller.getVisibleRegion();
+            final center = LatLng((bounds.northeast.latitude + bounds.southwest.latitude) / 2,
+                (bounds.northeast.longitude + bounds.southwest.longitude) / 2);
+            await BlocProvider.of<VideosCubit>(context).loadFromLocation(center);
+            _loading = false;
+          },
+          onMapCreated: (GoogleMapController controller) {
+            controller.setMapStyle(
+                '[{"featureType":"all","elementType":"geometry","stylers":[{"color":"#202c3e"}]},{"featureType":"all","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"gamma":0.01},{"lightness":20},{"weight":"1.39"},{"color":"#ffffff"},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"weight":"0.96"},{"saturation":"9"},{"visibility":"off"},{"color":"#000000"}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"lightness":30},{"saturation":"9"},{"color":"#273556"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"saturation":20}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"lightness":20},{"saturation":-20}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":10},{"saturation":-30}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#3f499d"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"saturation":25},{"lightness":25},{"weight":"0.01"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#ff0000"}]},{"featureType":"water","elementType":"all","stylers":[{"lightness":-20}]}]');
+            _controller.complete(controller);
+          },
+        ),
+        if (widget._isLoading)
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 12, right: 12),
+              child: const SizedBox(
+                width: 30,
+                height: 30,
+                child: preloader,
+              ),
+            ),
+          ),
+      ],
     );
   }
 

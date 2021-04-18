@@ -42,7 +42,7 @@ class VideosCubit extends Cubit<VideosState> {
     try {
       final searchLocation = location;
       emit(VideosLoadingMore(_videos));
-      await _repository.getVideosFromLocation(searchLocation);
+      return _repository.getVideosFromLocation(searchLocation);
     } catch (err) {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
     }

@@ -35,7 +35,7 @@ class Repository {
     if (error != null) {
       throw PlatformException(code: 'getVideosFromLocation error');
     } else if (data == null) {
-      throw PlatformException(code: 'getVideosFromLocation error');
+      throw PlatformException(code: 'getVideosFromLocation error null data');
     }
     final videoIds = _mapVideos.map((video) => video.id);
     final newVideos = Video.videosFromData(data).where((video) => !videoIds.contains(video.id));
