@@ -150,6 +150,10 @@ class VideoCubit extends Cubit<VideoState> {
     );
   }
 
+  Future<void> delete() {
+    return _repository.delete(videoId: _videoId);
+  }
+
   Future<void> _initializeVideo() async {
     if (_videoPlayerController == null) {
       _videoPlayerController = CachedVideoPlayerController.network(_videoDetail!.url);

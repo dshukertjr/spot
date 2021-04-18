@@ -21,6 +21,7 @@ import 'tab_page.dart';
 enum _VideoMenu {
   block,
   report,
+  delete,
 }
 
 class ViewVideoPage extends StatelessWidget {
@@ -84,6 +85,8 @@ class _VideoScreen extends StatefulWidget {
 }
 
 class __VideoScreenState extends State<_VideoScreen> {
+  late final String _userId;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -158,6 +161,9 @@ class __VideoScreenState extends State<_VideoScreen> {
                             context.showSnackbar('Thanks for reporting');
                           }
                           break;
+                        case _VideoMenu.delete:
+                          _showDeleteDialog();
+                          break;
                       }
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<_VideoMenu>>[
@@ -169,6 +175,11 @@ class __VideoScreenState extends State<_VideoScreen> {
                         value: _VideoMenu.report,
                         child: Text('Report this video'),
                       ),
+                      if (widget._video.id == _userId)
+                        const PopupMenuItem<_VideoMenu>(
+                          value: _VideoMenu.delete,
+                          child: Text('Delete this video'),
+                        ),
                     ],
                     child: const Icon(FeatherIcons.moreHorizontal),
                   ),
@@ -225,6 +236,24 @@ class __VideoScreenState extends State<_VideoScreen> {
     );
   }
 
+  @override
+  void initState() {
+    _userId = supabaseClient.auth.currentUser!.id;
+    super.initState();
+  }
+
+  void _showDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return FrostedDialog(
+            child: _DeletingDialogContent(
+          videoCubit: BlocProvider.of<VideoCubit>(context),
+        ));
+      },
+    );
+  }
+
   void _showBlockDialog() {
     showDialog(
       context: context,
@@ -249,6 +278,72 @@ class __VideoScreenState extends State<_VideoScreen> {
         ));
       },
     );
+  }
+}
+
+class _DeletingDialogContent extends StatefulWidget {
+  _DeletingDialogContent({
+    Key? key,
+    required VideoCubit videoCubit,
+  })   : _videoCubit = videoCubit,
+        super(key: key);
+
+  final VideoCubit _videoCubit;
+
+  @override
+  __DeletingDialogContentState createState() => __DeletingDialogContentState();
+}
+
+class __DeletingDialogContentState extends State<_DeletingDialogContent> {
+  var _loading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return _loading
+        ? const SizedBox(
+            height: 80,
+            child: preloader,
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Are you sure you want to delete this video?'),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GradientButton(
+                    strokeWidth: 0,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 12),
+                  GradientButton(
+                    onPressed: () async {
+                      try {
+                        setState(() {
+                          _loading = true;
+                        });
+                        await widget._videoCubit.delete();
+                        Navigator.of(context).popUntil(
+                          (route) => route.settings.name == TabPage.name,
+                        );
+                      } catch (err) {
+                        setState(() {
+                          _loading = false;
+                        });
+                        context.showErrorSnackbar('Error occured while blocking the user.');
+                      }
+                    },
+                    child: const Text('Delete Video'),
+                  ),
+                ],
+              ),
+            ],
+          );
   }
 }
 

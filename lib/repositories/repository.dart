@@ -300,6 +300,17 @@ class Repository {
     }
   }
 
+  Future<void> delete({required String videoId}) async {
+    final res = await supabaseClient.from('videos').delete().eq('id', videoId).execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'Delete Video',
+        message: error.message,
+      );
+    }
+  }
+
   Future<List<Video>> search(String queryString) async {
     final res = await supabaseClient
         .from('videos')
