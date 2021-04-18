@@ -13,6 +13,8 @@ import 'package:spot/models/video.dart';
 import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 
+import '../../cubits/videos/videos_cubit.dart';
+
 class MapTab extends StatelessWidget {
   static Widget create() {
     return BlocProvider<VideosCubit>(
@@ -23,6 +25,8 @@ class MapTab extends StatelessWidget {
     );
   }
 
+  final _mapKey = GlobalKey<__MapState>();
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<VideosCubit, VideosState>(
@@ -30,11 +34,22 @@ class MapTab extends StatelessWidget {
         if (state is VideosInitial) {
           return preloader;
         } else if (state is VideosLoading) {
-          return _Map(location: state.location);
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              _Map(
+                key: _mapKey,
+                location: state.location,
+              ),
+              preloader,
+            ],
+          );
         } else if (state is VideosLoaded) {
-          return _Map(videos: state.videos);
+          return _Map(key: _mapKey, videos: state.videos);
         }
-        return _Map();
+        return _Map(
+          key: _mapKey,
+        );
       },
     );
   }
@@ -59,7 +74,11 @@ class _Map extends StatefulWidget {
 class __MapState extends State<_Map> {
   final Completer<GoogleMapController> _controller = Completer();
 
+  /// Holds all the markers for the map
   var _markers = <Marker>{};
+
+  /// false if there hasn't been marker being loaded yet
+  var _hasLoadedMarkers = false;
 
   @override
   Widget build(BuildContext context) {
@@ -71,9 +90,11 @@ class __MapState extends State<_Map> {
       myLocationButtonEnabled: false,
       initialCameraPosition: CameraPosition(
         target: widget._location,
-        tilt: 59.440717697143555,
         zoom: 16,
       ),
+      onCameraMove: (position) {
+        // BlocProvider.of<VideosCubit>(context).loadFromLocation(position.target);
+      },
       onMapCreated: (GoogleMapController controller) {
         controller.setMapStyle(
             '[{"featureType":"all","elementType":"geometry","stylers":[{"color":"#202c3e"}]},{"featureType":"all","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"gamma":0.01},{"lightness":20},{"weight":"1.39"},{"color":"#ffffff"},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"weight":"0.96"},{"saturation":"9"},{"visibility":"off"},{"color":"#000000"}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"lightness":30},{"saturation":"9"},{"color":"#273556"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"saturation":20}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"lightness":20},{"saturation":-20}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":10},{"saturation":-30}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#3f499d"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"saturation":25},{"lightness":25},{"weight":"0.01"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#ff0000"}]},{"featureType":"water","elementType":"all","stylers":[{"lightness":-20}]}]');
@@ -84,8 +105,35 @@ class __MapState extends State<_Map> {
 
   @override
   void didUpdateWidget(covariant _Map oldWidget) {
-    _createMarkers(videos: widget._videos, context: context);
+    _createMarkers(videos: widget._videos, context: context)
+        .then((_) => _moveCameraToShowAllMarkers());
     super.didUpdateWidget(oldWidget);
+  }
+
+  Future<void> _moveCameraToShowAllMarkers() async {
+    if (_hasLoadedMarkers) {
+      return;
+    }
+    _hasLoadedMarkers = true;
+    final controller = await _controller.future;
+    if (_markers.length == 1) {
+      // If there is only 1 marker, move camera to centre that marker
+      await controller.moveCamera(CameraUpdate.newLatLng(_markers.first.position));
+    }
+    final cordinatesList = List<LatLng>.from(_markers.map((marker) => marker.position))
+      ..sort((a, b) => b.latitude.compareTo(a.latitude));
+    final northernLatitude = cordinatesList.first.latitude;
+    cordinatesList.sort((a, b) => a.latitude.compareTo(b.latitude));
+    final southernLatitude = cordinatesList.first.latitude;
+    cordinatesList.sort((a, b) => b.longitude.compareTo(a.longitude));
+    final easternLongitude = cordinatesList.first.longitude;
+    cordinatesList.sort((a, b) => a.longitude.compareTo(b.longitude));
+    final westernLongitude = cordinatesList.first.longitude;
+    final bounds = LatLngBounds(
+      northeast: LatLng(northernLatitude, easternLongitude),
+      southwest: LatLng(southernLatitude, westernLongitude),
+    );
+    return controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 20));
   }
 
   Future<void> _createMarkers({
@@ -95,11 +143,8 @@ class __MapState extends State<_Map> {
     /// Only create markers for videos that the marker does not exist yet.
     final markerIds = _markers.map((marker) => marker.markerId).toList();
     final markers = await Future.wait(
-      videos
-          .where((video) => !markerIds.contains(video.id))
-          .map<Future<Marker>>(
-            (video) =>
-                _createMarkerImageFromAsset(video: video, context: context),
+      videos.where((video) => !markerIds.contains(video.id)).map<Future<Marker>>(
+            (video) => _createMarkerImageFromAsset(video: video, context: context),
           ),
     );
 
@@ -167,25 +212,20 @@ class __MapState extends State<_Map> {
       format: ui.ImageByteFormat.png,
     );
     if (byteData == null) {
-      throw PlatformException(
-          code: 'byteData null', message: 'byteData is null');
+      throw PlatformException(code: 'byteData null', message: 'byteData is null');
     }
     final resizedMarkerImageBytes = byteData.buffer.asUint8List();
-    final image =
-        await _loadImage(Uint8List.view(resizedMarkerImageBytes.buffer));
+    final image = await _loadImage(Uint8List.view(resizedMarkerImageBytes.buffer));
 
     //start adding duration indicator
     canvas
       ..drawCircle(Offset(size / 2, size / 2), size / 2, paint)
       ..saveLayer(boundingRect, paint)
       ..drawCircle(Offset(size / 2, size / 2), imageSize / 2, paint)
-      ..drawImage(image, Offset(imagePadding, imagePadding),
-          paint..blendMode = BlendMode.srcIn)
+      ..drawImage(image, Offset(imagePadding, imagePadding), paint..blendMode = BlendMode.srcIn)
       ..restore();
 
-    final img = await pictureRecorder
-        .endRecording()
-        .toImage(size.toInt(), size.toInt());
+    final img = await pictureRecorder.endRecording().toImage(size.toInt(), size.toInt());
 
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
     if (data == null) {

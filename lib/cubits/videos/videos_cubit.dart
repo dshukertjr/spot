@@ -23,15 +23,14 @@ class VideosCubit extends Cubit<VideosState> {
     return super.close();
   }
 
-  Future<void> loadFromLocation() async {
+  Future<void> loadFromLocation([LatLng? location]) async {
     try {
-      final location = await _repository.determinePosition();
-      emit(VideosLoading(location));
-      _mapVideosSubscription =
-          _repository.mapVideosStreamConntroller.stream.listen((videos) {
+      final searchLocation = location ??= await _repository.determinePosition();
+      emit(VideosLoading(searchLocation));
+      _mapVideosSubscription = _repository.mapVideosStreamConntroller.stream.listen((videos) {
         emit(VideosLoaded(videos));
       });
-      await _repository.getVideosFromLocation(location);
+      await _repository.getVideosFromLocation(searchLocation);
     } catch (err) {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
     }
