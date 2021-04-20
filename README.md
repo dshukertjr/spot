@@ -5,7 +5,7 @@ https://www.figma.com/file/OBSvD6eG4eDno3aQ76Ovzo/Spot?node-id=2%3A1023
 
 ```sql
 create table if not exists public.users (
-  id uuid references auth.users not null primary key,
+  id uuid references auth.users on delete cascade not null primary key,
   name varchar(18) not null unique,
   description varchar(320) not null,
   image_url text,
@@ -22,7 +22,7 @@ create policy "Users can update own profile." on public.users for update with ch
 
 create table if not exists public.videos (
     id uuid not null primary key DEFAULT uuid_generate_v4 (),
-    user_id uuid references public.users not null,
+    user_id uuid references public.users on delete cascade not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
     url text not null,
     image_url text not null,
@@ -42,8 +42,8 @@ create policy "Users can delete own videos." on public.videos for delete using (
 
 create table if not exists public.comments (
     id uuid not null primary key DEFAULT uuid_generate_v4 (),
-    video_id uuid references public.videos not null,
-    user_id uuid references public.users not null,
+    video_id uuid references public.videos on delete cascade not null,
+    user_id uuid references public.users on delete cascade not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
     text varchar(320) not null,
 
@@ -59,8 +59,8 @@ create policy "Users can delete own comments." on public.comments for delete usi
 
 
 create table if not exists public.likes (
-    video_id uuid references public.videos not null,
-    user_id uuid references public.users not null,
+    video_id uuid references public.videos on delete cascade not null,
+    user_id uuid references public.users on delete cascade not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
     PRIMARY KEY (video_id, user_id)
 );
@@ -68,13 +68,13 @@ comment on table public.likes is 'Holds all of the like data created by thee use
 
 alter table public.likes enable row level security;
 create policy "Likes are viewable by everyone. " on public.likes for select using (true);
-create policy "Users can insert their own likes." on public.likes for insert with check (auth.uid() = liked_uid);
-create policy "Users can delete own likes." on public.likes for delete using (auth.uid() = liked_uid);
+create policy "Users can insert their own likes." on public.likes for insert with check (auth.uid() = user_id);
+create policy "Users can delete own likes." on public.likes for delete using (auth.uid() = user_id);
 
 
 create table if not exists public.follow (
-    following_user_id uuid references public.users not null,
-    followed_user_id uuid references public.users not null,
+    following_user_id uuid references public.users on delete cascade not null,
+    followed_user_id uuid references public.users on delete cascade not null,
     followed_at timestamp with time zone default timezone('utc' :: text, now()) not null,
     primary key (following_user_id, followed_user_id)
 );
@@ -86,8 +86,8 @@ create policy "Users can follow anyone" on public.follow for insert with check (
 create policy "Users can unfollow their follows and ssers can remove their followers" on public.follow for delete using (auth.uid() = following_user_id or auth.uid() = followed_user_id);
 
 create table if not exists public.blocks (
-    user_id uuid references public.users not null,
-    blocked_user_id uuid references public.users not null,
+    user_id uuid references public.users on delete cascade not null,
+    blocked_user_id uuid references public.users on delete cascade not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
     primary key (user_id, blocked_user_id),
   
@@ -101,8 +101,8 @@ create policy "Users can block anyone by themselves. " on public.blocks for inse
 
 create table if not exists public.reports (
     id uuid not null primary key DEFAULT uuid_generate_v4 (),
-    user_id uuid references public.users not null,
-    video_id uuid references public.users not null,
+    user_id uuid references public.users on delete cascade not null,
+    video_id uuid references public.users on delete cascade not null,
     reason text not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null
 );
@@ -129,7 +129,7 @@ as
     
 
 create or replace function nearby_videos(location text, user_id uuid)
-returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, description text, user_image_url text)
+returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text)
 as 
 $func$
     select
