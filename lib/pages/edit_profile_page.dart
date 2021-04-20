@@ -25,7 +25,7 @@ class EditProfilePage extends StatefulWidget {
     return MaterialPageRoute(
       builder: (context) => BlocProvider<ProfileCubit>(
         create: (context) => ProfileCubit(
-          databaseRepository: RepositoryProvider.of<Repository>(context),
+          repository: RepositoryProvider.of<Repository>(context),
         )..loadProfile(uid),
         child: EditProfilePage(
           isCreatingAccount: isCreatingAccount,
@@ -49,8 +49,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      body:
-          BlocConsumer<ProfileCubit, ProfileState>(listener: (context, state) {
+      body: BlocConsumer<ProfileCubit, ProfileState>(listener: (context, state) {
         if (state is ProfileLoaded) {
           final profile = state.profile;
           setState(() {
@@ -73,8 +72,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Form(
       key: _formKey,
       child: ListView(
-        padding: const EdgeInsets.all(19)
-            .copyWith(top: 19 + MediaQuery.of(context).padding.top),
+        padding: const EdgeInsets.all(19).copyWith(top: 19 + MediaQuery.of(context).padding.top),
         children: [
           Row(
             children: [
@@ -155,17 +153,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   await BlocProvider.of<ProfileCubit>(context).saveProfile(
                     name: name,
                     description: description,
-                    imageFile: null,
+                    imageFile: _selectedImageFile,
                   );
                   if (widget.isCreatingAccount) {
-                    await Navigator.of(context)
-                        .pushReplacement(SplashPage.route());
+                    await Navigator.of(context).pushReplacement(SplashPage.route());
                   } else {
                     Navigator.of(context).pop();
                   }
                 } catch (err) {
-                  context
-                      .showErrorSnackbar('Error occured while saving profile');
+                  context.showErrorSnackbar('Error occured while saving profile');
                 }
               },
               child: const Text('Save'),

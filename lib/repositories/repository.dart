@@ -110,8 +110,12 @@ class Repository {
   }
 
   /// Uploads the video and returns the download URL
-  Future<String> uploadFile({required File file, required String path}) async {
-    final res = await supabaseClient.storage.from('videos').upload(path, file);
+  Future<String> uploadFile({
+    required String bucket,
+    required File file,
+    required String path,
+  }) async {
+    final res = await supabaseClient.storage.from(bucket).upload(path, file);
     final error = res.error;
     if (error != null) {
       throw PlatformException(

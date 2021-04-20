@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
+import 'package:spot/pages/edit_profile_page.dart';
 import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 
@@ -26,14 +29,14 @@ class UserProfile extends StatelessWidget {
           SizedBox(height: MediaQuery.of(context).padding.top),
           BlocProvider<ProfileCubit>(
             create: (context) => ProfileCubit(
-              databaseRepository: RepositoryProvider.of<Repository>(context),
+              repository: RepositoryProvider.of<Repository>(context),
             )..loadProfile(_userId),
             child: const _Profile(),
           ),
           BlocProvider<VideosCubit>(
-            create: (context) => VideosCubit(
-                databaseRepository: RepositoryProvider.of<Repository>(context))
-              ..loadFromUid(_userId),
+            create: (context) =>
+                VideosCubit(databaseRepository: RepositoryProvider.of<Repository>(context))
+                  ..loadFromUid(_userId),
             child: const _UserPosts(),
           ),
         ],
@@ -73,8 +76,7 @@ class _UserPosts extends StatelessWidget {
                       ),
                       child: InkWell(
                         onTap: () {
-                          Navigator.of(context)
-                              .push(ViewVideoPage.route(video.id));
+                          Navigator.of(context).push(ViewVideoPage.route(video.id));
                         },
                       ),
                     ),
@@ -108,6 +110,7 @@ class _Profile extends StatelessWidget {
         return const Text('Profile not found');
       } else if (state is ProfileLoaded) {
         final profile = state.profile;
+        final authUser = supabaseClient.auth.currentUser;
         return Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 31,
@@ -129,6 +132,15 @@ class _Profile extends StatelessWidget {
                     Text(profile.name),
                     const SizedBox(height: 17),
                     if (profile.description != null) Text(profile.description!),
+                    if (authUser?.id == profile.id)
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                              EditProfilePage.route(isCreatingAccount: false, uid: authUser!.id));
+                        },
+                        icon: const Icon(FeatherIcons.edit),
+                        label: const Text('Edit Profile'),
+                      ),
                   ],
                 ),
               ),

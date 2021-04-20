@@ -64,7 +64,6 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
 
       _doneCompressingVideo = true;
     } catch (e) {
-      //TODO handle error in better way
       emit(ConfirmVideoError());
     }
   }
@@ -87,19 +86,23 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       final now = DateTime.now();
       final videoPath =
           '${authUser.id}/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('.').last}';
-      final videoUrl = await _repository.uploadFile(file: _compressedVideo, path: videoPath);
+      final videoUrl =
+          await _repository.uploadFile(bucket: 'videos', file: _compressedVideo, path: videoPath);
 
       final videoImagePath =
           '${authUser.id}/${now.millisecondsSinceEpoch}.${_videoImage.path.split('.').last}';
-      final videoImageUrl = await _repository.uploadFile(file: _videoImage, path: videoImagePath);
+      final videoImageUrl =
+          await _repository.uploadFile(bucket: 'videos', file: _videoImage, path: videoImagePath);
 
       final videoThumbPath =
           '${authUser.id}/thumb-${now.millisecondsSinceEpoch}.${_thumbnail.path.split('.').last}';
-      final videoThumbUrl = await _repository.uploadFile(file: _thumbnail, path: videoThumbPath);
+      final videoThumbUrl =
+          await _repository.uploadFile(bucket: 'videos', file: _thumbnail, path: videoThumbPath);
 
       final videoGifPath =
           '${authUser.id}/${now.millisecondsSinceEpoch}.${_gif.path.split('.').last}';
-      final videoGifUrl = await _repository.uploadFile(file: _gif, path: videoGifPath);
+      final videoGifUrl =
+          await _repository.uploadFile(bucket: 'videos', file: _gif, path: videoGifPath);
 
       final creatingVideo = Video.creation(
         videoUrl: videoUrl,
