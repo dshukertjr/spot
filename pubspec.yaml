@@ -41,9 +41,15 @@ dev_dependencies:
   bloc_test: ^8.0.0
   mocktail: ^0.1.0
   very_good_analysis: ^2.0.0
+  flutter_launcher_icons: ^0.9.0
 
 flutter:
   assets:
     - assets/images/
   uses-material-design: true
   generate: true
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/launcher/icon.png"
