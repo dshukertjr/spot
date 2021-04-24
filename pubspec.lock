@@ -279,7 +279,7 @@ packages:
       name: gotrue
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.1-dev.9"
+    version: "0.0.1-dev.10"
   http:
     dependency: "direct main"
     description:
@@ -486,9 +486,9 @@ packages:
   postgrest:
     dependency: transitive
     description:
-      path: "../postgrest-dart"
-      relative: true
-    source: path
+      name: postgrest
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "0.1.0"
   process:
     dependency: transitive
@@ -631,10 +631,10 @@ packages:
   supabase:
     dependency: "direct main"
     description:
-      path: "../supabase-dart"
-      relative: true
-    source: path
-    version: "0.0.1-dev.10"
+      name: supabase
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1-dev.13"
   synchronized:
     dependency: transitive
     description:

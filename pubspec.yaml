@@ -29,12 +29,12 @@ dependencies:
   #   git:
   #     url: https://github.com/thalkz/supabase-dart.git
   #     ref: thalkz/storage
-  supabase:
-     path: ../supabase-dart
+  supabase: ^0.0.1-dev.13
   flutter_feather_icons: ^2.0.0+1
   flutter_secure_storage: ^4.1.0
   image_picker: ^0.7.4
   flutter_cache_manager: ^3.0.1
+  
 
 dev_dependencies:
   flutter_test:

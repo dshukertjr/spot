@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'package:meta/meta.dart';
 import 'package:spot/app/constants.dart';
@@ -157,7 +158,8 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> _initializeVideo() async {
     if (_videoPlayerController == null) {
-      _videoPlayerController = VideoPlayerController.network(_videoDetail!.url);
+      final file = await DefaultCacheManager().getSingleFile(_videoDetail!.url);
+      _videoPlayerController = VideoPlayerController.file(file);
       await _videoPlayerController!.initialize();
       await _videoPlayerController!.setLooping(true);
       await _videoPlayerController!.play();
