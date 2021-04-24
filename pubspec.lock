@@ -57,15 +57,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
-  cached_video_player:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: nullsafety
-      resolved-ref: "1b32f23bf135ec4c6b183e69d452513a45483781"
-      url: "https://github.com/dshukertjr/flutter_cached_video_player.git"
-    source: git
-    version: "2.0.3"
   camera:
     dependency: "direct main"
     description:
@@ -176,6 +167,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "7.0.0"
+  flutter_cache_manager:
+    dependency: "direct main"
+    description:
+      name: flutter_cache_manager
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.1"
   flutter_feather_icons:
     dependency: "direct main"
     description:
@@ -527,6 +525,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.8"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.26.0"
   shelf:
     dependency: transitive
     description:
@@ -581,6 +586,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0"
+  sqflite:
+    dependency: transitive
+    description:
+      name: sqflite
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0+3"
+  sqflite_common:
+    dependency: transitive
+    description:
+      name: sqflite_common
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0+2"
   stack_trace:
     dependency: transitive
     description:
@@ -616,6 +635,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1-dev.10"
+  synchronized:
+    dependency: transitive
+    description:
+      name: synchronized
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
   term_glyph:
     dependency: transitive
     description:
@@ -658,6 +684,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.4"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.4"
   vector_math:
     dependency: transitive
     description:
@@ -669,6 +702,27 @@ packages:
     dependency: "direct dev"
     description:
       name: very_good_analysis
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
+  video_player:
+    dependency: "direct main"
+    description:
+      name: video_player
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.1"
+  video_player_platform_interface:
+    dependency: transitive
+    description:
+      name: video_player_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.1.0"
+  video_player_web:
+    dependency: transitive
+    description:
+      name: video_player_web
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
@@ -730,4 +784,4 @@ packages:
     version: "3.1.0"
 sdks:
   dart: ">=2.12.0 <3.0.0"
-  flutter: ">=2.0.0"
+  flutter: ">=1.26.0-17.6.pre"

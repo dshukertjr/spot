@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -13,6 +12,7 @@ import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
+import 'package:video_player/video_player.dart';
 
 import '../app/constants.dart';
 import '../components/app_scaffold.dart';
@@ -27,7 +27,7 @@ enum _VideoMenu {
 class ViewVideoPage extends StatelessWidget {
   static Route<void> route(String videoId) {
     return MaterialPageRoute(
-      builder: (context) => BlocProvider(
+      builder: (context) => BlocProvider<VideoCubit>(
         create: (context) =>
             VideoCubit(repository: RepositoryProvider.of<Repository>(context))..initialize(videoId),
         child: ViewVideoPage(),
@@ -65,7 +65,7 @@ class ViewVideoPage extends StatelessWidget {
 class _VideoScreen extends StatefulWidget {
   const _VideoScreen({
     Key? key,
-    CachedVideoPlayerController? controller,
+    VideoPlayerController? controller,
     required VideoDetail video,
     bool? isCommentsShown,
     List<Comment>? comments,
@@ -75,7 +75,7 @@ class _VideoScreen extends StatefulWidget {
         _comments = comments,
         super(key: key);
 
-  final CachedVideoPlayerController? _controller;
+  final VideoPlayerController? _controller;
   final VideoDetail _video;
   final bool _isCommentsShown;
   final List<Comment>? _comments;

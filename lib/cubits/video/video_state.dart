@@ -20,7 +20,7 @@ class VideoPlaying extends VideoState {
   }) : isCommentsShown = isCommentsShown ?? false;
 
   final VideoDetail video;
-  final CachedVideoPlayerController videoPlayerController;
+  final VideoPlayerController videoPlayerController;
   final bool isCommentsShown;
   final List<Comment>? comments;
 }

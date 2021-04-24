@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:cached_video_player/cached_video_player.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
+import 'package:video_player/video_player.dart';
 
 part 'confirm_video_state.dart';
 
@@ -23,7 +23,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
 
   final Repository _repository;
 
-  late final CachedVideoPlayerController _videoPlayerController;
+  late final VideoPlayerController _videoPlayerController;
 
   final _flutterFFmpeg = FlutterFFmpeg();
 
@@ -42,7 +42,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   Future<void> initialize({required XFile videoFile}) async {
     try {
       final videoPath = videoFile.path;
-      _videoPlayerController = CachedVideoPlayerController.file(File(videoPath));
+      _videoPlayerController = VideoPlayerController.file(File(videoPath));
       await _videoPlayerController.setLooping(true);
       await _videoPlayerController.initialize();
       await _videoPlayerController.play();

@@ -1,14 +1,14 @@
-import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 class FullScreenVideoPlayer extends StatelessWidget {
   const FullScreenVideoPlayer({
     Key? key,
-    required CachedVideoPlayerController videoPlayerController,
+    required VideoPlayerController videoPlayerController,
   })   : _videoPlayerController = videoPlayerController,
         super(key: key);
 
-  final CachedVideoPlayerController _videoPlayerController;
+  final VideoPlayerController _videoPlayerController;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class FullScreenVideoPlayer extends StatelessWidget {
               height: 1,
               child: AspectRatio(
                 aspectRatio: _videoPlayerController.value.aspectRatio,
-                child: CachedVideoPlayer(_videoPlayerController),
+                child: VideoPlayer(_videoPlayerController),
               ),
             ),
           ),
