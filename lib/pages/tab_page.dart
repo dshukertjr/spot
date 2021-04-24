@@ -28,14 +28,13 @@ class TabPage extends StatefulWidget {
 
 class _TabPageState extends State<TabPage> {
   int _currentIndex = 0;
-  final _mapKey = GlobalKey<MapState>();
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          MapTab.create(_mapKey),
+          MapTab.create(),
           SearchTab.create(),
           NotificationsTab(),
           ProfileTab(),
@@ -84,11 +83,9 @@ class _TabPageState extends State<TabPage> {
                 ),
                 _bottomNavigationButton(
                   label: 'Profile',
-                  icon: ClipOval(
-                    child: Image.network(
-                      'https://www.dmarge.com/wp-content/uploads/2021/01/dwayne-the-rock-.jpg',
-                      fit: BoxFit.cover,
-                    ),
+                  icon: const Icon(
+                    FeatherIcons.user,
+                    size: 22,
                   ),
                   tabIndex: 3,
                 ),

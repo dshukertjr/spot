@@ -16,22 +16,16 @@ import 'package:spot/repositories/repository.dart';
 import '../../cubits/videos/videos_cubit.dart';
 
 class MapTab extends StatelessWidget {
-  const MapTab({Key? key, required GlobalKey<MapState> mapKey})
-      : _mapKey = mapKey,
-        super(key: key);
+  const MapTab({Key? key}) : super(key: key);
 
-  static Widget create(
-    GlobalKey<MapState> mapKey,
-  ) {
+  static Widget create() {
     return BlocProvider<VideosCubit>(
       create: (context) => VideosCubit(
         databaseRepository: RepositoryProvider.of<Repository>(context),
       )..loadInitialVideos(),
-      child: MapTab(mapKey: mapKey),
+      child: const MapTab(),
     );
   }
-
-  final GlobalKey<MapState> _mapKey;
 
   @override
   Widget build(BuildContext context) {
@@ -41,16 +35,14 @@ class MapTab extends StatelessWidget {
           return preloader;
         } else if (state is VideosLoading) {
           return _Map(
-            key: _mapKey,
             location: state.location,
             isLoading: true,
           );
         } else if (state is VideosLoaded) {
-          return _Map(key: _mapKey, videos: state.videos);
+          return _Map(videos: state.videos);
         } else if (state is VideosLoadingMore) {
           final videos = state.videos;
           return _Map(
-            key: _mapKey,
             videos: videos,
             isLoading: true,
           );
