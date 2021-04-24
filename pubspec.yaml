@@ -42,6 +42,7 @@ dev_dependencies:
   mocktail: ^0.1.0
   very_good_analysis: ^2.0.0
   flutter_launcher_icons: ^0.9.0
+  flutter_native_splash: ^1.1.8+4
 
 flutter:
   assets:
