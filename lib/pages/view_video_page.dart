@@ -175,7 +175,7 @@ class __VideoScreenState extends State<_VideoScreen> {
                         value: _VideoMenu.report,
                         child: Text('Report this video'),
                       ),
-                      if (widget._video.id == _userId)
+                      if (widget._video.userId == _userId)
                         const PopupMenuItem<_VideoMenu>(
                           value: _VideoMenu.delete,
                           child: Text('Delete this video'),
@@ -556,11 +556,18 @@ class __CommentsOverlayState extends State<_CommentsOverlay> {
                     child: TextFormField(
                       controller: _commentController,
                       decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                         border: InputBorder.none,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color(0xFF999999),
+                          ),
+                        ),
                         hintText: 'What did you think about the video?',
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   GradientButton(
                     onPressed: () {
                       BlocProvider.of<VideoCubit>(context).comment(_commentController.text);

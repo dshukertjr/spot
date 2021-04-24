@@ -161,7 +161,7 @@ class MapState extends State<_Map> {
     final controller = await _controller.future;
     if (_markers.length == 1) {
       // If there is only 1 marker, move camera to centre that marker
-      await controller.moveCamera(CameraUpdate.newLatLng(_markers.first.position));
+      return controller.moveCamera(CameraUpdate.newLatLng(_markers.first.position));
     }
     final cordinatesList = List<LatLng>.from(_markers.map((marker) => marker.position))
       ..sort((a, b) => b.latitude.compareTo(a.latitude));

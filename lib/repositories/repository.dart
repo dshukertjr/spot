@@ -313,6 +313,8 @@ class Repository {
         message: error.message,
       );
     }
+    _mapVideos.removeWhere((video) => video.id == videoId);
+    mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
   Future<List<Video>> search(String queryString) async {
