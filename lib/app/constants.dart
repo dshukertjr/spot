@@ -38,7 +38,7 @@ const preloader = Center(
   ),
 );
 
-final howLongAgo = (DateTime time) {
+final String Function(DateTime) howLongAgo = (DateTime time) {
   final now = DateTime.now();
   final difference = now.difference(time);
   if (difference < const Duration(minutes: 1)) {

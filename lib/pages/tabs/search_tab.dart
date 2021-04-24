@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/cubits/search/search_cubit.dart';
+import 'package:spot/models/video.dart';
 
 import '../../app/constants.dart';
 import '../../repositories/repository.dart';
@@ -95,7 +96,7 @@ class _SearchResults extends StatelessWidget {
     required this.videos,
   }) : super(key: key);
 
-  final List videos;
+  final List<Video> videos;
 
   @override
   Widget build(BuildContext context) {
@@ -108,16 +109,24 @@ class _SearchResults extends StatelessWidget {
             widthFactor: 0.5,
             child: AspectRatio(
               aspectRatio: 1,
-              child: Ink(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(video.thumbnailUrl),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context).push(ViewVideoPage.route(video.id));
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(ViewVideoPage.route(video.id));
+                },
+                child: Image.network(
+                  video.thumbnailUrl,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
+                    }
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.cumulativeBytesLoaded /
+                            (loadingProgress.expectedTotalBytes ?? 0),
+                        valueColor: const AlwaysStoppedAnimation<Color>(appRed),
+                      ),
+                    );
                   },
                 ),
               ),

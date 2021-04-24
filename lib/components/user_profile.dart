@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
-import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
 import 'package:spot/pages/edit_profile_page.dart';
@@ -58,32 +57,37 @@ class _UserPosts extends StatelessWidget {
           return preloader;
         } else if (state is VideosLoaded) {
           final videos = state.videos;
-          return Material(
-            color: Colors.transparent,
-            child: Wrap(
-              children: List.generate(videos.length, (index) {
-                final video = videos[index];
-                return FractionallySizedBox(
-                  widthFactor: 0.5,
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(video.thumbnailUrl),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(ViewVideoPage.route(video.id));
-                        },
-                      ),
+          return Wrap(
+            children: List.generate(videos.length, (index) {
+              final video = videos[index];
+              return FractionallySizedBox(
+                widthFactor: 0.5,
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(ViewVideoPage.route(video.id));
+                    },
+                    child: Image.network(
+                      video.thumbnailUrl,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.cumulativeBytesLoaded /
+                                (loadingProgress.expectedTotalBytes ?? 0),
+                            valueColor: const AlwaysStoppedAnimation<Color>(appRed),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                );
-              }),
-            ),
+                ),
+              );
+            }),
           );
         } else if (state is VideosError) {
           return const Center(

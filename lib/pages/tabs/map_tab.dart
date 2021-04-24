@@ -176,7 +176,7 @@ class MapState extends State<_Map> {
       northeast: LatLng(northernLatitude, easternLongitude),
       southwest: LatLng(southernLatitude, westernLongitude),
     );
-    return controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 20));
+    return controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 40));
   }
 
   Future<void> _createMarkers({
