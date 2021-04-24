@@ -134,38 +134,48 @@ class _EditProfilePageState extends State<EditProfilePage> {
             maxLength: 320,
           ),
           const SizedBox(height: 22),
-          Align(
-            alignment: Alignment.centerRight,
-            child: GradientButton(
-              onPressed: () async {
-                if (!_formKey.currentState!.validate()) {
-                  return;
-                }
-                try {
-                  final user = supabaseClient.auth.currentUser;
-                  if (user == null) {
-                    context.showSnackbar('Your session has expired');
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              GradientButton(
+                strokeWidth: 0,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              const SizedBox(width: 8),
+              GradientButton(
+                onPressed: () async {
+                  if (!_formKey.currentState!.validate()) {
                     return;
                   }
-                  final name = _userNameController.text;
-                  final description = _descriptionController.text;
+                  try {
+                    final user = supabaseClient.auth.currentUser;
+                    if (user == null) {
+                      context.showSnackbar('Your session has expired');
+                      return;
+                    }
+                    final name = _userNameController.text;
+                    final description = _descriptionController.text;
 
-                  await BlocProvider.of<ProfileCubit>(context).saveProfile(
-                    name: name,
-                    description: description,
-                    imageFile: _selectedImageFile,
-                  );
-                  if (widget.isCreatingAccount) {
-                    await Navigator.of(context).pushReplacement(SplashPage.route());
-                  } else {
-                    Navigator.of(context).pop();
+                    await BlocProvider.of<ProfileCubit>(context).saveProfile(
+                      name: name,
+                      description: description,
+                      imageFile: _selectedImageFile,
+                    );
+                    if (widget.isCreatingAccount) {
+                      await Navigator.of(context).pushReplacement(SplashPage.route());
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  } catch (err) {
+                    context.showErrorSnackbar('Error occured while saving profile');
                   }
-                } catch (err) {
-                  context.showErrorSnackbar('Error occured while saving profile');
-                }
-              },
-              child: const Text('Save'),
-            ),
+                },
+                child: const Text('Save'),
+              ),
+            ],
           ),
         ],
       ),

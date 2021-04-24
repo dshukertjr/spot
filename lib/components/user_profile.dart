@@ -142,7 +142,10 @@ class _Profile extends StatelessWidget {
                           Navigator.of(context).push(
                               EditProfilePage.route(isCreatingAccount: false, uid: authUser!.id));
                         },
-                        icon: const Icon(FeatherIcons.edit),
+                        icon: const Icon(
+                          FeatherIcons.edit2,
+                          size: 18,
+                        ),
                         label: const Text('Edit Profile'),
                       ),
                   ],

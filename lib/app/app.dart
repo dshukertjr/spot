@@ -40,6 +40,9 @@ class App extends StatelessWidget {
             ),
             isDense: true,
           ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(primary: const Color(0xFFFFFFFF)),
+          ),
           snackBarTheme: SnackBarThemeData(
             backgroundColor: const Color(0xFFFFFFFF).withOpacity(0.7),
             elevation: 10,
