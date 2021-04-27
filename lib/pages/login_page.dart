@@ -19,6 +19,8 @@ enum _DialogPage {
   signUp,
 }
 
+const _termsOfServiceAgreementKey = 'agreed';
+
 class LoginPage extends StatefulWidget {
   static Route<void> route() {
     return MaterialPageRoute(builder: (context) => LoginPage());
@@ -190,6 +192,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   void initState() {
     _playDelayedAnimation();
+    _checkTermsOfServiceAgreement();
     super.initState();
   }
 
@@ -203,37 +206,44 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  Future<void> _checkTermsOfServiceAgreement() async {
+    final agreed = await localStorage.containsKey(key: _termsOfServiceAgreementKey);
+    if (!agreed) {
+      setState(() {
+        _currentDialogPage = _DialogPage.termsOfService;
+      });
+    }
+  }
+
   List<Widget> _termsOfService() {
     return [
-      const Text(
-        'Terms of Service',
-        style: TextStyle(fontSize: 18),
-      ),
       SizedBox(
         height: 300,
-        child: SingleChildScrollView(
-          child: FutureBuilder(
-            future: rootBundle.loadString('assets/md/terms_of_service.md'),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              if (snapshot.hasData) {
-                final mdData = snapshot.data;
-                if (mdData == null) {
-                  return const Center(
-                    child: Text('Error loading Terms of Service'),
-                  );
-                }
-                return Markdown(data: mdData);
+        child: FutureBuilder(
+          future: rootBundle.loadString('assets/md/terms_of_service.md'),
+          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            if (snapshot.hasData) {
+              final mdData = snapshot.data;
+              if (mdData == null) {
+                return const Center(
+                  child: Text('Error loading Terms of Service'),
+                );
               }
-              return preloader;
-            },
-          ),
+              return Markdown(data: mdData);
+            }
+            return preloader;
+          },
         ),
       ),
+      const SizedBox(height: 8),
       GradientButton(
-        onPressed: () {
-          // TODO save agreement state locally
+        onPressed: () async {
+          setState(() {
+            _currentDialogPage = _DialogPage.loginOrSignup;
+          });
+          await localStorage.write(key: _termsOfServiceAgreementKey, value: 'true');
         },
-        child: const Text('Agree'),
+        child: const Center(child: Text('Agree')),
       ),
     ];
   }
