@@ -3,17 +3,17 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
-import 'package:spot/models/profile.dart';
 import 'package:spot/pages/splash_page.dart';
 
 import '../components/app_scaffold.dart';
-import 'tab_page.dart';
 
 /// Indicates which dialog is currently openeds
 enum _DialogPage {
+  termsOfService,
   loginOrSignup,
   login,
   signUp,
@@ -174,12 +174,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (_currentDialogPage == _DialogPage.loginOrSignup)
-                          ..._loginOrSignup(),
-                        if (_currentDialogPage == _DialogPage.login)
-                          ..._login(),
-                        if (_currentDialogPage == _DialogPage.signUp)
-                          ..._signUp(),
+                        if (_currentDialogPage == _DialogPage.termsOfService) ..._termsOfService(),
+                        if (_currentDialogPage == _DialogPage.loginOrSignup) ..._loginOrSignup(),
+                        if (_currentDialogPage == _DialogPage.login) ..._login(),
+                        if (_currentDialogPage == _DialogPage.signUp) ..._signUp(),
                       ],
                     ),
             ),
@@ -203,6 +201,41 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  List<Widget> _termsOfService() {
+    return [
+      const Text(
+        'Terms of Service',
+        style: TextStyle(fontSize: 18),
+      ),
+      SizedBox(
+        height: 300,
+        child: SingleChildScrollView(
+          child: FutureBuilder(
+            future: rootBundle.loadString('assets/md/terms_of_service.md'),
+            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+              if (snapshot.hasData) {
+                final mdData = snapshot.data;
+                if (mdData == null) {
+                  return const Center(
+                    child: Text('Error loading Terms of Service'),
+                  );
+                }
+                return Markdown(data: mdData);
+              }
+              return preloader;
+            },
+          ),
+        ),
+      ),
+      GradientButton(
+        onPressed: () {
+          // TODO save agreement state locally
+        },
+        child: const Text('Agree'),
+      ),
+    ];
   }
 
   List<Widget> _loginOrSignup() {
@@ -282,9 +315,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final res = await supabaseClient.auth.signIn(
-                email: _emailController.text,
-                password: _passwordController.text);
+            final res = await supabaseClient.auth
+                .signIn(email: _emailController.text, password: _passwordController.text);
             final data = res.data;
             final error = res.error;
             if (error != null) {
@@ -296,8 +328,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             }
 
             // Store current session
-            await localStorage.write(
-                key: persistantSessionKey, value: data!.persistSessionString);
+            await localStorage.write(key: persistantSessionKey, value: data!.persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } catch (e) {
@@ -357,8 +388,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final res = await supabaseClient.auth
-                .signUp(_emailController.text, _passwordController.text);
+            final res =
+                await supabaseClient.auth.signUp(_emailController.text, _passwordController.text);
             final data = res.data;
             final error = res.error;
             if (error != null) {
@@ -370,8 +401,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             }
 
             // Store current session
-            await localStorage.write(
-                key: persistantSessionKey, value: data!.persistSessionString);
+            await localStorage.write(key: persistantSessionKey, value: data!.persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } catch (err) {
@@ -410,8 +440,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 }
 
 class _LoginButton extends StatelessWidget {
-  const _LoginButton(
-      {Key? key, required void Function() onPressed, required String label})
+  const _LoginButton({Key? key, required void Function() onPressed, required String label})
       : _onPressed = onPressed,
         _label = label,
         super(key: key);
