@@ -78,7 +78,7 @@ class _UserPosts extends StatelessWidget {
                         return Center(
                           child: CircularProgressIndicator(
                             value: loadingProgress.cumulativeBytesLoaded /
-                                (loadingProgress.expectedTotalBytes ?? 0),
+                                (loadingProgress.expectedTotalBytes ?? 10000000),
                             valueColor: const AlwaysStoppedAnimation<Color>(appRed),
                           ),
                         );

@@ -123,7 +123,7 @@ class _SearchResults extends StatelessWidget {
                     return Center(
                       child: CircularProgressIndicator(
                         value: loadingProgress.cumulativeBytesLoaded /
-                            (loadingProgress.expectedTotalBytes ?? 0),
+                            (loadingProgress.expectedTotalBytes ?? 100000000),
                         valueColor: const AlwaysStoppedAnimation<Color>(appRed),
                       ),
                     );

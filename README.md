@@ -1,5 +1,15 @@
 # Spot
 
+Take a virtual journey around the world with Spot. 
+
+With Spot, you can view what is going on anywhere in the world. All videos in Spot are geo-tagged, meaning they are marked at the location they were recorded. That means if you want to take a look at what is going on in New York right now, you just go to NewYork within the app and view what people are posting. Same for LA, Paris, Tokyo or anywhere else in the world!
+
+
+You can record Spot videos to let your everyone else know what is happening at wherever you are. 
+
+DISCOVER
+
+CREATE
 ## Figma
 https://www.figma.com/file/OBSvD6eG4eDno3aQ76Ovzo/Spot?node-id=2%3A1023
 
