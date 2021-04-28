@@ -2,16 +2,16 @@
 
 Take a virtual journey around the world with Spot.
 
-Spot is a geo-tagged video sharing app, meaning every video recorded in Spot is saved on a location. Anybody can scroll though the map and find the videos recorded in any location in the world. 
+Spot is a geo-tagged video sharing app, meaning every video recorded in Spot is saved on a location. Anybody can scroll though the map and find the videos recorded in any location in the world.
 
 DISCOVER
 With Spot, you can view what is going on anywhere in the world. All videos in Spot are geo-tagged, meaning they are marked at the location they were recorded. That means if you want to take a look at what is going on in New York right now, you just go to NewYork within the app and view what people are posting. Same for LA, Paris, Tokyo or anywhere else in the world!
 
 CREATE
-You can record Spot videos to let your everyone else know what is happening at wherever you are. With our intuitive video recorder, you will be able to capture the moment easily. 
+You can record Spot videos to let your everyone else know what is happening wherever you are. With our intuitive video recorder, you will be able to capture the moment easily.
 
 ENJOY
-How you utlize Spot is up to you! You maybe able to check out the local festival without actual going there, discover hidden local amazing restaurants, or virtually visit your favorite city in the world. When you visit amazing places, don't forget to save that memory inside Spot so that the world can know about that place!
+How you utilise Spot is up to you! You may be able to check out the local festival without actual going there, discover hidden local amazing restaurants, or virtually visit your favorite city in the world. When you visit amazing places, don't forget to save that memory inside Spot so that the world can know about that place!
 
 ## Figma
 https://www.figma.com/file/OBSvD6eG4eDno3aQ76Ovzo/Spot?node-id=2%3A1023
