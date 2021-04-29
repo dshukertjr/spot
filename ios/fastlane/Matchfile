@@ -1,0 +1,9 @@
+if ENV["PERSONAL_TOKEN"] != nil # CI でも ローカルでも同じ様に動く様にしたい
+  git_url("https://" + ENV["PERSONAL_TOKEN"] + "@github.com/dshukertjr/fastlane_match.git")
+else
+  git_url("https://github.com/dshukertjr/fastlane_match.git")
+end
+
+storage_mode("git")
+type("adhoc")
+app_identifier("app.spotvideo")

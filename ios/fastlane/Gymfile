@@ -1,0 +1,8 @@
+scheme("production")
+
+clean(true)
+
+export_method("ad-hoc")
+export_xcargs("-allowProvisioningUpdates")
+output_directory("./build")
+codesigning_identity("Apple Distribution: ")
