@@ -1,0 +1,38 @@
+name: CD_iOS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1.5
+        with:
+          flutter-version: '2.0.5'
+      # Get flutter dependencies.
+      - run: flutter pub get
+
+      # # Check for any formatting issues in the code.
+      # - run: flutter format --set-exit-if-changed .
+
+      # # Statically analyze the Dart code for any errors.
+      # - run: flutter analyze .
+
+      # # Run widget tests for our flutter project.
+      # - run: flutter test
+
+      # Build ios app
+      - run: flutter build ios --release --no-codesign --flavor production --target lib/main_production.dart --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANNON_KEY=${{ secrets.SUPABASE_ANNON_KEY }}
+
+      - name: Build
+        env:
+          PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+          MATCH_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+        run: |
+          cd ios
+          fastlane release

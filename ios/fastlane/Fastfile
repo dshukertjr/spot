@@ -1,0 +1,63 @@
+require 'fileutils'
+
+default_platform :ios
+
+platform :ios do
+  before_all do |lane, options|
+    if is_ci
+      ENV['MATCH_KEYCHAIN_NAME'] = 'TempKeychain'
+      ENV['MATCH_KEYCHAIN_PASSWORD'] = 'TempKeychainPassword'
+      create_temp_keychain
+    end
+  end
+
+  desc "Push a new release build to the App Store"
+  lane :release do
+
+    match(
+        app_identifier: "app.spotvideo",
+        type: "appstore"
+    )
+
+    cocoapods
+
+    gym(
+      clean: true,
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual",
+        provisioningProfiles: {
+          "app.spotvideo" => "match AppStore app.spotvideo"
+        }
+      }
+    )
+
+    deliver(
+      submit_for_review: false,
+      automatic_release: false,
+      skip_metadata: true,
+      skip_screenshots: true,
+      ipa: './build/Runner.ipa'
+    )
+  end
+
+  lane :build do
+    match(readonly: is_ci)
+
+    automatic_code_signing(
+        code_sign_identity: "iPhone Distribution",
+        team_id: ENV["sigh_BUNDLE_IDENTIFIER_adhoc_team-id"],
+        profile_name: ENV["sigh_BUNDLE_IDENTIFIER_adhoc_profile-name"]
+    )
+
+    gym()
+  end
+
+  private_lane :create_temp_keychain do
+    create_keychain(
+        name: ENV['MATCH_KEYCHAIN_NAME'],
+        password: ENV['MATCH_KEYCHAIN_PASSWORD'],
+        timeout: 1800
+    )
+  end
+end
