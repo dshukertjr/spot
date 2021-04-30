@@ -39,7 +39,7 @@ platform :ios do
       automatic_release: false,
       skip_metadata: true,
       skip_screenshots: true,
-      ipa: './build/spot.ipa'
+      ipa: './build/Runner.ipa'
     )
     # upload_to_app_store(skip_metadata: true, skip_screenshots: true)
   end
