@@ -14,8 +14,6 @@ platform :ios do
   desc "Push a new release build to the App Store"
   lane :release do
 
-    #build_app(workspace: "Runner.xcworkspace", scheme: "Runner")
-
     match(
         app_identifier: "app.spotvideo",
         type: "appstore"
@@ -41,7 +39,6 @@ platform :ios do
       skip_screenshots: true,
       ipa: './build/Runner.ipa'
     )
-    # upload_to_app_store(skip_metadata: true, skip_screenshots: true)
   end
 
   lane :build do

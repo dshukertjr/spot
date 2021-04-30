@@ -53,7 +53,10 @@ class _TabPageState extends State<TabPage> {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.only(
+              top: 8,
+              bottom: MediaQuery.of(context).padding.bottom + 8,
+            ),
             child: Row(
               children: [
                 _bottomNavigationButton(
