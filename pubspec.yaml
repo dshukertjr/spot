@@ -1,6 +1,6 @@
 name: spot
 description: Find local video posts
-version: 1.0.0+2
+version: 1.0.0+3
 publish_to: none
 
 environment:
@@ -16,19 +16,10 @@ dependencies:
   intl: ^0.17.0
   google_maps_flutter: ^2.0.1
   video_player: ^2.0.2
-  # cached_video_player:
-  #   #  path: ../flutter_cached_video_player
-  #   git:
-  #     url: https://github.com/dshukertjr/flutter_cached_video_player.git
-  #     ref: nullsafety
   flutter_ffmpeg: ^0.4.0
   path_provider: ^2.0.1
   http: ^0.13.1
   geolocator: ^7.0.1
-  # supabase:
-  #   git:
-  #     url: https://github.com/thalkz/supabase-dart.git
-  #     ref: thalkz/storage
   supabase: ^0.0.1-dev.13
   flutter_feather_icons: ^2.0.0+1
   flutter_secure_storage: ^4.1.0

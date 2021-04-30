@@ -54,8 +54,22 @@ class ViewVideoPage extends StatelessWidget {
               isCommentsShown: state.isCommentsShown,
               comments: state.comments,
             );
+          } else if (state is VideoError) {
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                Center(child: Text(state.message)),
+                Positioned(
+                  top: 18 + MediaQuery.of(context).padding.top,
+                  left: 18,
+                  child: BackButton(
+                    onPressed: Navigator.of(context).pop,
+                  ),
+                ),
+              ],
+            );
           }
-          return Container();
+          throw UnimplementedError();
         },
       ),
     );

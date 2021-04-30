@@ -43,8 +43,6 @@ class VideoCubit extends Cubit<VideoState> {
       _videoId = videoId;
       final videoStreamController = _repository.videoDetailStreamController;
 
-      // ignore: unawaited_futures
-      _repository.getVideoDetailStream(videoId);
       _videoStreamSubscription = videoStreamController.stream.listen((videoDetail) {
         if (videoDetail != null) {
           _videoDetail = videoDetail;
@@ -61,6 +59,8 @@ class VideoCubit extends Cubit<VideoState> {
           }
         }
       });
+      // ignore: unawaited_futures
+      _repository.getVideoDetailStream(videoId);
     } catch (err) {
       emit(VideoError(message: 'Error loading video. Please refresh.'));
     }
@@ -157,17 +157,21 @@ class VideoCubit extends Cubit<VideoState> {
   }
 
   Future<void> _initializeVideo() async {
-    if (_videoPlayerController == null) {
-      final file = await DefaultCacheManager().getSingleFile(_videoDetail!.url);
-      _videoPlayerController = VideoPlayerController.file(file);
-      await _videoPlayerController!.initialize();
-      await _videoPlayerController!.setLooping(true);
-      await _videoPlayerController!.play();
+    try {
+      if (_videoPlayerController == null) {
+        final file = await DefaultCacheManager().getSingleFile(_videoDetail!.url);
+        _videoPlayerController = VideoPlayerController.file(file);
+        await _videoPlayerController!.initialize();
+        await _videoPlayerController!.setLooping(true);
+        await _videoPlayerController!.play();
 
-      emit(VideoPlaying(
-        video: _videoDetail!,
-        videoPlayerController: _videoPlayerController!,
-      ));
+        emit(VideoPlaying(
+          video: _videoDetail!,
+          videoPlayerController: _videoPlayerController!,
+        ));
+      }
+    } catch (err) {
+      emit(VideoError(message: 'Video failed to load'));
     }
   }
 }

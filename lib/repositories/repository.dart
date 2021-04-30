@@ -340,6 +340,8 @@ class Repository {
     bool serviceEnabled;
     LocationPermission permission;
 
+    final result = await Geolocator.requestPermission();
+
     // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
