@@ -9,10 +9,12 @@ void main() {
     });
 
     blocTest<RecordCubit, RecordState>(
-      'emits RecordInProgress when startRecording is called',
+      'initialize will result in an error because emulators do not have cameras',
       build: () => RecordCubit(),
-      act: (cubit) => cubit.startRecording(),
-      expect: () => [isA<RecordInProgress>()],
+      act: (cubit) async {
+        await cubit.initialize();
+      },
+      expect: () => [isA<RecordError>()],
     );
   });
 }
