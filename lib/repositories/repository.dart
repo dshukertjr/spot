@@ -341,6 +341,9 @@ class Repository {
     LocationPermission permission;
 
     final result = await Geolocator.requestPermission();
+    if (result == LocationPermission.denied || result == LocationPermission.deniedForever) {
+      return const LatLng(37.43296265331129, -122.08832357078792);
+    }
 
     // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();

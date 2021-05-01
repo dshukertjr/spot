@@ -167,7 +167,6 @@ class VideoDetail extends Video {
     };
   }
 
-  @override
   VideoDetail copyWith({
     int? likeCount,
     int? commentCount,
