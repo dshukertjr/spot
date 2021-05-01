@@ -16,6 +16,13 @@ How you utilise Spot is up to you! You may be able to check out the local festiv
 ## Figma
 https://www.figma.com/file/OBSvD6eG4eDno3aQ76Ovzo/Spot?node-id=2%3A1023
 
+## Code Coverage
+
+```
+flutter test --coverage
+genhtml coverage/lcov.info -o coverage/html
+```
+
 ## Schema
 
 ```sql
