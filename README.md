@@ -14,10 +14,10 @@ ENJOY
 How you utilise Spot is up to you! You may be able to check out the local festival without actual going there, discover hidden local amazing restaurants, or virtually visit your favorite city in the world. When you visit amazing places, don't forget to save that memory inside Spot so that the world can know about that place!
 
 <div style="display: flex;">
-    <img src="https://github.com/dshukertjr/spot/blob/coverage/assets/readme/screenshot1" style="width: 25%;" />
-    <img src="https://github.com/dshukertjr/spot/blob/coverage/assets/readme/screenshot2" style="width: 25%;" />
-    <img src="https://github.com/dshukertjr/spot/blob/coverage/assets/readme/screenshot3" style="width: 25%;" />
-    <img src="https://github.com/dshukertjr/spot/blob/coverage/assets/readme/screenshot4" style="width: 25%;" />
+    <img src="https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshot1.png?raw=true" style="width: 25%;" />
+    <img src="https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshot2.png?raw=true" style="width: 25%;" />
+    <img src="https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshot3.png?raw=true" style="width: 25%;" />
+    <img src="https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshot4.png?raw=true" style="width: 25%;" />
 </div>
 
 ## Figma
