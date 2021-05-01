@@ -27,8 +27,7 @@ class _NotificationsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safeAreaPadding = MediaQuery.of(context).padding;
-    return BlocBuilder<NotificationCubit, NotificationState>(
-        builder: (context, state) {
+    return BlocBuilder<NotificationCubit, NotificationState>(builder: (context, state) {
       if (state is NotificationInitial) {
         return preloader;
       } else if (state is NotificationLoaded) {
@@ -66,16 +65,13 @@ class _NotificationCell extends StatelessWidget {
       onTap: () {
         switch (_notification.type) {
           case NotificationType.like:
-            Navigator.of(context)
-                .push(ViewVideoPage.route(_notification.targetVideoId!));
+            Navigator.of(context).push(ViewVideoPage.route(_notification.targetVideoId!));
             break;
           case NotificationType.comment:
-            Navigator.of(context)
-                .push(ViewVideoPage.route(_notification.targetVideoId!));
+            Navigator.of(context).push(ViewVideoPage.route(_notification.targetVideoId!));
             break;
           case NotificationType.follow:
-            Navigator.of(context)
-                .push(ProfilePage.route(_notification.actionUid!));
+            Navigator.of(context).push(ProfilePage.route(_notification.actionUid!));
             break;
           default:
         }

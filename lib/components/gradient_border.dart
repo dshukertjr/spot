@@ -53,14 +53,13 @@ class _GradientBorderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // create outer rectangle equals size
     final outerRect = Offset.zero & size;
-    final outerRRect =
-        RRect.fromRectAndRadius(outerRect, Radius.circular(_borderRadius));
+    final outerRRect = RRect.fromRectAndRadius(outerRect, Radius.circular(_borderRadius));
 
     // create inner rectangle smaller by strokeWidth
-    final innerRect = Rect.fromLTWH(_strokeWidth, _strokeWidth,
-        size.width - _strokeWidth * 2, size.height - _strokeWidth * 2);
-    final innerRRect = RRect.fromRectAndRadius(
-        innerRect, Radius.circular(_borderRadius - _strokeWidth));
+    final innerRect = Rect.fromLTWH(
+        _strokeWidth, _strokeWidth, size.width - _strokeWidth * 2, size.height - _strokeWidth * 2);
+    final innerRRect =
+        RRect.fromRectAndRadius(innerRect, Radius.circular(_borderRadius - _strokeWidth));
 
     // apply gradient shader
     _paint.shader = _gradient.createShader(outerRect);

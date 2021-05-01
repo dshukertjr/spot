@@ -75,8 +75,7 @@ class Video {
       'gif_url': gifUrl,
       'description': description,
       'user_id': userId,
-      if (location != null)
-        'location': 'POINT(${location!.longitude} ${location!.latitude})',
+      if (location != null) 'location': 'POINT(${location!.longitude} ${location!.latitude})',
     };
   }
 
@@ -90,17 +89,15 @@ class Video {
               gifUrl: row['gif_url'] as String,
               description: row['description'] as String,
               userId: row['user_id'] as String,
-              location: row['location'] == null
-                  ? null
-                  : _locationFromPoint(row['location'] as String),
+              location:
+                  row['location'] == null ? null : _locationFromPoint(row['location'] as String),
               createdAt: DateTime.parse(row['created_at'] as String),
             ))
         .toList();
   }
 
   static LatLng _locationFromPoint(String point) {
-    final splits =
-        point.replaceAll('POINT(', '').replaceAll(')', '').split(' ');
+    final splits = point.replaceAll('POINT(', '').replaceAll(')', '').split(' ');
     return LatLng(double.parse(splits.last), double.parse(splits.first));
   }
 }

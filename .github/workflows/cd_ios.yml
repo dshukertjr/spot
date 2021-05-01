@@ -33,6 +33,7 @@ jobs:
         env:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
           MATCH_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
         run: |
           cd ios
           fastlane release

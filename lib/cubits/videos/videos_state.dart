@@ -13,7 +13,7 @@ class VideosLoading extends VideosState {
 
 class VideosLoadingMore extends VideosState {
   VideosLoadingMore(this.videos);
-  
+
   final List<Video> videos;
 }
 

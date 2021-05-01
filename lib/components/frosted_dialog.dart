@@ -18,8 +18,7 @@ class FrostedDialog extends StatefulWidget {
   _FrostedDialogState createState() => _FrostedDialogState();
 }
 
-class _FrostedDialogState extends State<FrostedDialog>
-    with SingleTickerProviderStateMixin {
+class _FrostedDialogState extends State<FrostedDialog> with SingleTickerProviderStateMixin {
   late final AnimationController _animationnController;
   late final CurvedAnimation _curve;
 

@@ -30,8 +30,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _restoreSession() async {
-    final hasSession =
-        await localStorage.containsKey(key: persistantSessionKey);
+    final hasSession = await localStorage.containsKey(key: persistantSessionKey);
     if (!hasSession) {
       return;
     }
@@ -53,8 +52,7 @@ class _SplashPageState extends State<SplashPage> {
       return;
     }
 
-    await localStorage.write(
-        key: persistantSessionKey, value: session.persistSessionString);
+    await localStorage.write(key: persistantSessionKey, value: session.persistSessionString);
   }
 
   Future<void> _redirect() async {
@@ -67,11 +65,7 @@ class _SplashPageState extends State<SplashPage> {
       _redirectToLoginPage();
       return;
     }
-    final snap = await supabaseClient
-        .from('users')
-        .select()
-        .eq('id', authUser.id)
-        .execute();
+    final snap = await supabaseClient.from('users').select().eq('id', authUser.id).execute();
     final error = snap.error;
     if (error != null) {
       await localStorage.delete(key: persistantSessionKey);

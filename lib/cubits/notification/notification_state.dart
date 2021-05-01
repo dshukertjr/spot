@@ -8,8 +8,7 @@ abstract class NotificationState {
 }
 
 class NotificationInitial extends NotificationState {
-  NotificationInitial({String? errorMessage})
-      : super(errorMessage: errorMessage);
+  NotificationInitial({String? errorMessage}) : super(errorMessage: errorMessage);
 }
 
 class NotificationLoaded extends NotificationState {
