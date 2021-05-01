@@ -34,6 +34,7 @@ jobs:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
           MATCH_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+          FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
         run: |
           cd ios
           fastlane release
