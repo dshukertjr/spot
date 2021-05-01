@@ -14,6 +14,13 @@ platform :ios do
   desc "Push a new release build to the App Store"
   lane :release do
 
+    app_store_connect_api_key(
+      key_id: "UH72C3R429",
+      issuer_id: "69a6de94-d94d-47e3-e053-5b8c7c11a4d1",
+      key_content: ENV['APP_STORE_CONNECT_PRIVATE_KEY'],
+      in_house: false
+    )
+
     match(
         app_identifier: "app.spotvideo",
         type: "appstore"

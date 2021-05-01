@@ -29,12 +29,14 @@ jobs:
       # Build ios app
       - run: flutter build ios --release --no-codesign --flavor production --target lib/main_production.dart --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANNON_KEY=${{ secrets.SUPABASE_ANNON_KEY }}
 
+
       - name: Build
         env:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
           MATCH_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
           FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
         run: |
           cd ios
           fastlane release
