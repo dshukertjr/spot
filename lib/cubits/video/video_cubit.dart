@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'package:meta/meta.dart';
 import 'package:spot/models/comment.dart';

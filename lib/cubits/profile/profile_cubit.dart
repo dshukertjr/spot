@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:spot/app/constants.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/repositories/repository.dart';
 
