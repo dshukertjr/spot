@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/models/profile.dart';
@@ -33,7 +34,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   }) async {
     try {
       emit(ProfileLoading());
-      final authUser = supabaseClient.auth.currentUser;
+      final authUser = _repository.supabaseClient.auth.currentUser;
       if (authUser == null) {
         emit(ProfileNotFound());
         throw PlatformException(

@@ -77,7 +77,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       return !_doneCompressingVideo;
     });
     final location = await _repository.determinePosition();
-    final authUser = supabaseClient.auth.currentUser;
+    final authUser = _repository.supabaseClient.auth.currentUser;
     if (authUser == null) {
       throw PlatformException(code: 'Not Signed In');
     }

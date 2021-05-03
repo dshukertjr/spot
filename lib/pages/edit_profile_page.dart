@@ -151,7 +151,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     return;
                   }
                   try {
-                    final user = supabaseClient.auth.currentUser;
+                    final user =
+                        RepositoryProvider.of<Repository>(context).supabaseClient.auth.currentUser;
                     if (user == null) {
                       context.showSnackbar('Your session has expired');
                       return;

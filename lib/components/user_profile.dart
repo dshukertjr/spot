@@ -114,7 +114,7 @@ class _Profile extends StatelessWidget {
         return const Text('Profile not found');
       } else if (state is ProfileLoaded) {
         final profile = state.profile;
-        final authUser = supabaseClient.auth.currentUser;
+        final authUser = RepositoryProvider.of<Repository>(context).supabaseClient.auth.currentUser;
         return Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 31,

@@ -252,7 +252,7 @@ class __VideoScreenState extends State<_VideoScreen> {
 
   @override
   void initState() {
-    _userId = supabaseClient.auth.currentUser!.id;
+    _userId = RepositoryProvider.of<Repository>(context).supabaseClient.auth.currentUser!.id;
     super.initState();
   }
 

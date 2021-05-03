@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'package:meta/meta.dart';
-import 'package:spot/app/constants.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
@@ -116,7 +115,7 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> comment(String text) async {
     try {
-      final userId = supabaseClient.auth.currentUser!.id;
+      final userId = _repository.supabaseClient.auth.currentUser!.id;
       final user = await _repository.getProfile(userId);
       final comment = Comment(
         id: 'new',

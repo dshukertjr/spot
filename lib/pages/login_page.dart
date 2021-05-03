@@ -2,12 +2,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/pages/splash_page.dart';
+import 'package:spot/repositories/repository.dart';
 
 import '../components/app_scaffold.dart';
 
@@ -325,7 +327,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final res = await supabaseClient.auth
+            final res = await RepositoryProvider.of<Repository>(context)
+                .supabaseClient
+                .auth
                 .signIn(email: _emailController.text, password: _passwordController.text);
             final data = res.data;
             final error = res.error;
@@ -398,8 +402,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final res =
-                await supabaseClient.auth.signUp(_emailController.text, _passwordController.text);
+            final res = await RepositoryProvider.of<Repository>(context)
+                .supabaseClient
+                .auth
+                .signUp(_emailController.text, _passwordController.text);
             final data = res.data;
             final error = res.error;
             if (error != null) {

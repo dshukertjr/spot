@@ -9,14 +9,18 @@ import 'package:spot/models/comment.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
-
-import '../app/constants.dart';
+import 'package:supabase/supabase.dart';
 
 class Repository {
+  Repository({required this.supabaseClient});
+
+  final SupabaseClient supabaseClient;
+
   // Local Cache
   final Map<String, Profile> _profiles = {};
   final List<Video> _mapVideos = [];
   final _mapVideosStreamConntroller = StreamController<List<Video>>.broadcast();
+
   Stream<List<Video>> get mapVideosStream => _mapVideosStreamConntroller.stream;
 
   final Map<String, VideoDetail> _videoDetails = {};

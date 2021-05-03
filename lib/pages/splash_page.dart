@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/pages/tab_page.dart';
+import 'package:spot/repositories/repository.dart';
 
 import '../components/app_scaffold.dart';
 import 'edit_profile_page.dart';
@@ -40,7 +42,10 @@ class _SplashPageState extends State<SplashPage> {
       await localStorage.delete(key: persistantSessionKey);
       return;
     }
-    final response = await supabaseClient.auth.recoverSession(jsonStr);
+    final response = await RepositoryProvider.of<Repository>(context)
+        .supabaseClient
+        .auth
+        .recoverSession(jsonStr);
     if (response.error != null) {
       await localStorage.delete(key: persistantSessionKey);
       return;
@@ -60,12 +65,17 @@ class _SplashPageState extends State<SplashPage> {
     await _restoreSession();
 
     /// Check Auth State
-    final authUser = supabaseClient.auth.currentUser;
+    final authUser = RepositoryProvider.of<Repository>(context).supabaseClient.auth.currentUser;
     if (authUser == null) {
       _redirectToLoginPage();
       return;
     }
-    final snap = await supabaseClient.from('users').select().eq('id', authUser.id).execute();
+    final snap = await RepositoryProvider.of<Repository>(context)
+        .supabaseClient
+        .from('users')
+        .select()
+        .eq('id', authUser.id)
+        .execute();
     final error = snap.error;
     if (error != null) {
       await localStorage.delete(key: persistantSessionKey);
