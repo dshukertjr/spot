@@ -158,8 +158,7 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> _initializeVideo() async {
     try {
       if (_videoPlayerController == null) {
-        final file = await DefaultCacheManager().getSingleFile(_videoDetail!.url);
-        _videoPlayerController = VideoPlayerController.file(file);
+        _videoPlayerController = await _repository.getVideoPlayerController(_videoDetail!.url);
         await _videoPlayerController!.initialize();
         await _videoPlayerController!.setLooping(true);
         await _videoPlayerController!.play();

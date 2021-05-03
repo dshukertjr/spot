@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spot/models/comment.dart';
@@ -9,6 +10,7 @@ import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:supabase/supabase.dart';
+import 'package:video_player/video_player.dart';
 
 class Repository {
   Repository({required SupabaseClient supabaseClient}) : _supabaseClient = supabaseClient;
@@ -382,6 +384,11 @@ class Repository {
     }
     final data = res.data as List;
     return Video.videosFromData(data);
+  }
+
+  Future<VideoPlayerController> getVideoPlayerController(String url) async {
+    final file = await DefaultCacheManager().getSingleFile(url);
+    return VideoPlayerController.file(file);
   }
 
   Future<LatLng> determinePosition() async {
