@@ -6,7 +6,7 @@ import 'package:spot/repositories/repository.dart';
 class ProfileTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final userId = RepositoryProvider.of<Repository>(context).supabaseClient.auth.currentUser?.id;
+    final userId = RepositoryProvider.of<Repository>(context).userId;
     if (userId == null) {
       return const Center(child: Text('Not signed in'));
     }

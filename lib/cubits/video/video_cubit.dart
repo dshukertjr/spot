@@ -115,8 +115,8 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> comment(String text) async {
     try {
-      final userId = _repository.supabaseClient.auth.currentUser!.id;
-      final user = await _repository.getProfile(userId);
+      final userId = _repository.userId;
+      final user = await _repository.getProfile(userId!);
       final comment = Comment(
         id: 'new',
         text: text,

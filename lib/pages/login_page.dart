@@ -327,25 +327,20 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final res = await RepositoryProvider.of<Repository>(context)
-                .supabaseClient
-                .auth
+            final session = await RepositoryProvider.of<Repository>(context)
                 .signIn(email: _emailController.text, password: _passwordController.text);
-            final data = res.data;
-            final error = res.error;
-            if (error != null) {
-              setState(() {
-                _isLoading = false;
-              });
-              context.showErrorSnackbar(error.message);
-              return;
-            }
-
             // Store current session
-            await localStorage.write(key: persistantSessionKey, value: data!.persistSessionString);
+            await localStorage.write(
+                key: persistantSessionKey, value: session.persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
-          } catch (e) {
+          } on PlatformException catch (err) {
+            setState(() {
+              _isLoading = false;
+            });
+            context.showErrorSnackbar(err.message ?? 'Error signing in');
+            return;
+          } catch (err) {
             setState(() {
               _isLoading = false;
             });
@@ -402,24 +397,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final res = await RepositoryProvider.of<Repository>(context)
-                .supabaseClient
-                .auth
-                .signUp(_emailController.text, _passwordController.text);
-            final data = res.data;
-            final error = res.error;
-            if (error != null) {
-              setState(() {
-                _isLoading = false;
-              });
-              context.showSnackbar(error.message);
-              return;
-            }
+            final session = await RepositoryProvider.of<Repository>(context)
+                .signUp(email: _emailController.text, password: _passwordController.text);
 
             // Store current session
-            await localStorage.write(key: persistantSessionKey, value: data!.persistSessionString);
+            await localStorage.write(
+                key: persistantSessionKey, value: session.persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
+          } on PlatformException catch (err) {
+            setState(() {
+              _isLoading = false;
+            });
+            context.showSnackbar(err.message ?? 'Error signing up');
           } catch (err) {
             setState(() {
               _isLoading = false;

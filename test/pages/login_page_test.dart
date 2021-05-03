@@ -13,8 +13,8 @@ import '../helpers/helpers.dart';
 class MockRecordCubit extends MockCubit<RecordState> implements RecordCubit {}
 
 void main() {
-  group('ViewVideoPage', () {
-    testWidgets('renders ViewVideoPage', (tester) async {
+  group('LoginPage', () {
+    testWidgets('renders LoginPage', (tester) async {
       final repository = MockRepository();
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
@@ -27,29 +27,4 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });
-
-//   group('RecordPage', () {
-//     late final RecordCubit recordCubit;
-
-//     setUp(() {
-//       recordCubit = MockRecordCubit();
-//     });
-
-//     // tearDown(() {
-//     //   verifyMocks(recordCubit);
-//     // });
-
-//     testWidgets('renders circular progress indicator at initial state',
-//         (tester) async {
-//       final state = RecordInitial();
-//       when<RecordCubit>(() => recordCubit).calls(#state).thenReturn(state);
-//       await tester.pumpApp(
-//         BlocProvider.value(
-//           value: recordCubit,
-//           child: RecordPage(),
-//         ),
-//       );
-//       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-//     });
-//   });
 }

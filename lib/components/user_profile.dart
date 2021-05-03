@@ -114,7 +114,9 @@ class _Profile extends StatelessWidget {
         return const Text('Profile not found');
       } else if (state is ProfileLoaded) {
         final profile = state.profile;
-        final authUser = RepositoryProvider.of<Repository>(context).supabaseClient.auth.currentUser;
+
+        /// Used to determine if the
+        final userId = RepositoryProvider.of<Repository>(context).userId;
         return Padding(
           padding: const EdgeInsets.symmetric(
             vertical: 31,
@@ -136,11 +138,11 @@ class _Profile extends StatelessWidget {
                     Text(profile.name),
                     const SizedBox(height: 17),
                     if (profile.description != null) Text(profile.description!),
-                    if (authUser?.id == profile.id)
+                    if (userId == profile.id)
                       OutlinedButton.icon(
                         onPressed: () {
-                          Navigator.of(context).push(
-                              EditProfilePage.route(isCreatingAccount: false, uid: authUser!.id));
+                          Navigator.of(context)
+                              .push(EditProfilePage.route(isCreatingAccount: false, uid: userId!));
                         },
                         icon: const Icon(
                           FeatherIcons.edit2,

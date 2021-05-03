@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:spot/app/constants.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
@@ -12,9 +11,9 @@ import 'package:spot/models/video.dart';
 import 'package:supabase/supabase.dart';
 
 class Repository {
-  Repository({required this.supabaseClient});
+  Repository({required SupabaseClient supabaseClient}) : _supabaseClient = supabaseClient;
 
-  final SupabaseClient supabaseClient;
+  final SupabaseClient _supabaseClient;
 
   // Local Cache
   final Map<String, Profile> _profiles = {};
@@ -27,9 +26,52 @@ class Repository {
   final _videoDetailStreamController = StreamController<VideoDetail?>.broadcast();
   Stream<VideoDetail?> get videoDetailStream => _videoDetailStreamController.stream;
 
+  String? get userId => _supabaseClient.auth.currentUser?.id;
+
+  Future<Session?> recoverSession(String jsonString) async {
+    final res = await _supabaseClient.auth.recoverSession(jsonString);
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(code: 'login error', message: error.message);
+    }
+    return res.data;
+  }
+
+  Future<Session> signUp({
+    required String email,
+    required String password,
+  }) async {
+    final res = await _supabaseClient.auth.signUp(email, password);
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(code: 'login error', message: error.message);
+    }
+    return res.data!;
+  }
+
+  Future<Session> signIn({
+    required String email,
+    required String password,
+  }) async {
+    final res = await _supabaseClient.auth.signIn(email: email, password: password);
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(code: 'login error', message: error.message);
+    }
+    return res.data!;
+  }
+
+  Future<Profile?> getSelfProfile() {
+    final userId = this.userId;
+    if (userId == null) {
+      throw PlatformException(code: 'not signed in ', message: 'Not signed in');
+    }
+    return getProfile(userId);
+  }
+
   Future<void> getVideosFromLocation(LatLng location) async {
-    final userId = supabaseClient.auth.currentUser!.id;
-    final res = await supabaseClient
+    final userId = _supabaseClient.auth.currentUser!.id;
+    final res = await _supabaseClient
         .rpc('nearby_videos', params: {
           'location': 'POINT(${location.latitude} ${location.longitude})',
           'user_id': userId,
@@ -50,7 +92,7 @@ class Repository {
   }
 
   Future<List<Video>> getVideosFromUid(String uid) async {
-    final res = await supabaseClient
+    final res = await _supabaseClient
         .from('videos')
         .select('id, user_id, created_at, url, image_url, thumbnail_url, gif_url, description')
         .eq('user_id', uid)
@@ -71,7 +113,7 @@ class Repository {
     if (targetProfile != null) {
       return targetProfile;
     }
-    final res = await supabaseClient.from('users').select().eq('id', uid).execute();
+    final res = await _supabaseClient.from('users').select().eq('id', uid).execute();
     final data = res.data as List;
     final error = res.error;
     if (error != null) {
@@ -94,7 +136,7 @@ class Repository {
     required Map<String, dynamic> map,
     required String uid,
   }) async {
-    final res = await supabaseClient.from('users').insert([map]).execute();
+    final res = await _supabaseClient.from('users').insert([map]).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
@@ -121,7 +163,7 @@ class Repository {
     required File file,
     required String path,
   }) async {
-    final res = await supabaseClient.storage.from(bucket).upload(path, file);
+    final res = await _supabaseClient.storage.from(bucket).upload(path, file);
     final error = res.error;
     if (error != null) {
       throw PlatformException(
@@ -130,7 +172,7 @@ class Repository {
       );
     }
     final urlRes =
-        await supabaseClient.storage.from('videos').createSignedUrl(path, 60 * 60 * 24 * 365 * 50);
+        await _supabaseClient.storage.from('videos').createSignedUrl(path, 60 * 60 * 24 * 365 * 50);
     final urlError = urlRes.error;
     if (urlError != null) {
       throw PlatformException(
@@ -142,7 +184,7 @@ class Repository {
   }
 
   Future<void> saveVideo(Video creatingVideo) async {
-    final res = await supabaseClient.from('videos').insert([creatingVideo.toMap()]).execute();
+    final res = await _supabaseClient.from('videos').insert([creatingVideo.toMap()]).execute();
     final error = res.error;
     if (error != null) {
       throw PlatformException(
@@ -158,8 +200,8 @@ class Repository {
 
   Future<void> getVideoDetailStream(String videoId) async {
     _videoDetailStreamController.sink.add(null);
-    final userId = supabaseClient.auth.currentUser!.id;
-    final res = await supabaseClient
+    final userId = _supabaseClient.auth.currentUser!.id;
+    final res = await _supabaseClient
         .rpc('get_video_detail', params: {'video_id': videoId, 'user_id': userId}).execute();
     final data = res.data;
     final error = res.error;
@@ -184,8 +226,8 @@ class Repository {
         currentVideoDetail.copyWith(likeCount: (currentVideoDetail.likeCount + 1), haveLiked: true);
     _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
 
-    final uid = supabaseClient.auth.currentUser!.id;
-    final res = await supabaseClient.from('likes').insert([
+    final uid = _supabaseClient.auth.currentUser!.id;
+    final res = await _supabaseClient.from('likes').insert([
       VideoDetail.like(videoId: videoId, uid: uid),
     ]).execute();
     final error = res.error;
@@ -203,8 +245,8 @@ class Repository {
         likeCount: (currentVideoDetail.likeCount - 1), haveLiked: false);
     _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
 
-    final uid = supabaseClient.auth.currentUser!.id;
-    final res = await supabaseClient
+    final uid = _supabaseClient.auth.currentUser!.id;
+    final res = await _supabaseClient
         .from('likes')
         .delete()
         .eq('video_id', videoId)
@@ -221,7 +263,7 @@ class Repository {
 
   Future<List<Comment>> getComments(String videoId) async {
     final res =
-        await supabaseClient.from('video_comments').select().eq('video_id', videoId).execute();
+        await _supabaseClient.from('video_comments').select().eq('video_id', videoId).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
@@ -237,8 +279,8 @@ class Repository {
     required String text,
     required String videoId,
   }) async {
-    final userId = supabaseClient.auth.currentUser!.id;
-    final res = await supabaseClient
+    final userId = _supabaseClient.auth.currentUser!.id;
+    final res = await _supabaseClient
         .from('comments')
         .insert(Comment.create(text: text, userId: userId, videoId: videoId))
         .execute();
@@ -252,8 +294,8 @@ class Repository {
   }
 
   Future<List<AppNotification>> getNotifications() async {
-    final uid = supabaseClient.auth.currentUser!.id;
-    final res = await supabaseClient
+    final uid = _supabaseClient.auth.currentUser!.id;
+    final res = await _supabaseClient
         .from('notifications')
         .select()
         .eq('receiver_user_id', uid)
@@ -271,8 +313,8 @@ class Repository {
   }
 
   Future<void> block(String blockedUserId) async {
-    final uid = supabaseClient.auth.currentUser!.id;
-    final res = await supabaseClient.from('blocks').insert([
+    final uid = _supabaseClient.auth.currentUser!.id;
+    final res = await _supabaseClient.from('blocks').insert([
       {
         'user_id': uid,
         'blocked_user_id': blockedUserId,
@@ -293,8 +335,8 @@ class Repository {
     required String videoId,
     required String reason,
   }) async {
-    final uid = supabaseClient.auth.currentUser!.id;
-    final res = await supabaseClient.from('reports').insert([
+    final uid = _supabaseClient.auth.currentUser!.id;
+    final res = await _supabaseClient.from('reports').insert([
       {
         'user_id': uid,
         'video_id': videoId,
@@ -311,7 +353,7 @@ class Repository {
   }
 
   Future<void> delete({required String videoId}) async {
-    final res = await supabaseClient.from('videos').delete().eq('id', videoId).execute();
+    final res = await _supabaseClient.from('videos').delete().eq('id', videoId).execute();
     final error = res.error;
     if (error != null) {
       throw PlatformException(
@@ -324,7 +366,7 @@ class Repository {
   }
 
   Future<List<Video>> search(String queryString) async {
-    final res = await supabaseClient
+    final res = await _supabaseClient
         .from('videos')
         .select('id, url, image_url, thumbnail_url, gif_url, description, user_id, created_at')
         .textSearch('description', queryString, config: 'english')

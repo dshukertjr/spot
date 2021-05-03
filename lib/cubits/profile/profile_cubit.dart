@@ -34,8 +34,8 @@ class ProfileCubit extends Cubit<ProfileState> {
   }) async {
     try {
       emit(ProfileLoading());
-      final authUser = _repository.supabaseClient.auth.currentUser;
-      if (authUser == null) {
+      final userId = _repository.userId;
+      if (userId == null) {
         emit(ProfileNotFound());
         throw PlatformException(
           code: 'Auth_Error',
@@ -44,7 +44,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       }
       String? imageUrl;
       if (imageFile != null) {
-        final videoImagePath = '${authUser.id}/profile.${imageFile.path.split('.').last}';
+        final videoImagePath = '$userId/profile.${imageFile.path.split('.').last}';
         imageUrl = await _repository.uploadFile(
           bucket: 'profiles',
           file: imageFile,
@@ -54,12 +54,12 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       final profile = await _repository.saveProfile(
         map: Profile.toMap(
-          id: authUser.id,
+          id: userId,
           name: name,
           description: description,
           imageUrl: imageUrl,
         ),
-        uid: authUser.id,
+        uid: userId,
       );
       emit(ProfileLoaded(profile));
     } catch (err) {
