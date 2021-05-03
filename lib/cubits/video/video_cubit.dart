@@ -41,9 +41,9 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> initialize(String videoId) async {
     try {
       _videoId = videoId;
-      final videoStreamController = _repository.videoDetailStreamController;
+      final videoStreamController = _repository.videoDetailStream;
 
-      _videoStreamSubscription = videoStreamController.stream.listen((videoDetail) {
+      _videoStreamSubscription = videoStreamController.listen((videoDetail) {
         if (videoDetail != null) {
           _videoDetail = videoDetail;
           _initializeVideo();

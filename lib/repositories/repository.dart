@@ -16,10 +16,12 @@ class Repository {
   // Local Cache
   final Map<String, Profile> _profiles = {};
   final List<Video> _mapVideos = [];
-  final mapVideosStreamConntroller = StreamController<List<Video>>.broadcast();
+  final _mapVideosStreamConntroller = StreamController<List<Video>>.broadcast();
+  Stream<List<Video>> get mapVideosStream => _mapVideosStreamConntroller.stream;
 
   final Map<String, VideoDetail> _videoDetails = {};
-  final videoDetailStreamController = StreamController<VideoDetail?>.broadcast();
+  final _videoDetailStreamController = StreamController<VideoDetail?>.broadcast();
+  Stream<VideoDetail?> get videoDetailStream => _videoDetailStreamController.stream;
 
   Future<void> getVideosFromLocation(LatLng location) async {
     final userId = supabaseClient.auth.currentUser!.id;
@@ -40,7 +42,7 @@ class Repository {
     final videoIds = _mapVideos.map((video) => video.id);
     final newVideos = Video.videosFromData(data).where((video) => !videoIds.contains(video.id));
     _mapVideos.addAll(newVideos);
-    mapVideosStreamConntroller.sink.add(_mapVideos);
+    _mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
   Future<List<Video>> getVideosFromUid(String uid) async {
@@ -147,11 +149,11 @@ class Repository {
     final data = res.data;
     final createdVideo = creatingVideo.updateId(id: data[0]['id'] as String);
     _mapVideos.add(createdVideo);
-    mapVideosStreamConntroller.sink.add(_mapVideos);
+    _mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
   Future<void> getVideoDetailStream(String videoId) async {
-    videoDetailStreamController.sink.add(null);
+    _videoDetailStreamController.sink.add(null);
     final userId = supabaseClient.auth.currentUser!.id;
     final res = await supabaseClient
         .rpc('get_video_detail', params: {'video_id': videoId, 'user_id': userId}).execute();
@@ -169,14 +171,14 @@ class Repository {
       );
     }
     _videoDetails[videoId] = VideoDetail.fromData(Map.from(List.from(data).first));
-    videoDetailStreamController.sink.add(_videoDetails[videoId]!);
+    _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
   }
 
   Future<void> like(String videoId) async {
     final currentVideoDetail = _videoDetails[videoId]!;
     _videoDetails[videoId] =
         currentVideoDetail.copyWith(likeCount: (currentVideoDetail.likeCount + 1), haveLiked: true);
-    videoDetailStreamController.sink.add(_videoDetails[videoId]!);
+    _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
 
     final uid = supabaseClient.auth.currentUser!.id;
     final res = await supabaseClient.from('likes').insert([
@@ -195,7 +197,7 @@ class Repository {
     final currentVideoDetail = _videoDetails[videoId]!;
     _videoDetails[videoId] = currentVideoDetail.copyWith(
         likeCount: (currentVideoDetail.likeCount - 1), haveLiked: false);
-    videoDetailStreamController.sink.add(_videoDetails[videoId]!);
+    _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
 
     final uid = supabaseClient.auth.currentUser!.id;
     final res = await supabaseClient
@@ -280,7 +282,7 @@ class Repository {
       );
     }
     _mapVideos.removeWhere((value) => value.userId == blockedUserId);
-    mapVideosStreamConntroller.sink.add(_mapVideos);
+    _mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
   Future<void> report({
@@ -314,7 +316,7 @@ class Repository {
       );
     }
     _mapVideos.removeWhere((video) => video.id == videoId);
-    mapVideosStreamConntroller.sink.add(_mapVideos);
+    _mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
   Future<List<Video>> search(String queryString) async {

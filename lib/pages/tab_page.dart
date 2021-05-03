@@ -23,16 +23,19 @@ class TabPage extends StatefulWidget {
   }
 
   @override
-  _TabPageState createState() => _TabPageState();
+  TabPageState createState() => TabPageState();
 }
 
-class _TabPageState extends State<TabPage> {
-  int _currentIndex = 0;
+@visibleForTesting
+class TabPageState extends State<TabPage> {
+  @visibleForTesting
+  int currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
       body: IndexedStack(
-        index: _currentIndex,
+        index: currentIndex,
         children: [
           MapTab.create(),
           SearchTab.create(),
@@ -127,7 +130,7 @@ class _TabPageState extends State<TabPage> {
         ),
         onTap: () {
           setState(() {
-            _currentIndex = tabIndex;
+            currentIndex = tabIndex;
           });
         },
       ),

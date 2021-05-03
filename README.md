@@ -13,12 +13,7 @@ You can record Spot videos to let your everyone else know what is happening wher
 ENJOY
 How you utilise Spot is up to you! You may be able to check out the local festival without actual going there, discover hidden local amazing restaurants, or virtually visit your favorite city in the world. When you visit amazing places, don't forget to save that memory inside Spot so that the world can know about that place!
 
-<div style="display: flex;">
-    <img src="https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshot1.png?raw=true" style="width: 25%;" />
-    <img src="https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshot2.png?raw=true" style="width: 25%;" />
-    <img src="https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshot3.png?raw=true" style="width: 25%;" />
-    <img src="https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshot4.png?raw=true" style="width: 25%;" />
-</div>
+![Spot Screenshots](https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshots.png?raw=true)
 
 ## Figma
 https://www.figma.com/file/OBSvD6eG4eDno3aQ76Ovzo/Spot?node-id=2%3A1023
