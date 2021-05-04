@@ -69,7 +69,7 @@ android {
     productFlavors { 
         production {
             dimension "default"
-            applicationIdSuffix ""
+            applicationId "app.spotvideo"
         }
         staging {
             dimension "default"
