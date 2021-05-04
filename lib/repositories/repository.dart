@@ -136,7 +136,7 @@ class Repository {
 
   Future<Profile> saveProfile({
     required Map<String, dynamic> map,
-    required String uid,
+    required String userId,
   }) async {
     final res = await _supabaseClient.from('users').insert([map]).execute();
     final data = res.data;
@@ -155,7 +155,7 @@ class Repository {
     }
 
     final profile = Profile.fromData(data[0]);
-    _profiles[uid] = profile;
+    _profiles[userId] = profile;
     return profile;
   }
 

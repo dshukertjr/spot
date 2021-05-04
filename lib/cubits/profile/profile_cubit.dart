@@ -18,12 +18,16 @@ class ProfileCubit extends Cubit<ProfileState> {
   final Repository _repository;
 
   Future<void> loadProfile(String uid) async {
-    final profile = await _repository.getProfile(uid);
-    if (profile == null) {
-      emit(ProfileNotFound());
-      return;
+    try {
+      final profile = await _repository.getProfile(uid);
+      if (profile == null) {
+        emit(ProfileNotFound());
+        return;
+      }
+      emit(ProfileLoaded(profile));
+    } catch (err) {
+      emit(ProfileError());
     }
-    emit(ProfileLoaded(profile));
   }
 
   Future<void> saveProfile({
@@ -35,7 +39,6 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileLoading());
       final userId = _repository.userId;
       if (userId == null) {
-        emit(ProfileNotFound());
         throw PlatformException(
           code: 'Auth_Error',
           message: 'Session has expired',
@@ -58,7 +61,7 @@ class ProfileCubit extends Cubit<ProfileState> {
           description: description,
           imageUrl: imageUrl,
         ),
-        uid: userId,
+        userId: userId,
       );
       emit(ProfileLoaded(profile));
     } catch (err) {
