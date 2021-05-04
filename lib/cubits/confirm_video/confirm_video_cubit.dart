@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:meta/meta.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:spot/app/constants.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
@@ -77,30 +76,29 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       return !_doneCompressingVideo;
     });
     final location = await _repository.determinePosition();
-    final authUser = supabaseClient.auth.currentUser;
-    if (authUser == null) {
+    final userId = _repository.userId;
+    if (userId == null) {
       throw PlatformException(code: 'Not Signed In');
     }
 
     try {
       final now = DateTime.now();
       final videoPath =
-          '${authUser.id}/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('.').last}';
+          '$userId/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('.').last}';
       final videoUrl =
           await _repository.uploadFile(bucket: 'videos', file: _compressedVideo, path: videoPath);
 
       final videoImagePath =
-          '${authUser.id}/${now.millisecondsSinceEpoch}.${_videoImage.path.split('.').last}';
+          '$userId/${now.millisecondsSinceEpoch}.${_videoImage.path.split('.').last}';
       final videoImageUrl =
           await _repository.uploadFile(bucket: 'videos', file: _videoImage, path: videoImagePath);
 
       final videoThumbPath =
-          '${authUser.id}/thumb-${now.millisecondsSinceEpoch}.${_thumbnail.path.split('.').last}';
+          '$userId/thumb-${now.millisecondsSinceEpoch}.${_thumbnail.path.split('.').last}';
       final videoThumbUrl =
           await _repository.uploadFile(bucket: 'videos', file: _thumbnail, path: videoThumbPath);
 
-      final videoGifPath =
-          '${authUser.id}/${now.millisecondsSinceEpoch}.${_gif.path.split('.').last}';
+      final videoGifPath = '$userId/${now.millisecondsSinceEpoch}.${_gif.path.split('.').last}';
       final videoGifUrl =
           await _repository.uploadFile(bucket: 'videos', file: _gif, path: videoGifPath);
 
@@ -110,7 +108,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
         thumbnailUrl: videoThumbUrl,
         gifUrl: videoGifUrl,
         description: description,
-        creatorUid: authUser.id,
+        creatorUid: userId,
         location: location,
       );
 

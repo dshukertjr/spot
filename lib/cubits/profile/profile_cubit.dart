@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:spot/app/constants.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/repositories/repository.dart';
 
@@ -18,12 +18,16 @@ class ProfileCubit extends Cubit<ProfileState> {
   final Repository _repository;
 
   Future<void> loadProfile(String uid) async {
-    final profile = await _repository.getProfile(uid);
-    if (profile == null) {
-      emit(ProfileNotFound());
-      return;
+    try {
+      final profile = await _repository.getProfile(uid);
+      if (profile == null) {
+        emit(ProfileNotFound());
+        return;
+      }
+      emit(ProfileLoaded(profile));
+    } catch (err) {
+      emit(ProfileError());
     }
-    emit(ProfileLoaded(profile));
   }
 
   Future<void> saveProfile({
@@ -33,9 +37,8 @@ class ProfileCubit extends Cubit<ProfileState> {
   }) async {
     try {
       emit(ProfileLoading());
-      final authUser = supabaseClient.auth.currentUser;
-      if (authUser == null) {
-        emit(ProfileNotFound());
+      final userId = _repository.userId;
+      if (userId == null) {
         throw PlatformException(
           code: 'Auth_Error',
           message: 'Session has expired',
@@ -43,7 +46,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       }
       String? imageUrl;
       if (imageFile != null) {
-        final videoImagePath = '${authUser.id}/profile.${imageFile.path.split('.').last}';
+        final videoImagePath = '$userId/profile.${imageFile.path.split('.').last}';
         imageUrl = await _repository.uploadFile(
           bucket: 'profiles',
           file: imageFile,
@@ -53,12 +56,12 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       final profile = await _repository.saveProfile(
         map: Profile.toMap(
-          id: authUser.id,
+          id: userId,
           name: name,
           description: description,
           imageUrl: imageUrl,
         ),
-        uid: authUser.id,
+        userId: userId,
       );
       emit(ProfileLoaded(profile));
     } catch (err) {

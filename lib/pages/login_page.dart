@@ -2,12 +2,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/pages/splash_page.dart';
+import 'package:spot/repositories/repository.dart';
 
 import '../components/app_scaffold.dart';
 
@@ -325,23 +327,20 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final res = await supabaseClient.auth
+            final session = await RepositoryProvider.of<Repository>(context)
                 .signIn(email: _emailController.text, password: _passwordController.text);
-            final data = res.data;
-            final error = res.error;
-            if (error != null) {
-              setState(() {
-                _isLoading = false;
-              });
-              context.showErrorSnackbar(error.message);
-              return;
-            }
-
             // Store current session
-            await localStorage.write(key: persistantSessionKey, value: data!.persistSessionString);
+            await localStorage.write(
+                key: persistantSessionKey, value: session.persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
-          } catch (e) {
+          } on PlatformException catch (err) {
+            setState(() {
+              _isLoading = false;
+            });
+            context.showErrorSnackbar(err.message ?? 'Error signing in');
+            return;
+          } catch (err) {
             setState(() {
               _isLoading = false;
             });
@@ -398,22 +397,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final res =
-                await supabaseClient.auth.signUp(_emailController.text, _passwordController.text);
-            final data = res.data;
-            final error = res.error;
-            if (error != null) {
-              setState(() {
-                _isLoading = false;
-              });
-              context.showSnackbar(error.message);
-              return;
-            }
+            final session = await RepositoryProvider.of<Repository>(context)
+                .signUp(email: _emailController.text, password: _passwordController.text);
 
             // Store current session
-            await localStorage.write(key: persistantSessionKey, value: data!.persistSessionString);
+            await localStorage.write(
+                key: persistantSessionKey, value: session.persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
+          } on PlatformException catch (err) {
+            setState(() {
+              _isLoading = false;
+            });
+            context.showSnackbar(err.message ?? 'Error signing up');
           } catch (err) {
             setState(() {
               _isLoading = false;

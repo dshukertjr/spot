@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/pages/tab_page.dart';
+import 'package:spot/repositories/repository.dart';
 
 import '../components/app_scaffold.dart';
 import 'edit_profile_page.dart';
@@ -40,13 +42,8 @@ class _SplashPageState extends State<SplashPage> {
       await localStorage.delete(key: persistantSessionKey);
       return;
     }
-    final response = await supabaseClient.auth.recoverSession(jsonStr);
-    if (response.error != null) {
-      await localStorage.delete(key: persistantSessionKey);
-      return;
-    }
+    final session = await RepositoryProvider.of<Repository>(context).recoverSession(jsonStr);
 
-    final session = response.data;
     if (session == null) {
       await localStorage.delete(key: persistantSessionKey);
       return;
@@ -60,24 +57,22 @@ class _SplashPageState extends State<SplashPage> {
     await _restoreSession();
 
     /// Check Auth State
-    final authUser = supabaseClient.auth.currentUser;
-    if (authUser == null) {
+    final userId = RepositoryProvider.of<Repository>(context).userId;
+    if (userId == null) {
       _redirectToLoginPage();
       return;
     }
-    final snap = await supabaseClient.from('users').select().eq('id', authUser.id).execute();
-    final error = snap.error;
-    if (error != null) {
+    try {
+      final profile = await RepositoryProvider.of<Repository>(context).getSelfProfile();
+      if (profile != null) {
+        _redirectToEditProfilePage(userId);
+        return;
+      }
+      _redirectToTabsPage();
+    } catch (err) {
       await localStorage.delete(key: persistantSessionKey);
       _redirectToLoginPage();
-      return;
     }
-    final data = snap.data as List<dynamic>;
-    if (data.isEmpty) {
-      _redirectToEditProfilePage(authUser.id);
-      return;
-    }
-    _redirectToTabsPage();
   }
 
   void _redirectToLoginPage() {

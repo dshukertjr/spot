@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
@@ -252,7 +253,11 @@ class __VideoScreenState extends State<_VideoScreen> {
 
   @override
   void initState() {
-    _userId = supabaseClient.auth.currentUser!.id;
+    final userId = RepositoryProvider.of<Repository>(context).userId;
+    if (userId == null) {
+      throw PlatformException(code: 'not signed in');
+    }
+    _userId = userId;
     super.initState();
   }
 

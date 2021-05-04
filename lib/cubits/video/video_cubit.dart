@@ -1,10 +1,8 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'package:meta/meta.dart';
-import 'package:spot/app/constants.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
@@ -41,9 +39,9 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> initialize(String videoId) async {
     try {
       _videoId = videoId;
-      final videoStreamController = _repository.videoDetailStreamController;
+      final videoStreamController = _repository.videoDetailStream;
 
-      _videoStreamSubscription = videoStreamController.stream.listen((videoDetail) {
+      _videoStreamSubscription = videoStreamController.listen((videoDetail) {
         if (videoDetail != null) {
           _videoDetail = videoDetail;
           _initializeVideo();
@@ -116,8 +114,8 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> comment(String text) async {
     try {
-      final userId = supabaseClient.auth.currentUser!.id;
-      final user = await _repository.getProfile(userId);
+      final userId = _repository.userId;
+      final user = await _repository.getProfile(userId!);
       final comment = Comment(
         id: 'new',
         text: text,
@@ -159,8 +157,7 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> _initializeVideo() async {
     try {
       if (_videoPlayerController == null) {
-        final file = await DefaultCacheManager().getSingleFile(_videoDetail!.url);
-        _videoPlayerController = VideoPlayerController.file(file);
+        _videoPlayerController = await _repository.getVideoPlayerController(_videoDetail!.url);
         await _videoPlayerController!.initialize();
         await _videoPlayerController!.setLooping(true);
         await _videoPlayerController!.play();
