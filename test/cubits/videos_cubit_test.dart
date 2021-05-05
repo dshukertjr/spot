@@ -110,5 +110,49 @@ Future<void> main() async {
         isA<VideosLoaded>(),
       ],
     );
+    blocTest<VideosCubit, VideosState>(
+      'Get initial videos from location and load more afterwards',
+      build: () {
+        final repository = MockRepository();
+        when(repository.determinePosition)
+            .thenAnswer((invocation) => Future.value(const LatLng(0, 0)));
+        when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([
+              Video(
+                id: 'id',
+                url: 'url',
+                imageUrl: '',
+                thumbnailUrl: 'thumbnailUrl',
+                gifUrl: 'gifUrl',
+                createdAt: DateTime.now(),
+                description: 'description',
+                userId: 'userId',
+                location: const LatLng(0, 0),
+              ),
+            ]));
+        when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
+            .thenAnswer((_) => Future.value([
+                  Video(
+                      id: 'id',
+                      url: 'url',
+                      imageUrl: 'imageUrl',
+                      thumbnailUrl: 'thumbnailUrl',
+                      gifUrl: 'gifUrl',
+                      createdAt: DateTime.now(),
+                      description: 'description',
+                      userId: 'userId',
+                      location: const LatLng(0, 0)),
+                ]));
+        return VideosCubit(repository: repository);
+      },
+      act: (cubit) async {
+        await cubit.loadInitialVideos();
+        await cubit.loadFromLocation(const LatLng(0, 0));
+      },
+      expect: () => [
+        isA<VideosLoading>(),
+        isA<VideosLoaded>(),
+        isA<VideosLoadingMore>(),
+      ],
+    );
   });
 }
