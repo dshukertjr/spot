@@ -33,9 +33,8 @@ class UserProfile extends StatelessWidget {
             child: const _Profile(),
           ),
           BlocProvider<VideosCubit>(
-            create: (context) =>
-                VideosCubit(databaseRepository: RepositoryProvider.of<Repository>(context))
-                  ..loadFromUid(_userId),
+            create: (context) => VideosCubit(repository: RepositoryProvider.of<Repository>(context))
+              ..loadFromUid(_userId),
             child: const _UserPosts(),
           ),
         ],

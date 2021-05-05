@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
@@ -38,7 +37,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     return super.close();
   }
 
-  Future<void> initialize({required XFile videoFile}) async {
+  Future<void> initialize({required File videoFile}) async {
     try {
       final videoPath = videoFile.path;
       _videoPlayerController = VideoPlayerController.file(File(videoPath));

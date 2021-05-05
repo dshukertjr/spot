@@ -9,8 +9,8 @@ import 'package:spot/repositories/repository.dart';
 part 'videos_state.dart';
 
 class VideosCubit extends Cubit<VideosState> {
-  VideosCubit({required Repository databaseRepository})
-      : _repository = databaseRepository,
+  VideosCubit({required Repository repository})
+      : _repository = repository,
         super(VideosInitial());
 
   final Repository _repository;

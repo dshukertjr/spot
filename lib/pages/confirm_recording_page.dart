@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +22,7 @@ class ConfirmRecordingPage extends StatelessWidget {
       builder: (context) => BlocProvider<ConfirmVideoCubit>(
         create: (context) =>
             ConfirmVideoCubit(repository: RepositoryProvider.of<Repository>(context))
-              ..initialize(videoFile: videoFile),
+              ..initialize(videoFile: File(videoFile.path)),
         child: ConfirmRecordingPage(),
       ),
     );
