@@ -11,6 +11,10 @@ class NotificationInitial extends NotificationState {
   NotificationInitial({String? errorMessage}) : super(errorMessage: errorMessage);
 }
 
+class NotificationEmpty extends NotificationState {
+  NotificationEmpty({String? errorMessage}) : super(errorMessage: errorMessage);
+}
+
 class NotificationLoaded extends NotificationState {
   NotificationLoaded({required this.notifications, String? errorMessage})
       : super(errorMessage: errorMessage);
