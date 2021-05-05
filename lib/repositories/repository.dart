@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:rxdart/subjects.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
@@ -18,15 +19,18 @@ class Repository {
   final SupabaseClient _supabaseClient;
 
   // Local Cache
-  final Map<String, Profile> _profiles = {};
   final List<Video> _mapVideos = [];
-  final _mapVideosStreamConntroller = StreamController<List<Video>>.broadcast();
+  final _mapVideosStreamConntroller = BehaviorSubject<List<Video>>();
 
   Stream<List<Video>> get mapVideosStream => _mapVideosStreamConntroller.stream;
 
   final Map<String, VideoDetail> _videoDetails = {};
-  final _videoDetailStreamController = StreamController<VideoDetail?>.broadcast();
+  final _videoDetailStreamController = BehaviorSubject<VideoDetail?>();
   Stream<VideoDetail?> get videoDetailStream => _videoDetailStreamController.stream;
+
+  final Map<String, Profile> _profiles = {};
+  final _profileStreamController = BehaviorSubject<Map<String, Profile>>();
+  Stream<Map<String, Profile>> get profileStream => _profileStreamController.stream;
 
   String? get userId => _supabaseClient.auth.currentUser?.id;
 
@@ -131,15 +135,15 @@ class Repository {
 
     final profile = Profile.fromData(data[0]);
     _profiles[uid] = profile;
+    _profileStreamController.sink.add(_profiles);
     return profile;
   }
 
-  Future<Profile> saveProfile({
+  Future<void> saveProfile({
     required Map<String, dynamic> map,
     required String userId,
   }) async {
     final res = await _supabaseClient.from('users').insert(map, upsert: true).execute();
-    // final res = await _supabaseClient.from('users').update(map).match({'id': userId}).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
@@ -157,7 +161,7 @@ class Repository {
 
     final profile = Profile.fromData(data[0]);
     _profiles[userId] = profile;
-    return profile;
+    _profileStreamController.sink.add(_profiles);
   }
 
   /// Uploads the video and returns the download URL

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
@@ -16,15 +17,27 @@ class ProfileCubit extends Cubit<ProfileState> {
         super(ProfileLoading());
 
   final Repository _repository;
+  Profile? _profile;
+
+  StreamSubscription<Map<String, Profile>>? _subscription;
+
+  @override
+  Future<void> close() {
+    _subscription?.cancel();
+    return super.close();
+  }
 
   Future<void> loadProfile(String uid) async {
     try {
-      final profile = await _repository.getProfile(uid);
-      if (profile == null) {
-        emit(ProfileNotFound());
-        return;
-      }
-      emit(ProfileLoaded(profile));
+      _subscription = _repository.profileStream.listen((profiles) {
+        _profile = profiles[uid];
+        if (_profile == null) {
+          emit(ProfileNotFound());
+          return;
+        }
+        emit(ProfileLoaded(_profile!));
+      });
+      await _repository.getProfile(uid);
     } catch (err) {
       emit(ProfileError());
     }
@@ -54,7 +67,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         );
       }
 
-      final profile = await _repository.saveProfile(
+      return _repository.saveProfile(
         map: Profile.toMap(
           id: userId,
           name: name,
@@ -63,7 +76,6 @@ class ProfileCubit extends Cubit<ProfileState> {
         ),
         userId: userId,
       );
-      emit(ProfileLoaded(profile));
     } catch (err) {
       emit(ProfileError());
       rethrow;
