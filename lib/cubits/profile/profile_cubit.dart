@@ -59,11 +59,12 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileLoading());
       String? imageUrl;
       if (imageFile != null) {
-        final videoImagePath = '$userId/profile.${imageFile.path.split('.').last}';
+        final imagePath =
+            '$userId/profile${DateTime.now().millisecondsSinceEpoch}.${imageFile.path.split('.').last}';
         imageUrl = await _repository.uploadFile(
           bucket: 'profiles',
           file: imageFile,
-          path: videoImagePath,
+          path: imagePath,
         );
       }
 

@@ -179,7 +179,7 @@ class Repository {
       );
     }
     final urlRes =
-        await _supabaseClient.storage.from('videos').createSignedUrl(path, 60 * 60 * 24 * 365 * 50);
+        await _supabaseClient.storage.from(bucket).createSignedUrl(path, 60 * 60 * 24 * 365 * 50);
     final urlError = urlRes.error;
     if (urlError != null) {
       throw PlatformException(
