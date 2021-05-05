@@ -40,7 +40,8 @@ comment on table public.users is 'Holds all of users profile information';
 
 alter table public.users enable row level security;
 create policy "Public profiles are viewable by everyone." on public.users for select using (true);
-create policy "Can insert, update, delete user" on public.users using (auth.uid() = id);
+create policy "Can insert, update user" on public.users with check (auth.uid() = id);
+create policy "Can delete user" on public.users using (auth.uid() = id);
 
 
 create table if not exists public.videos (
@@ -59,7 +60,8 @@ comment on table public.videos is 'Holds all the video videos.';
 alter table public.videos enable row level security;
 create policy "Videos are viewable by everyone. " on public.videos for select using (true);
 create policy "Users can insert their own videos." on public.videos for insert with check (auth.uid() = user_id);
-create policy "Can insert, update, delete videos" on public.videos with check (auth.uid() = user_id);
+create policy "Can insert, update videos" on public.videos with check (auth.uid() = user_id);
+create policy "Can with check videos" on public.videos using (auth.uid() = user_id);
 
 
 create table if not exists public.comments (
@@ -75,7 +77,8 @@ comment on table public.comments is 'Holds all of the comments created by the us
 
 alter table public.comments enable row level security;
 create policy "Comments are viewable by everyone. " on public.comments for select using (true);
-create policy "Can insert, update, delete comments" on public.comments with check (auth.uid() = user_id);
+create policy "Can insert, update comments" on public.comments with check (auth.uid() = user_id);
+create policy "Can delete comments" on public.comments using (auth.uid() = user_id);
 
 
 create table if not exists public.likes (
