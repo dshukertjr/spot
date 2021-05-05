@@ -49,22 +49,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      body: BlocConsumer<ProfileCubit, ProfileState>(listener: (context, state) {
-        if (state is ProfileLoaded) {
-          final profile = state.profile;
-          setState(() {
-            _userNameController.text = profile.name;
-            _descriptionController.text = profile.description ?? '';
-          });
-        }
-      }, builder: (context, state) {
-        if (state is ProfileLoading) {
+      body: BlocConsumer<ProfileCubit, ProfileState>(
+        listener: (context, state) {
+          if (state is ProfileLoaded) {
+            final profile = state.profile;
+            setState(() {
+              _userNameController.text = profile.name;
+              _descriptionController.text = profile.description ?? '';
+            });
+          }
+        },
+        builder: (context, state) {
+          if (state is ProfileLoading) {
+            return preloader;
+          } else if (state is ProfileLoaded || state is ProfileNotFound || state is ProfileError) {
+            return _form(context);
+          }
           return preloader;
-        } else if (state is ProfileLoaded || state is ProfileNotFound) {
-          return _form(context);
-        }
-        return preloader;
-      }),
+        },
+      ),
     );
   }
 
@@ -113,10 +116,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   maxLength: 18,
                   validator: (val) {
                     if (val == null) {
-                      return 'Please enter more then 4 letters';
+                      return 'Please enter more then 1 letters';
                     }
-                    if (val.length < 4) {
-                      return 'Please enter more then 4 letters';
+                    if (val.isEmpty) {
+                      return 'Please enter more then 1 letters';
                     }
                     return null;
                   },
@@ -137,14 +140,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              GradientButton(
-                strokeWidth: 0,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Cancel'),
-              ),
-              const SizedBox(width: 8),
+              if (!widget.isCreatingAccount) ...[
+                GradientButton(
+                  strokeWidth: 0,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 8),
+              ],
               GradientButton(
                 onPressed: () async {
                   if (!_formKey.currentState!.validate()) {

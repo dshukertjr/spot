@@ -35,15 +35,15 @@ class ProfileCubit extends Cubit<ProfileState> {
     required String description,
     required File? imageFile,
   }) async {
+    final userId = _repository.userId;
+    if (userId == null) {
+      throw PlatformException(
+        code: 'Auth_Error',
+        message: 'Session has expired',
+      );
+    }
     try {
       emit(ProfileLoading());
-      final userId = _repository.userId;
-      if (userId == null) {
-        throw PlatformException(
-          code: 'Auth_Error',
-          message: 'Session has expired',
-        );
-      }
       String? imageUrl;
       if (imageFile != null) {
         final videoImagePath = '$userId/profile.${imageFile.path.split('.').last}';
@@ -66,6 +66,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileLoaded(profile));
     } catch (err) {
       emit(ProfileError());
+      rethrow;
     }
   }
 }

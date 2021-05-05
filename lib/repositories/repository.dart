@@ -138,7 +138,8 @@ class Repository {
     required Map<String, dynamic> map,
     required String userId,
   }) async {
-    final res = await _supabaseClient.from('users').insert([map]).execute();
+    final res = await _supabaseClient.from('users').insert(map, upsert: true).execute();
+    // final res = await _supabaseClient.from('users').update(map).match({'id': userId}).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {

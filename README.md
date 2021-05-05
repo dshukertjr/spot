@@ -34,14 +34,13 @@ create table if not exists public.users (
   description varchar(320) not null,
   image_url text,
   
-  constraint username_validation check (char_length(name) >= 4)
+  constraint username_validation check (char_length(name) >= 1)
 );
 comment on table public.users is 'Holds all of users profile information';
 
 alter table public.users enable row level security;
 create policy "Public profiles are viewable by everyone." on public.users for select using (true);
-create policy "Users can insert their own profile." on public.users for insert with check (auth.uid() = id);
-create policy "Users can update own profile." on public.users for update with check (auth.uid() = id);
+create policy "Can insert, update, delete user" on public.users using (auth.uid() = id);
 
 
 create table if not exists public.videos (
@@ -60,8 +59,7 @@ comment on table public.videos is 'Holds all the video videos.';
 alter table public.videos enable row level security;
 create policy "Videos are viewable by everyone. " on public.videos for select using (true);
 create policy "Users can insert their own videos." on public.videos for insert with check (auth.uid() = user_id);
-create policy "Users can update own videos." on public.videos for update with check (auth.uid() = user_id);
-create policy "Users can delete own videos." on public.videos for delete using (auth.uid() = user_id);
+create policy "Can insert, update, delete videos" on public.videos with check (auth.uid() = user_id);
 
 
 create table if not exists public.comments (
@@ -77,9 +75,7 @@ comment on table public.comments is 'Holds all of the comments created by the us
 
 alter table public.comments enable row level security;
 create policy "Comments are viewable by everyone. " on public.comments for select using (true);
-create policy "Users can insert their own comments." on public.comments for insert with check (auth.uid() = user_id);
-create policy "Users can update own comments." on public.comments for update with check (auth.uid() = user_id);
-create policy "Users can delete own comments." on public.comments for delete using (auth.uid() = user_id);
+create policy "Can insert, update, delete comments" on public.comments with check (auth.uid() = user_id);
 
 
 create table if not exists public.likes (

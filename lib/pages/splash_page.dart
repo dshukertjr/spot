@@ -64,7 +64,7 @@ class _SplashPageState extends State<SplashPage> {
     }
     try {
       final profile = await RepositoryProvider.of<Repository>(context).getSelfProfile();
-      if (profile != null) {
+      if (profile == null) {
         _redirectToEditProfilePage(userId);
         return;
       }
