@@ -24,6 +24,8 @@ Future<void> main() async {
         final repository = MockRepository();
         when(() => repository.getProfile('aaa'))
             .thenAnswer((_) => Future.value(Profile(id: 'aaa', name: '')));
+        when(() => repository.profileStream)
+            .thenAnswer((_) => Stream.value({'aaa': Profile(id: 'id', name: 'name')}));
         return ProfileCubit(repository: repository);
       },
       act: (cubit) async {
@@ -34,10 +36,12 @@ Future<void> main() async {
       ],
     );
     blocTest<ProfileCubit, ProfileState>(
-      'Can load profile',
+      'Will emit profile not found when the target profile is missing',
       build: () {
         final repository = MockRepository();
         when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value());
+        when(() => repository.profileStream)
+            .thenAnswer((_) => Stream.value({'bbb': Profile(id: 'id', name: 'name')}));
         return ProfileCubit(repository: repository);
       },
       act: (cubit) async {
@@ -81,7 +85,6 @@ Future<void> main() async {
       },
       expect: () => [
         isA<ProfileLoading>(),
-        isA<ProfileLoaded>(),
       ],
     );
     blocTest<ProfileCubit, ProfileState>(
@@ -104,7 +107,6 @@ Future<void> main() async {
       },
       expect: () => [
         isA<ProfileLoading>(),
-        isA<ProfileLoaded>(),
       ],
     );
     blocTest<ProfileCubit, ProfileState>(
@@ -119,7 +121,6 @@ Future<void> main() async {
         await cubit.saveProfile(name: '', description: '', imageFile: null);
       },
       expect: () => [
-        isA<ProfileLoading>(),
         isA<ProfileError>(),
       ],
     );

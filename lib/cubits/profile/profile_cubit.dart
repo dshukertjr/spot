@@ -33,9 +33,9 @@ class ProfileCubit extends Cubit<ProfileState> {
         _profile = profiles[uid];
         if (_profile == null) {
           emit(ProfileNotFound());
-          return;
+        } else {
+          emit(ProfileLoaded(_profile!));
         }
-        emit(ProfileLoaded(_profile!));
       });
       await _repository.getProfile(uid);
     } catch (err) {
@@ -48,14 +48,14 @@ class ProfileCubit extends Cubit<ProfileState> {
     required String description,
     required File? imageFile,
   }) async {
-    final userId = _repository.userId;
-    if (userId == null) {
-      throw PlatformException(
-        code: 'Auth_Error',
-        message: 'Session has expired',
-      );
-    }
     try {
+      final userId = _repository.userId;
+      if (userId == null) {
+        throw PlatformException(
+          code: 'Auth_Error',
+          message: 'Session has expired',
+        );
+      }
       emit(ProfileLoading());
       String? imageUrl;
       if (imageFile != null) {
