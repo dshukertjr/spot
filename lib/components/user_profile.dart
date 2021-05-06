@@ -155,8 +155,12 @@ class _Profile extends StatelessWidget {
             ],
           ),
         );
+      } else if (state is ProfileError) {
+        return const Center(
+          child: Text('Error occured while loading profile'),
+        );
       }
-      throw UnimplementedError();
+      throw UnimplementedError('Unimplemented state in _Profile of user_profile.dart');
     });
   }
 }

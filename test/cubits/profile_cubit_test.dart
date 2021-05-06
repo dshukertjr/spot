@@ -10,7 +10,7 @@ import 'package:spot/models/profile.dart';
 
 import '../helpers/helpers.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   test('Initial State', () {
     final repository = MockRepository();
