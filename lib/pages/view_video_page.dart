@@ -45,11 +45,11 @@ class ViewVideoPage extends StatelessWidget {
             return preloader;
           } else if (state is VideoLoading) {
             final video = state.video;
-            return _VideoScreen(
+            return VideoScreen(
               video: video,
             );
           } else if (state is VideoPlaying) {
-            return _VideoScreen(
+            return VideoScreen(
               controller: state.videoPlayerController,
               video: state.video,
               isCommentsShown: state.isCommentsShown,
@@ -77,8 +77,9 @@ class ViewVideoPage extends StatelessWidget {
   }
 }
 
-class _VideoScreen extends StatefulWidget {
-  const _VideoScreen({
+@visibleForTesting
+class VideoScreen extends StatefulWidget {
+  const VideoScreen({
     Key? key,
     VideoPlayerController? controller,
     required VideoDetail video,
@@ -96,10 +97,10 @@ class _VideoScreen extends StatefulWidget {
   final List<Comment>? _comments;
 
   @override
-  __VideoScreenState createState() => __VideoScreenState();
+  _VideoScreenState createState() => _VideoScreenState();
 }
 
-class __VideoScreenState extends State<_VideoScreen> {
+class _VideoScreenState extends State<VideoScreen> {
   late final String _userId;
 
   @override
