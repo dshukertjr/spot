@@ -19,7 +19,8 @@ import '../app/constants.dart';
 import '../components/app_scaffold.dart';
 import 'tab_page.dart';
 
-enum _VideoMenu {
+@visibleForTesting
+enum VideoMenu {
   block,
   report,
   delete,
@@ -165,35 +166,35 @@ class _VideoScreenState extends State<VideoScreen> {
                   ),
                   Text(widget._video.likeCount.toString()),
                   const SizedBox(height: 36),
-                  PopupMenuButton<_VideoMenu>(
-                    onSelected: (_VideoMenu result) async {
+                  PopupMenuButton<VideoMenu>(
+                    onSelected: (VideoMenu result) async {
                       switch (result) {
-                        case _VideoMenu.block:
+                        case VideoMenu.block:
                           _showBlockDialog();
                           break;
-                        case _VideoMenu.report:
+                        case VideoMenu.report:
                           final reported = await _showReportDialog();
                           if (reported == true) {
                             context.showSnackbar('Thanks for reporting');
                           }
                           break;
-                        case _VideoMenu.delete:
+                        case VideoMenu.delete:
                           _showDeleteDialog();
                           break;
                       }
                     },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<_VideoMenu>>[
-                      const PopupMenuItem<_VideoMenu>(
-                        value: _VideoMenu.block,
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<VideoMenu>>[
+                      const PopupMenuItem<VideoMenu>(
+                        value: VideoMenu.block,
                         child: Text('Block this user'),
                       ),
-                      const PopupMenuItem<_VideoMenu>(
-                        value: _VideoMenu.report,
+                      const PopupMenuItem<VideoMenu>(
+                        value: VideoMenu.report,
                         child: Text('Report this video'),
                       ),
                       if (widget._video.userId == _userId)
-                        const PopupMenuItem<_VideoMenu>(
-                          value: _VideoMenu.delete,
+                        const PopupMenuItem<VideoMenu>(
+                          value: VideoMenu.delete,
                           child: Text('Delete this video'),
                         ),
                     ],
@@ -239,7 +240,7 @@ class _VideoScreenState extends State<VideoScreen> {
                 BlocProvider.of<VideoCubit>(context).hideComments();
                 return false;
               },
-              child: _CommentsOverlay(
+              child: CommentsOverlay(
                 comments: widget._comments,
                 onClose: () async {
                   await widget._controller!.play();
@@ -521,8 +522,9 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
   }
 }
 
-class _CommentsOverlay extends StatefulWidget {
-  _CommentsOverlay({
+@visibleForTesting
+class CommentsOverlay extends StatefulWidget {
+  CommentsOverlay({
     Key? key,
     required void Function() onClose,
     required List<Comment>? comments,
@@ -534,10 +536,10 @@ class _CommentsOverlay extends StatefulWidget {
   final List<Comment>? _comments;
 
   @override
-  __CommentsOverlayState createState() => __CommentsOverlayState();
+  _CommentsOverlayState createState() => _CommentsOverlayState();
 }
 
-class __CommentsOverlayState extends State<_CommentsOverlay> {
+class _CommentsOverlayState extends State<CommentsOverlay> {
   final _commentController = TextEditingController();
 
   @override

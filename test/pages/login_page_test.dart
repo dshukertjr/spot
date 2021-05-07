@@ -1,71 +1,95 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:spot/cubits/record/record_cubit.dart';
-import 'package:spot/cubits/video/video_cubit.dart';
+import 'package:spot/app/constants.dart';
+import 'package:spot/components/profile_image.dart';
+import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/models/profile.dart';
-import 'package:spot/models/video.dart';
-import 'package:spot/pages/view_video_page.dart';
-import 'package:spot/repositories/repository.dart';
-import 'package:video_player/video_player.dart';
+import 'package:spot/pages/profile_page.dart';
 
 import '../helpers/helpers.dart';
 
-class MockRecordCubit extends MockCubit<RecordState> implements RecordCubit {}
+class MockProfileCubit extends MockCubit<ProfileState> implements ProfileCubit {}
+
+class FakeProfileState extends Fake implements ProfileState {}
 
 void main() {
-  group('LoginPage', () {
-    final repository = MockRepository();
-    when<Stream<VideoDetail?>>(() => repository.videoDetailStream).thenAnswer(
-      (_) => Stream.value(
-        VideoDetail(
-          id: '',
-          url: '',
-          imageUrl: '',
-          thumbnailUrl: '',
-          gifUrl: '',
-          createdAt: DateTime.now(),
-          description: '',
-          location: const LatLng(0, 0),
-          userId: '',
-          likeCount: 0,
-          commentCount: 0,
-          haveLiked: false,
-          createdBy: Profile(
-            id: 'abc',
-            name: 'test',
-          ),
-        ),
-      ),
-    );
+  group('ProfilePage', () {
+    testWidgets('Renders ProfileNotFound correctly', (tester) async {
+      final repository = MockRepository();
+      when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value(null));
 
-    when<void>(() => repository.getVideoDetailStream('')).thenAnswer((_) => Future.value());
-    testWidgets('renders LoginPage', (tester) async {
+      when(() => repository.getVideosFromUid('aaa')).thenAnswer(
+        (invocation) => Future.value([]),
+      );
+
+      when(() => repository.profileStream).thenAnswer((_) => Stream.value({}));
+
       await tester.pumpApp(
-        widget: BlocProvider<VideoCubit>(
-          create: (context) =>
-              VideoCubit(repository: RepositoryProvider.of<Repository>(context))..initialize(''),
-          child: ViewVideoPage(),
-        ),
+        widget: const ProfilePage('aaa'),
         repository: repository,
       );
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byWidget(preloader), findsWidgets);
+
+      await tester.pump();
+
+      expect(find.text('Profile not found'), findsOneWidget);
     });
 
-    testWidgets('starts playing the video', (tester) async {
+    testWidgets('Renders your own profile correctly', (tester) async {
+      final repository = MockRepository();
+      when(() => repository.getProfile('aaa')).thenAnswer(
+          (_) => Future.value(Profile(id: 'aaa', name: 'name', description: 'description')));
+
+      when(() => repository.getVideosFromUid('aaa')).thenAnswer(
+        (invocation) => Future.value([]),
+      );
+
+      when(() => repository.profileStream).thenAnswer((_) => Stream.value({
+            'aaa': Profile(id: 'aaa', name: 'name', description: 'description'),
+          }));
+
+      when(() => repository.userId).thenReturn('aaa');
+
       await tester.pumpApp(
-        widget: BlocProvider<VideoCubit>(
-          create: (context) =>
-              VideoCubit(repository: RepositoryProvider.of<Repository>(context))..initialize(''),
-          child: ViewVideoPage(),
-        ),
+        widget: const ProfilePage('aaa'),
         repository: repository,
       );
+      expect(find.byWidget(preloader), findsWidgets);
+
       await tester.pump();
-      expect(find.byType(VideoPlayer), findsOneWidget);
+
+      expect(find.byType(ProfileImage), findsOneWidget);
+      expect(find.text('description'), findsOneWidget);
+      expect(find.text('Edit Profile'), findsOneWidget);
+    });
+
+    testWidgets('Renders someone else\'s profile correctly', (tester) async {
+      final repository = MockRepository();
+      when(() => repository.getProfile('bbb')).thenAnswer(
+          (_) => Future.value(Profile(id: 'bbb', name: 'name', description: 'description')));
+
+      when(() => repository.getVideosFromUid('aaa')).thenAnswer(
+        (invocation) => Future.value([]),
+      );
+
+      when(() => repository.profileStream).thenAnswer((_) => Stream.value({
+            'bbb': Profile(id: 'bbb', name: 'name', description: 'description'),
+          }));
+
+      when(() => repository.userId).thenReturn('aaa');
+
+      await tester.pumpApp(
+        widget: const ProfilePage('bbb'),
+        repository: repository,
+      );
+      expect(find.byWidget(preloader), findsWidgets);
+
+      await tester.pump();
+
+      expect(find.byType(ProfileImage), findsOneWidget);
+      expect(find.text('description'), findsOneWidget);
+      expect(find.text('Edit Profile'), findsNothing);
     });
   });
 }

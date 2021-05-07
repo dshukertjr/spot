@@ -1,6 +1,6 @@
 name: spot
 description: Find local video posts
-version: 1.0.1+7
+version: 1.0.1+8
 publish_to: none
 
 environment:
@@ -18,7 +18,6 @@ dependencies:
   video_player: ^2.0.2
   flutter_ffmpeg: ^0.4.0
   path_provider: ^2.0.1
-  http: ^0.13.1
   geolocator: ^7.0.1
   supabase: ^0.0.1-dev.13
   flutter_feather_icons: ^2.0.0+1
