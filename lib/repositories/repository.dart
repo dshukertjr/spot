@@ -130,6 +130,7 @@ class Repository {
     }
 
     if (data.isEmpty) {
+      _profileStreamController.sink.add(_profiles);
       return null;
     }
 

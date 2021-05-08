@@ -400,11 +400,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             final session = await RepositoryProvider.of<Repository>(context)
                 .signUp(email: _emailController.text, password: _passwordController.text);
 
-            Navigator.of(context).pushReplacement(SplashPage.route());
-
             // Store current session
             await localStorage.write(
                 key: persistantSessionKey, value: session.persistSessionString);
+
+            await Navigator.of(context).pushReplacement(SplashPage.route());
           } on PlatformException catch (err) {
             setState(() {
               _isLoading = false;
