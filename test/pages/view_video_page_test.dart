@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
+import 'package:spot/models/comment.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/pages/view_video_page.dart';
@@ -392,6 +393,16 @@ void main() {
           .thenAnswer(
               (_) => Future.value(VideoPlayerController.file(File('test_resources/video.mp4'))));
 
+      when(() => repository.getComments('aaa')).thenAnswer((_) => Future.value([
+            Comment(
+              id: 'id',
+              text: 'sample comment',
+              createdAt: DateTime.now(),
+              videoId: 'aaa',
+              user: Profile(id: 'id', name: 'name'),
+            ),
+          ]));
+
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) => VideoCubit(repository: repository)..initialize('aaa'),
@@ -409,6 +420,12 @@ void main() {
       await tester.pump();
 
       expect(find.byType(CommentsOverlay), findsOneWidget);
+
+      // Comments are loaded and displaed
+      expect(
+          find.byWidgetPredicate((widget) =>
+              widget is RichText && widget.text.toPlainText().contains('sample comment')),
+          findsOneWidget);
     });
   });
 }

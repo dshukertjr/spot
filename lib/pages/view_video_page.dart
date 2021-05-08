@@ -148,7 +148,7 @@ class _VideoScreenState extends State<VideoScreen> {
                   IconButton(
                     icon: const Icon(FeatherIcons.messageCircle),
                     onPressed: () async {
-                      await widget._controller!.pause();
+                      await widget._controller?.pause();
                       await BlocProvider.of<VideoCubit>(context).showComments();
                     },
                   ),
