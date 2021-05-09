@@ -62,7 +62,8 @@ class Repository {
     return res.data;
   }
 
-  Future<Session> signUp({
+  /// Returns Persist Session String
+  Future<String> signUp({
     required String email,
     required String password,
   }) async {
@@ -71,10 +72,11 @@ class Repository {
     if (error != null) {
       throw PlatformException(code: 'login error', message: error.message);
     }
-    return res.data!;
+    return res.data!.persistSessionString;
   }
 
-  Future<Session> signIn({
+  /// Returns Persist Session String
+  Future<String> signIn({
     required String email,
     required String password,
   }) async {
@@ -83,7 +85,7 @@ class Repository {
     if (error != null) {
       throw PlatformException(code: 'login error', message: error.message);
     }
-    return res.data!;
+    return res.data!.persistSessionString;
   }
 
   Future<Profile?> getSelfProfile() {

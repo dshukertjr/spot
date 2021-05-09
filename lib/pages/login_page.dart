@@ -296,9 +296,11 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               });
             },
           ),
-          const Text(
-            'Sign in',
-            style: TextStyle(fontSize: 18),
+          const Expanded(
+            child: Text(
+              'Sign in',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
         ],
       ),
@@ -328,11 +330,10 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final session = await RepositoryProvider.of<Repository>(context)
+            final persistSessionString = await RepositoryProvider.of<Repository>(context)
                 .signIn(email: _emailController.text, password: _passwordController.text);
             // Store current session
-            await RepositoryProvider.of<Repository>(context)
-                .setSessionString(session.persistSessionString);
+            await RepositoryProvider.of<Repository>(context).setSessionString(persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } on PlatformException catch (err) {
@@ -366,9 +367,11 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               });
             },
           ),
-          const Text(
-            'Create an Account',
-            style: TextStyle(fontSize: 18),
+          const Expanded(
+            child: Text(
+              'Create an Account',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
         ],
       ),
@@ -398,12 +401,11 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final session = await RepositoryProvider.of<Repository>(context)
+            final persistSessionString = await RepositoryProvider.of<Repository>(context)
                 .signUp(email: _emailController.text, password: _passwordController.text);
 
             // Store current session
-            await RepositoryProvider.of<Repository>(context)
-                .setSessionString(session.persistSessionString);
+            await RepositoryProvider.of<Repository>(context).setSessionString(persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } on PlatformException catch (err) {
