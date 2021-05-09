@@ -34,15 +34,15 @@ class MapTab extends StatelessWidget {
         if (state is VideosInitial) {
           return preloader;
         } else if (state is VideosLoading) {
-          return _Map(
+          return Map(
             location: state.location,
             isLoading: true,
           );
         } else if (state is VideosLoaded) {
-          return _Map(videos: state.videos);
+          return Map(videos: state.videos);
         } else if (state is VideosLoadingMore) {
           final videos = state.videos;
-          return _Map(
+          return Map(
             videos: videos,
             isLoading: true,
           );
@@ -55,8 +55,9 @@ class MapTab extends StatelessWidget {
   }
 }
 
-class _Map extends StatefulWidget {
-  _Map({
+@visibleForTesting
+class Map extends StatefulWidget {
+  Map({
     Key? key,
     List<Video>? videos,
     LatLng? location,
@@ -74,7 +75,7 @@ class _Map extends StatefulWidget {
   MapState createState() => MapState();
 }
 
-class MapState extends State<_Map> {
+class MapState extends State<Map> {
   final Completer<GoogleMapController> _controller = Completer();
 
   /// Holds all the markers for the map
@@ -136,7 +137,7 @@ class MapState extends State<_Map> {
   }
 
   @override
-  void didUpdateWidget(covariant _Map oldWidget) {
+  void didUpdateWidget(covariant Map oldWidget) {
     _createMarkers(videos: widget._videos, context: context)
         .then((_) => _moveCameraToShowAllMarkers());
     super.didUpdateWidget(oldWidget);

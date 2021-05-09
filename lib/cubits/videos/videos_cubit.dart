@@ -28,7 +28,7 @@ class VideosCubit extends Cubit<VideosState> {
     try {
       final searchLocation = await _repository.determinePosition();
       emit(VideosLoading(searchLocation));
-      _mapVideosSubscription = _repository.mapVideosStream.listen((videos) {
+      _mapVideosSubscription ??= _repository.mapVideosStream.listen((videos) {
         _videos = videos;
         emit(VideosLoaded(_videos));
       });
