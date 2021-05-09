@@ -43,7 +43,7 @@ class ConfirmRecordingPage extends StatelessWidget {
           if (state is ConfirmVideoInitial) {
             return preloader;
           } else if (state is ConfirmVideoPlaying) {
-            return _VideoConfirmationPage(
+            return VideoConfirmationPage(
               videoPlayerController: state.videoPlayerController,
             );
           } else if (state is ConfirmVideoTranscoding) {
@@ -77,8 +77,9 @@ class ConfirmRecordingPage extends StatelessWidget {
   }
 }
 
-class _VideoConfirmationPage extends StatefulWidget {
-  _VideoConfirmationPage({
+@visibleForTesting
+class VideoConfirmationPage extends StatefulWidget {
+  VideoConfirmationPage({
     Key? key,
     required VideoPlayerController videoPlayerController,
   })   : _videoPlayerController = videoPlayerController,
@@ -87,10 +88,10 @@ class _VideoConfirmationPage extends StatefulWidget {
   final VideoPlayerController _videoPlayerController;
 
   @override
-  __VideoConfirmationPageState createState() => __VideoConfirmationPageState();
+  _VideoConfirmationPageState createState() => _VideoConfirmationPageState();
 }
 
-class __VideoConfirmationPageState extends State<_VideoConfirmationPage> {
+class _VideoConfirmationPageState extends State<VideoConfirmationPage> {
   bool _showDescriptionDialog = false;
   bool _showStartOverConfirmationDialog = false;
 
