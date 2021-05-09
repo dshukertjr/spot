@@ -14,14 +14,13 @@ import 'package:spot/repositories/repository.dart';
 import '../components/app_scaffold.dart';
 
 /// Indicates which dialog is currently openeds
-enum _DialogPage {
+@visibleForTesting
+enum DialogPage {
   termsOfService,
   loginOrSignup,
   login,
   signUp,
 }
-
-const _termsOfServiceAgreementKey = 'agreed';
 
 class LoginPage extends StatefulWidget {
   static Route<void> route() {
@@ -29,10 +28,11 @@ class LoginPage extends StatefulWidget {
   }
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
+@visibleForTesting
+class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -66,7 +66,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     curve: Curves.easeOutCubic,
   );
 
-  _DialogPage _currentDialogPage = _DialogPage.loginOrSignup;
+  @visibleForTesting
+  DialogPage currentDialogPage = DialogPage.loginOrSignup;
 
   double _dialogOpacity = 1;
   static const _dialogOpacityAnimationDuration = Duration(milliseconds: 200);
@@ -178,10 +179,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (_currentDialogPage == _DialogPage.termsOfService) ..._termsOfService(),
-                        if (_currentDialogPage == _DialogPage.loginOrSignup) ..._loginOrSignup(),
-                        if (_currentDialogPage == _DialogPage.login) ..._login(),
-                        if (_currentDialogPage == _DialogPage.signUp) ..._signUp(),
+                        if (currentDialogPage == DialogPage.termsOfService) ..._termsOfService(),
+                        if (currentDialogPage == DialogPage.loginOrSignup) ..._loginOrSignup(),
+                        if (currentDialogPage == DialogPage.login) ..._login(),
+                        if (currentDialogPage == DialogPage.signUp) ..._signUp(),
                       ],
                     ),
             ),
@@ -209,10 +210,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   Future<void> _checkTermsOfServiceAgreement() async {
-    final agreed = await localStorage.containsKey(key: _termsOfServiceAgreementKey);
+    final agreed = await RepositoryProvider.of<Repository>(context).hasAgreedToTermsOfService;
     if (!agreed) {
       setState(() {
-        _currentDialogPage = _DialogPage.termsOfService;
+        currentDialogPage = DialogPage.termsOfService;
       });
     }
   }
@@ -241,9 +242,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       GradientButton(
         onPressed: () async {
           setState(() {
-            _currentDialogPage = _DialogPage.loginOrSignup;
+            currentDialogPage = DialogPage.loginOrSignup;
           });
-          await localStorage.write(key: _termsOfServiceAgreementKey, value: 'true');
+          await RepositoryProvider.of<Repository>(context).agreedToTermsOfService();
         },
         child: const Center(child: Text('Agree')),
       ),
@@ -262,7 +263,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         onPressed: () {
           _fadeDialog(action: () {
             setState(() {
-              _currentDialogPage = _DialogPage.login;
+              currentDialogPage = DialogPage.login;
             });
           });
         },
@@ -273,7 +274,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         onPressed: () {
           _fadeDialog(action: () {
             setState(() {
-              _currentDialogPage = _DialogPage.signUp;
+              currentDialogPage = DialogPage.signUp;
             });
           });
         },
@@ -290,7 +291,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             onPressed: () {
               _fadeDialog(action: () {
                 setState(() {
-                  _currentDialogPage = _DialogPage.loginOrSignup;
+                  currentDialogPage = DialogPage.loginOrSignup;
                 });
               });
             },
@@ -330,8 +331,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             final session = await RepositoryProvider.of<Repository>(context)
                 .signIn(email: _emailController.text, password: _passwordController.text);
             // Store current session
-            await localStorage.write(
-                key: persistantSessionKey, value: session.persistSessionString);
+            await RepositoryProvider.of<Repository>(context)
+                .setSessionString(session.persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } on PlatformException catch (err) {
@@ -360,7 +361,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             onPressed: () {
               _fadeDialog(action: () {
                 setState(() {
-                  _currentDialogPage = _DialogPage.loginOrSignup;
+                  currentDialogPage = DialogPage.loginOrSignup;
                 });
               });
             },
@@ -401,8 +402,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 .signUp(email: _emailController.text, password: _passwordController.text);
 
             // Store current session
-            await localStorage.write(
-                key: persistantSessionKey, value: session.persistSessionString);
+            await RepositoryProvider.of<Repository>(context)
+                .setSessionString(session.persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } on PlatformException catch (err) {

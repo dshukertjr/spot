@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/subjects.dart';
@@ -17,6 +18,9 @@ class Repository {
   Repository({required SupabaseClient supabaseClient}) : _supabaseClient = supabaseClient;
 
   final SupabaseClient _supabaseClient;
+  static const _localStorage = FlutterSecureStorage();
+  static const _persistantSessionKey = 'supabase_session';
+  static const _termsOfServiceAgreementKey = 'agreed';
 
   // Local Cache
   final List<Video> _mapVideos = [];
@@ -33,6 +37,21 @@ class Repository {
   Stream<Map<String, Profile>> get profileStream => _profileStreamController.stream;
 
   String? get userId => _supabaseClient.auth.currentUser?.id;
+
+  Future<bool> get hasAgreedToTermsOfService =>
+      _localStorage.containsKey(key: _termsOfServiceAgreementKey);
+
+  Future<void> agreedToTermsOfService() =>
+      _localStorage.write(key: _termsOfServiceAgreementKey, value: 'true');
+
+  Future<bool> hasSession() => _localStorage.containsKey(key: _persistantSessionKey);
+
+  Future<String?> getSessionString() => _localStorage.read(key: _persistantSessionKey);
+
+  Future<void> deleteSession() => _localStorage.delete(key: _persistantSessionKey);
+
+  Future<void> setSessionString(String sessionString) =>
+      _localStorage.write(key: _persistantSessionKey, value: sessionString);
 
   Future<Session?> recoverSession(String jsonString) async {
     final res = await _supabaseClient.auth.recoverSession(jsonString);

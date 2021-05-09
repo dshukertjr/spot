@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-const persistantSessionKey = 'supabase_session';
-
-const localStorage = FlutterSecureStorage();
 
 const appRed = Color(0xFFD73763);
 const appOrange = Color(0xFFF6935C);

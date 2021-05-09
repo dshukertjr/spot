@@ -32,24 +32,24 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _restoreSession() async {
-    final hasSession = await localStorage.containsKey(key: persistantSessionKey);
+    final hasSession = await RepositoryProvider.of<Repository>(context).hasSession();
     if (!hasSession) {
       return;
     }
 
-    final jsonStr = await localStorage.read(key: persistantSessionKey);
+    final jsonStr = await RepositoryProvider.of<Repository>(context).getSessionString();
     if (jsonStr == null) {
-      await localStorage.delete(key: persistantSessionKey);
+      await RepositoryProvider.of<Repository>(context).deleteSession();
       return;
     }
     final session = await RepositoryProvider.of<Repository>(context).recoverSession(jsonStr);
 
     if (session == null) {
-      await localStorage.delete(key: persistantSessionKey);
+      await RepositoryProvider.of<Repository>(context).deleteSession();
       return;
     }
 
-    await localStorage.write(key: persistantSessionKey, value: session.persistSessionString);
+    await RepositoryProvider.of<Repository>(context).setSessionString(session.persistSessionString);
   }
 
   Future<void> _redirect() async {
@@ -70,7 +70,7 @@ class _SplashPageState extends State<SplashPage> {
       }
       _redirectToTabsPage();
     } catch (err) {
-      await localStorage.delete(key: persistantSessionKey);
+      await RepositoryProvider.of<Repository>(context).deleteSession();
       _redirectToLoginPage();
     }
   }

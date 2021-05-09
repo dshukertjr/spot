@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/app/constants.dart';
@@ -16,10 +15,6 @@ import 'package:spot/pages/view_video_page.dart';
 import 'package:video_player/video_player.dart';
 
 import '../helpers/helpers.dart';
-
-class MockVideoCubit extends MockCubit<VideoState> implements VideoCubit {}
-
-class FakeVideoState extends Fake implements VideoState {}
 
 void main() {
   setUpAll(() => HttpOverrides.global = null);

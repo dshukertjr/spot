@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloc_test/bloc_test.dart';
-import 'package:spot/cubits/record/record_cubit.dart';
 import 'package:spot/pages/tab_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
 import 'package:spot/pages/tabs/notifications_tab.dart';
@@ -9,8 +7,6 @@ import 'package:spot/pages/tabs/profile_tab.dart';
 import 'package:spot/pages/tabs/search_tab.dart';
 
 import '../helpers/helpers.dart';
-
-class MockRecordCubit extends MockCubit<RecordState> implements RecordCubit {}
 
 void main() {
   group('TabPage', () {

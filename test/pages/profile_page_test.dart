@@ -1,17 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/profile_image.dart';
-import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/pages/profile_page.dart';
 
 import '../helpers/helpers.dart';
-
-class MockProfileCubit extends MockCubit<ProfileState> implements ProfileCubit {}
-
-class FakeProfileState extends Fake implements ProfileState {}
 
 void main() {
   group('ProfilePage', () {
