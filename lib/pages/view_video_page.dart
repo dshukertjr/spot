@@ -504,7 +504,7 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
                         setState(() {
                           _loading = false;
                         });
-                        context.showErrorSnackbar('Error occured while blocking the user.');
+                        context.showErrorSnackbar('Error occured while reporting the video');
                       }
                     },
                     child: const Text('Report'),

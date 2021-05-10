@@ -196,7 +196,7 @@ class Repository {
     final error = res.error;
     if (error != null) {
       throw PlatformException(
-        code: error.error ?? 'saveVideo',
+        code: error.error ?? 'uploadFile',
         message: error.message,
       );
     }
@@ -205,7 +205,7 @@ class Repository {
     final urlError = urlRes.error;
     if (urlError != null) {
       throw PlatformException(
-        code: urlError.error ?? 'saveVideo',
+        code: urlError.error ?? 'uploadFile',
         message: urlError.message,
       );
     }
@@ -365,17 +365,15 @@ class Repository {
     required String reason,
   }) async {
     final uid = _supabaseClient.auth.currentUser!.id;
-    final res = await _supabaseClient.from('reports').insert([
-      {
-        'user_id': uid,
-        'video_id': videoId,
-        'reason': reason,
-      }
-    ]).execute();
+    final res = await _supabaseClient.from('reports').insert({
+      'user_id': uid,
+      'video_id': videoId,
+      'reason': reason,
+    }).execute();
     final error = res.error;
     if (error != null) {
       throw PlatformException(
-        code: error.code ?? 'Unlike Video',
+        code: error.code ?? 'Report Video Error',
         message: error.message,
       );
     }

@@ -127,14 +127,14 @@ create policy "Users can block anyone by themselves. " on public.blocks for inse
 create table if not exists public.reports (
     id uuid not null primary key DEFAULT uuid_generate_v4 (),
     user_id uuid references public.users on delete cascade not null,
-    video_id uuid references public.users on delete cascade not null,
+    video_id uuid references public.videos on delete cascade not null,
     reason text not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null
 );
-comment on table public.reports is 'Who reported which video for what reason. ';
+comment on table public.reports is 'Who reported which video for what reason.';
 
 alter table public.reports enable row level security;
-create policy "Admin can read the reports." on public.reports for select using (auth.role() = 'admin');
+create policy "Users can view their own reports." on public.reports for select using (auth.uid() = user_id);
 create policy "Users can report a video." on public.reports for insert with check (auth.uid() = user_id);
 
 
