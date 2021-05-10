@@ -92,11 +92,12 @@ class MapState extends State<Map> {
       fit: StackFit.expand,
       children: [
         GoogleMap(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
           markers: _markers,
           mapType: MapType.normal,
           zoomControlsEnabled: false,
           myLocationEnabled: true,
-          myLocationButtonEnabled: false,
+          myLocationButtonEnabled: true,
           initialCameraPosition: CameraPosition(
             target: widget._location,
             zoom: 16,
