@@ -39,7 +39,7 @@ class TabPageState extends State<TabPage> {
         children: [
           MapTab.create(),
           SearchTab.create(),
-          NotificationsTab(),
+          NotificationsTab.create(),
           ProfileTab(),
         ],
       ),

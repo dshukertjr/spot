@@ -9,21 +9,18 @@ import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 
 class NotificationsTab extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
+  static Widget create() {
     return BlocProvider<NotificationCubit>(
       create: (context) => NotificationCubit(
         repository: RepositoryProvider.of<Repository>(context),
       )..initialize(),
       child: Material(
         color: Colors.transparent,
-        child: _NotificationsList(),
+        child: NotificationsTab(),
       ),
     );
   }
-}
 
-class _NotificationsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safeAreaPadding = MediaQuery.of(context).padding;
