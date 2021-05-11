@@ -262,6 +262,9 @@ grant usage on schema extensions to anon;
 grant usage on schema extensions to authenticated;
 ```
 
+Android CD
+https://medium.com/flutter-community/automating-publishing-your-flutter-apps-to-google-play-using-github-actions-2f67ac582032
+
 [![Very Good Ventures][logo]][very_good_ventures_link]
 
 Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
