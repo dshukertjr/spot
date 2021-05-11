@@ -30,7 +30,7 @@ jobs:
       - run: flutter build ios --release --no-codesign --flavor production --target lib/main_production.dart --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANNON_KEY=${{ secrets.SUPABASE_ANNON_KEY }}
 
 
-      - name: Build
+      - name: Release
         env:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
           MATCH_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
