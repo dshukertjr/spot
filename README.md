@@ -15,16 +15,12 @@ How you utilise Spot is up to you! You may be able to check out the local festiv
 
 ![Spot Screenshots](https://github.com/dshukertjr/spot/blob/main/assets/readme/screenshots.png?raw=true)
 
+---
+
 ## Figma
 https://www.figma.com/file/OBSvD6eG4eDno3aQ76Ovzo/Spot?node-id=2%3A1023
 
-## Code Coverage
-
-```
-flutter test --coverage
-genhtml coverage/lcov.info -o coverage/html
-```
-
+---
 ## Schema
 
 ```sql
@@ -262,8 +258,12 @@ grant usage on schema extensions to anon;
 grant usage on schema extensions to authenticated;
 ```
 
+---
+
 Android CD
 https://medium.com/flutter-community/automating-publishing-your-flutter-apps-to-google-play-using-github-actions-2f67ac582032
+
+---
 
 [![Very Good Ventures][logo]][very_good_ventures_link]
 
@@ -291,16 +291,16 @@ To run the desired flavor either use the launch configuration in VSCode/Android 
 
 ```sh
 # Development
-$ flutter run --flavor development --target lib/main_development.dart
+$ flutter run --flavor development --target lib/main_development.dart --dart-define=SUPABASE_URL=[Supabase Url] --dart-define=SUPABASE_ANNON_KEY=[Supabase annon key]
 
 # Staging
 $ flutter run --flavor staging --target lib/main_staging.dart
 
 # Production
-$ flutter run --flavor production --target lib/main_production.dart
+$ flutter run --flavor production --target lib/main_production.dart --dart-define=SUPABASE_URL=[Supabase Url] --dart-define=SUPABASE_ANNON_KEY=[Supabase annon key]
 ```
 
-_\*Spot works on iOS, Android, and Web._
+_\*Spot works on iOS and Android._
 
 ---
 
