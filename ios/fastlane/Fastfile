@@ -42,8 +42,8 @@ platform :ios do
     deliver(
       submit_for_review: true,
       automatic_release: false,
-      skip_metadata: true,
-      skip_screenshots: true,
+      skip_metadata: false,
+      skip_screenshots: false,
       ipa: './build/Runner.ipa',
       precheck_include_in_app_purchases: false
     )

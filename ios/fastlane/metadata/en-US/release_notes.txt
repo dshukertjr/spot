@@ -1,0 +1,4 @@
+Share awesome local spots with Spot!
+
+- Added "my location" button to the map page
+- Minor bug fixes
