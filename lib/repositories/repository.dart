@@ -103,7 +103,7 @@ class Repository {
           'location': 'POINT(${location.latitude} ${location.longitude})',
           'user_id': userId,
         })
-        .limit(20)
+        .limit(8)
         .execute();
     final error = res.error;
     final data = res.data;
