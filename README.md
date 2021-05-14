@@ -173,7 +173,7 @@ $func$
 $func$
 language sql;
 
-create or replace function videos_in_box(min_lng decimal, min_lat decimal, max_lng decimal, max_lat decimal, user_id uuid)
+create or replace function videos_in_bouding_box(min_lng decimal, min_lat decimal, max_lng decimal, max_lat decimal, user_id uuid)
 returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text)
 as
 $func$

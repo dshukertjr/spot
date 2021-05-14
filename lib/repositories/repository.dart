@@ -97,14 +97,37 @@ class Repository {
   }
 
   Future<void> getVideosFromLocation(LatLng location) async {
-    final userId = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient
         .rpc('nearby_videos', params: {
           'location': 'POINT(${location.latitude} ${location.longitude})',
-          'user_id': userId,
+          'user_id': userId!,
         })
         .limit(8)
         .execute();
+    final error = res.error;
+    final data = res.data;
+    if (error != null) {
+      throw PlatformException(code: 'getVideosFromLocation error');
+    } else if (data == null) {
+      throw PlatformException(code: 'getVideosFromLocation error null data');
+    }
+    final videoIds = _mapVideos.map((video) => video.id);
+    final newVideos = Video.videosFromData(data).where((video) => !videoIds.contains(video.id));
+    _mapVideos.addAll(newVideos);
+    _mapVideosStreamConntroller.sink.add(_mapVideos);
+  }
+
+  Future<void> getVideosInBoundingBox({
+    required LatLng southWest,
+    required LatLng nortEast,
+  }) async {
+    final res = await _supabaseClient.rpc('videos_in_bouding_box', params: {
+      'min_lng': '${southWest.longitude}',
+      'min_lat': '${southWest.latitude}',
+      'max_lng': '${nortEast.longitude}',
+      'max_lat': '${nortEast.latitude}',
+      'user_id': userId!,
+    }).execute();
     final error = res.error;
     final data = res.data;
     if (error != null) {
