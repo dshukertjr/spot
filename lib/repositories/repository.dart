@@ -117,15 +117,12 @@ class Repository {
     _mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
-  Future<void> getVideosInBoundingBox({
-    required LatLng southWest,
-    required LatLng nortEast,
-  }) async {
+  Future<void> getVideosInBoundingBox(LatLngBounds bounds) async {
     final res = await _supabaseClient.rpc('videos_in_bouding_box', params: {
-      'min_lng': '${southWest.longitude}',
-      'min_lat': '${southWest.latitude}',
-      'max_lng': '${nortEast.longitude}',
-      'max_lat': '${nortEast.latitude}',
+      'min_lng': '${bounds.southwest.longitude}',
+      'min_lat': '${bounds.southwest.latitude}',
+      'max_lng': '${bounds.northeast.longitude}',
+      'max_lat': '${bounds.northeast.latitude}',
       'user_id': userId!,
     }).execute();
     final error = res.error;

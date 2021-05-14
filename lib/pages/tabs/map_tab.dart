@@ -110,9 +110,7 @@ class MapState extends State<Map> {
             // Finds the center of the map and load videos around that location
             final controller = await _controller.future;
             final bounds = await controller.getVisibleRegion();
-            final center = LatLng((bounds.northeast.latitude + bounds.southwest.latitude) / 2,
-                (bounds.northeast.longitude + bounds.southwest.longitude) / 2);
-            await BlocProvider.of<VideosCubit>(context).loadFromLocation(center);
+            await BlocProvider.of<VideosCubit>(context).loadInBoundinngBox(bounds);
             _loading = false;
           },
           onMapCreated: (GoogleMapController controller) {
