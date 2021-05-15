@@ -25,7 +25,6 @@ class Repository {
   // Local Cache
   final List<Video> _mapVideos = [];
   final _mapVideosStreamConntroller = BehaviorSubject<List<Video>>();
-
   Stream<List<Video>> get mapVideosStream => _mapVideosStreamConntroller.stream;
 
   final Map<String, VideoDetail> _videoDetails = {};
