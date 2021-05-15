@@ -98,10 +98,10 @@ class Repository {
   Future<void> getVideosFromLocation(LatLng location) async {
     final res = await _supabaseClient
         .rpc('nearby_videos', params: {
-          'location': 'POINT(${location.latitude} ${location.longitude})',
+          'location': 'POINT(${location.longitude} ${location.latitude})',
           'user_id': userId!,
         })
-        .limit(8)
+        .limit(5)
         .execute();
     final error = res.error;
     final data = res.data;
