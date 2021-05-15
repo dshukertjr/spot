@@ -1,23 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:spot/pages/profile_page.dart';
 
 class ProfileImage extends StatelessWidget {
   const ProfileImage({
     Key? key,
     double? size,
-    required String userId,
     String? imageUrl,
-    bool? openProfileOnTap,
+    void Function()? onPressed,
   })  : _size = size ?? 50,
-        _userId = userId,
         _imageUrl = imageUrl,
-        _openProfileOnTap = openProfileOnTap ?? false,
+        _onPressed = onPressed,
         super(key: key);
 
   final double _size;
-  final String _userId;
   final String? _imageUrl;
-  final bool _openProfileOnTap;
+  final void Function()? _onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +21,7 @@ class ProfileImage extends StatelessWidget {
       width: _size,
       height: _size,
       child: GestureDetector(
-        onTap: _openProfileOnTap
-            ? () {
-                Navigator.of(context).push(ProfilePage.route(_userId));
-              }
-            : null,
+        onTap: _onPressed,
         child: ClipOval(
           child: _imageUrl == null
               ? Image.asset(

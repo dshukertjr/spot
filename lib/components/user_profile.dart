@@ -5,6 +5,7 @@ import 'package:spot/app/constants.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
 import 'package:spot/pages/edit_profile_page.dart';
+import 'package:spot/pages/profile_page.dart';
 import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 
@@ -126,7 +127,6 @@ class _Profile extends StatelessWidget {
               ProfileImage(
                 size: 120,
                 imageUrl: profile.imageUrl,
-                userId: profile.id,
               ),
               const SizedBox(width: 18),
               Expanded(

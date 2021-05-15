@@ -12,6 +12,7 @@ import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/video.dart';
+import 'package:spot/pages/profile_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
@@ -139,9 +140,13 @@ class _VideoScreenState extends State<VideoScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ProfileImage(
-                    userId: widget._video.userId,
                     imageUrl: widget._video.createdBy.imageUrl,
-                    openProfileOnTap: true,
+                    onPressed: () async {
+                      await widget._controller?.pause();
+                      await Navigator.of(context)
+                          .push(ProfilePage.route(widget._video.createdBy.id));
+                      await widget._controller?.play();
+                    },
                     size: 36,
                   ),
                   const SizedBox(height: 36),
@@ -622,9 +627,10 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
           child: Row(
             children: [
               ProfileImage(
-                userId: comment.user.id,
                 imageUrl: comment.user.imageUrl,
-                openProfileOnTap: true,
+                onPressed: () {
+                  Navigator.of(context).push(ProfilePage.route(comment.user.id));
+                },
               ),
               const SizedBox(width: 12),
               Expanded(

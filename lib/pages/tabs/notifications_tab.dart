@@ -78,9 +78,10 @@ class _NotificationCell extends StatelessWidget {
         child: Row(
           children: [
             ProfileImage(
-              userId: _notification.actionUid!,
               imageUrl: _notification.actionUserImageUrl,
-              openProfileOnTap: true,
+              onPressed: () {
+                Navigator.of(context).push(ProfilePage.route(_notification.actionUid!));
+              },
             ),
             const SizedBox(width: 16),
             Expanded(
