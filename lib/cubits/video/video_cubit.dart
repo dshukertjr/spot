@@ -39,6 +39,7 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> initialize(String videoId) async {
     try {
       _videoId = videoId;
+      await _repository.getVideoDetailStream(videoId);
 
       _videoStreamSubscription = _repository.videoDetailStream.listen((videoDetail) {
         if (videoDetail != null) {
@@ -56,7 +57,6 @@ class VideoCubit extends Cubit<VideoState> {
           }
         }
       });
-      await _repository.getVideoDetailStream(videoId);
     } catch (err) {
       emit(VideoError(message: 'Error loading video. Please refresh.'));
     }

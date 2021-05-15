@@ -131,6 +131,56 @@ void main() {
           ..headers.contentType = ContentType.json
           ..write(jsonString)
           ..close();
+      } else if (url == '/auth/v1/signup') {
+        final jsonString = jsonEncode({
+          'access_token': '',
+          'expires_in': 3600,
+          'refresh_token': '',
+          'token_type': '',
+          'provider_token': '',
+          'user': {
+            'id': 'aaa',
+            'app_metadata': {},
+            'user_metadata': {},
+            'aud': '',
+            'email': 'some@some.com',
+            'created_at': '2021-04-17T00:00:30.75',
+            'confirmed_at': '2021-04-17T00:00:30.75',
+            'last_sign_in_at': '',
+            'role': '',
+            'updated_at': '2021-04-17T00:00:30.75',
+          },
+        });
+        request.response
+          ..statusCode = HttpStatus.ok
+          ..headers.contentType = ContentType.json
+          ..write(jsonString)
+          ..close();
+      } else if (url == '/rest/v1/users?select=*') {
+        final jsonString = jsonEncode({
+          'access_token': '',
+          'expires_in': 3600,
+          'refresh_token': '',
+          'token_type': '',
+          'provider_token': '',
+          'user': {
+            'id': 'aaa',
+            'app_metadata': {},
+            'user_metadata': {},
+            'aud': '',
+            'email': 'some@some.com',
+            'created_at': '2021-04-17T00:00:30.75',
+            'confirmed_at': '2021-04-17T00:00:30.75',
+            'last_sign_in_at': '',
+            'role': '',
+            'updated_at': '2021-04-17T00:00:30.75',
+          },
+        });
+        request.response
+          ..statusCode = HttpStatus.ok
+          ..headers.contentType = ContentType.json
+          ..write(jsonString)
+          ..close();
       } else {
         request.response
           ..statusCode = HttpStatus.ok
@@ -151,6 +201,30 @@ void main() {
   });
 
   group('repository', () {
+    test('signUp', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
+
+      final sessionString = await repository.signUp(email: '', password: '');
+
+      expect(sessionString is String, true);
+    });
+
+    test('signIn', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
+
+      final sessionString = await repository.signIn(email: '', password: '');
+
+      expect(sessionString is String, true);
+    });
+
+    test('getSelfProfile', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
+
+      final profile = await repository.getSelfProfile();
+
+      expect(profile!.id, 'aaa');
+    });
+
     test('getVideosFromLocation', () async {
       final repository = Repository(supabaseClient: supabaseClient);
 
