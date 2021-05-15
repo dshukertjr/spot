@@ -292,9 +292,9 @@ https://medium.com/flutter-community/automating-publishing-your-flutter-apps-to-
 
 Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
-![coverage][coverage_badge]
+<!-- ![coverage][coverage_badge] -->
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
-[![License: MIT][license_badge]][license_link]
+<!-- [![License: MIT][license_badge]][license_link] -->
 
 A Very Good Flutter Starter Project created by the [Very Good Ventures Team][very_good_ventures_link].
 
