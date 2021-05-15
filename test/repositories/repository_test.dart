@@ -156,26 +156,14 @@ void main() {
           ..headers.contentType = ContentType.json
           ..write(jsonString)
           ..close();
-      } else if (url == '/rest/v1/users?select=*') {
-        final jsonString = jsonEncode({
-          'access_token': '',
-          'expires_in': 3600,
-          'refresh_token': '',
-          'token_type': '',
-          'provider_token': '',
-          'user': {
+      } else if (url == '/rest/v1/users?select=%2A&id=eq.aaa') {
+        final jsonString = jsonEncode([
+          {
             'id': 'aaa',
-            'app_metadata': {},
-            'user_metadata': {},
-            'aud': '',
-            'email': 'some@some.com',
-            'created_at': '2021-04-17T00:00:30.75',
-            'confirmed_at': '2021-04-17T00:00:30.75',
-            'last_sign_in_at': '',
-            'role': '',
-            'updated_at': '2021-04-17T00:00:30.75',
+            'name': 'tyler',
+            'description': 'Hi',
           },
-        });
+        ]);
         request.response
           ..statusCode = HttpStatus.ok
           ..headers.contentType = ContentType.json
@@ -219,6 +207,8 @@ void main() {
 
     test('getSelfProfile', () async {
       final repository = Repository(supabaseClient: supabaseClient);
+
+      await repository.signIn(email: '', password: '');
 
       final profile = await repository.getSelfProfile();
 
