@@ -45,7 +45,8 @@ platform :ios do
       skip_metadata: false,
       skip_screenshots: false,
       ipa: './build/Runner.ipa',
-      precheck_include_in_app_purchases: false
+      precheck_include_in_app_purchases: false,
+      force: true
     )
   end
 
