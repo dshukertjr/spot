@@ -9,77 +9,6 @@ import 'package:supabase/supabase.dart';
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
 
-// void main() {
-//   late HttpServer mockServer;
-//   late SupabaseClient supabaseClient;
-
-//   Future<void> _handleRequests(HttpServer server) async {
-//     await for (final HttpRequest request in server) {
-//       final url = request.uri.toString();
-//       if (url == '/rest/v1/todos?select=task%2Cstatus') {
-//         final jsonString = jsonEncode([
-//           {'task': 'task 1', 'status': true},
-//           {'task': 'task 2', 'status': false}
-//         ]);
-//         request.response
-//           ..statusCode = HttpStatus.ok
-//           ..headers.contentType = ContentType.json
-//           ..write(jsonString)
-//           ..close();
-//       } else if (url == '/rest/v1/rpc/nearby_videos') {
-//         final jsonString = jsonEncode([
-//           {
-//             'id': '',
-//             'url': '',
-//             'image_url': '',
-//             'thumbnail_url': '',
-//             'gif_url': '',
-//             'description': '',
-//             'user_id': '',
-//             'location': 'POINT(44, 46)',
-//             'createdAt': '2021/05/15',
-//           },
-//         ]);
-//         request.response
-//           ..statusCode = HttpStatus.ok
-//           ..headers.contentType = ContentType.json
-//           ..write(jsonString)
-//           ..close();
-//       } else {
-//         request.response
-//           ..statusCode = HttpStatus.ok
-//           ..close();
-//       }
-//     }
-//   }
-
-//   group('Repository', () {
-//     setUp(() async {
-//       mockServer = await HttpServer.bind('localhost', 0);
-//       supabaseClient =
-//           SupabaseClient('http://${mockServer.address.host}:${mockServer.port}', 'supabaseKey');
-//       await _handleRequests(mockServer);
-//     });
-
-//     tearDown(() async {
-//       await mockServer.close();
-//     });
-
-//     test('getVideosFromLocation', () async {
-//       final res = await supabaseClient.from('todos').select('task, status').execute();
-//       expect(res.data.length, 2);
-
-//       // final repository = Repository(supabaseClient: supabaseClient);
-
-//       // await repository.getVideosFromLocation(const LatLng(45, 45));
-
-//       // final videos = await repository.mapVideosStream.single;
-
-//       // expect(videos.length, 1);
-//     });
-//   });
-// }
-
 void main() {
   late SupabaseClient supabaseClient;
   late HttpServer mockServer;
@@ -87,7 +16,7 @@ void main() {
   Future<void> handleRequests(HttpServer server) async {
     await for (final HttpRequest request in server) {
       final url = request.uri.toString();
-      if (url == '/rest/v1/rpc/nearby_videos?limit=8') {
+      if (url == '/rest/v1/rpc/nearby_videos?limit=5') {
         final jsonString = jsonEncode([
           {
             'id': '',
