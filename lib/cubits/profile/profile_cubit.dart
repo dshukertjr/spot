@@ -69,14 +69,12 @@ class ProfileCubit extends Cubit<ProfileState> {
       }
 
       return _repository.saveProfile(
-        map: Profile.toMap(
-          id: userId,
-          name: name,
-          description: description,
-          imageUrl: imageUrl,
-        ),
-        userId: userId,
-      );
+          profile: Profile(
+        id: userId,
+        name: name,
+        description: description,
+        imageUrl: imageUrl,
+      ));
     } catch (err) {
       emit(ProfileError());
       rethrow;

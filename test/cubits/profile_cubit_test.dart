@@ -75,7 +75,7 @@ void main() {
       build: () {
         final repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.saveProfile(map: any(named: 'map'), userId: any(named: 'userId')))
+        when(() => repository.saveProfile(profile: any(named: 'map')))
             .thenAnswer((_) => Future.value(Profile(id: 'aaa', name: '')));
         return ProfileCubit(repository: repository);
       },
@@ -92,7 +92,7 @@ void main() {
       build: () {
         final repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.saveProfile(map: any(named: 'map'), userId: 'aaa'))
+        when(() => repository.saveProfile(profile: any(named: 'map')))
             .thenAnswer((_) => Future.value(Profile(id: 'aaa', name: '')));
         when(() => repository.uploadFile(
               bucket: any(named: 'bucket'),

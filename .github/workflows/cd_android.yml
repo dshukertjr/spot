@@ -19,7 +19,7 @@ jobs:
 
       - uses: subosito/flutter-action@v1.5.0
         with:
-          flutter-version: '2.0.5'
+          flutter-version: '2.2.0'
       # Get flutter dependencies.
       - run: flutter pub get
 

@@ -20,8 +20,7 @@ class Profile {
     );
   }
 
-  static Map<String, dynamic> toMap(
-      {required String id, required String name, String? description, String? imageUrl}) {
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,

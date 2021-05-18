@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:spot/models/profile.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';
 
@@ -17,26 +18,7 @@ void main() {
     Future<void> handleRequests(HttpServer server) async {
       await for (final HttpRequest request in server) {
         final url = request.uri.toString();
-        if (url == '/rest/v1/rpc/nearby_videos?limit=5') {
-          final jsonString = jsonEncode([
-            {
-              'id': '',
-              'url': '',
-              'image_url': '',
-              'thumbnail_url': '',
-              'gif_url': '',
-              'description': '',
-              'user_id': '',
-              'location': 'POINT(44.0 46.0)',
-              'created_at': '2021-04-17T00:00:30.75',
-            },
-          ]);
-          request.response
-            ..statusCode = HttpStatus.ok
-            ..headers.contentType = ContentType.json
-            ..write(jsonString)
-            ..close();
-        } else if (url == '/auth/v1/token?grant_type=password') {
+        if (url == '/auth/v1/token?grant_type=password') {
           final jsonString = jsonEncode({
             'access_token': '',
             'expires_in': 3600,
@@ -91,6 +73,97 @@ void main() {
             {
               'id': 'aaa',
               'name': 'tyler',
+              'description': 'Hi',
+            },
+          ]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
+        } else if (url == '/rest/v1/rpc/nearby_videos?limit=5') {
+          final jsonString = jsonEncode([
+            {
+              'id': '',
+              'url': '',
+              'image_url': '',
+              'thumbnail_url': '',
+              'gif_url': '',
+              'description': '',
+              'user_id': '',
+              'location': 'POINT(44.0 46.0)',
+              'created_at': '2021-04-17T00:00:30.75',
+            },
+          ]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
+        } else if (url == '/rest/v1/rpc/videos_in_bouding_box') {
+          final jsonString = jsonEncode([
+            {
+              'id': 'a',
+              'url': '',
+              'image_url': '',
+              'thumbnail_url': '',
+              'gif_url': '',
+              'description': '',
+              'user_id': '',
+              'location': 'POINT(44.0 46.0)',
+              'created_at': '2021-04-17T00:00:30.75',
+            },
+            {
+              'id': 'b',
+              'url': '',
+              'image_url': '',
+              'thumbnail_url': '',
+              'gif_url': '',
+              'description': '',
+              'user_id': '',
+              'location': 'POINT(44.0 46.0)',
+              'created_at': '2021-04-17T00:00:30.75',
+            },
+          ]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
+        } else if (url ==
+            '/rest/v1/videos?select=id%2Cuser_id%2Ccreated_at%2Curl%2Cimage_url%2Cthumbnail_url%2Cgif_url%2Cdescription&user_id=eq.aaa&order=%22created_at%22.desc.nullslast') {
+          final jsonString = jsonEncode([
+            {
+              'id': 'a',
+              'url': '',
+              'image_url': '',
+              'thumbnail_url': '',
+              'gif_url': '',
+              'description': '',
+              'user_id': 'aaa',
+              'created_at': '2021-04-17T00:00:30.75',
+            },
+            {
+              'id': 'b',
+              'url': '',
+              'image_url': '',
+              'thumbnail_url': '',
+              'gif_url': '',
+              'description': '',
+              'user_id': 'aaa',
+              'created_at': '2021-04-17T00:00:30.75',
+            },
+          ]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
+        } else if (url == '/rest/v1/users') {
+          final jsonString = jsonEncode([
+            {
+              'id': 'aaa',
+              'name': 'new',
               'description': 'Hi',
             },
           ]);
@@ -155,6 +228,61 @@ void main() {
         expectAsync1(
           (videos) {
             expect(videos.length, 1);
+          },
+        ),
+      );
+    });
+
+    test('getVideosInBoundingBox', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
+
+      await repository.signIn(email: '', password: '');
+
+      await repository.getVideosInBoundingBox(
+          LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45)));
+
+      repository.mapVideosStream.listen(
+        expectAsync1(
+          (videos) {
+            expect(videos.length, 2);
+          },
+        ),
+      );
+    });
+
+    test('getVideosFromUid', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
+
+      await repository.signIn(email: '', password: '');
+
+      final videos = await repository.getVideosFromUid('aaa');
+
+      expect(videos.length, 2);
+      expect(videos.first.userId, 'aaa');
+      expect(videos.first.id, 'a');
+    });
+
+    test('getProfile', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
+
+      await repository.signIn(email: '', password: '');
+
+      final profile = await repository.getProfile('aaa');
+
+      expect(profile!.id, 'aaa');
+    });
+
+    test('saveProfile', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
+
+      await repository.signIn(email: '', password: '');
+
+      await repository.saveProfile(profile: Profile(id: 'aaa', name: 'new'));
+
+      repository.profileStream.listen(
+        expectAsync1(
+          (profiles) {
+            expect(profiles['aaa']!.name, 'new');
           },
         ),
       );

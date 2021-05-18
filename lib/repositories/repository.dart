@@ -180,11 +180,8 @@ class Repository {
     return profile;
   }
 
-  Future<void> saveProfile({
-    required Map<String, dynamic> map,
-    required String userId,
-  }) async {
-    final res = await _supabaseClient.from('users').insert(map, upsert: true).execute();
+  Future<void> saveProfile({required Profile profile}) async {
+    final res = await _supabaseClient.from('users').insert(profile.toMap(), upsert: true).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
@@ -200,8 +197,8 @@ class Repository {
       );
     }
 
-    final profile = Profile.fromData(data[0]);
-    _profiles[userId] = profile;
+    final newProfile = Profile.fromData(data[0]);
+    _profiles[profile.id] = newProfile;
     _profileStreamController.sink.add(_profiles);
   }
 
