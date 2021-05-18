@@ -24,17 +24,22 @@ class NotificationsTab extends StatelessWidget {
         return preloader;
       } else if (state is NotificationLoaded) {
         final notifications = state.notifications;
-        return ListView.builder(
-          padding: EdgeInsets.only(
-            top: 16 + safeAreaPadding.top,
-            bottom: 16 + safeAreaPadding.bottom,
-          ),
-          itemCount: notifications.length,
-          itemBuilder: (context, index) {
-            return _NotificationCell(
-              notification: notifications[index],
-            );
+        return RefreshIndicator(
+          onRefresh: () {
+            return BlocProvider.of<NotificationCubit>(context).loadNotifications();
           },
+          child: ListView.builder(
+            padding: EdgeInsets.only(
+              top: 16 + safeAreaPadding.top,
+              bottom: 16 + safeAreaPadding.bottom,
+            ),
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              return _NotificationCell(
+                notification: notifications[index],
+              );
+            },
+          ),
         );
       }
       throw UnimplementedError();

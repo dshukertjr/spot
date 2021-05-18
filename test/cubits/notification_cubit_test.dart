@@ -34,7 +34,7 @@ Future<void> main() async {
         return NotificationCubit(repository: repository);
       },
       act: (cubit) async {
-        await cubit.initialize();
+        await cubit.loadNotifications();
       },
       expect: () => [
         isA<NotificationLoaded>(),

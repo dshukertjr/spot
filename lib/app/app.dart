@@ -26,7 +26,7 @@ class App extends StatelessWidget {
           BlocProvider<NotificationCubit>(
             create: (context) => NotificationCubit(
               repository: RepositoryProvider.of<Repository>(context),
-            )..initialize(),
+            )..loadNotifications(),
           )
         ],
         child: MaterialApp(

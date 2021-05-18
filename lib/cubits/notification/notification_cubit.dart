@@ -11,12 +11,11 @@ class NotificationCubit extends Cubit<NotificationState> {
         super(NotificationInitial());
 
   final Repository _repository;
-  final _notifications = <AppNotification>[];
+  List<AppNotification> _notifications = <AppNotification>[];
 
-  Future<void> initialize() async {
+  Future<void> loadNotifications() async {
     try {
-      final notifications = await _repository.getNotifications();
-      _notifications.addAll(notifications);
+      _notifications = await _repository.getNotifications();
 
       final hasNewNotification =
           _notifications.where((notification) => notification.isNew).isNotEmpty;
@@ -30,6 +29,7 @@ class NotificationCubit extends Cubit<NotificationState> {
 
   Future<void> updateTimestampOfLastSeenNotification() async {
     if (_notifications.isNotEmpty) {
+      emit(NotificationLoaded(notifications: _notifications, hasNewNotification: false));
       return _repository.updateTimestampOfLastSeenNotification(_notifications.first.createdAt);
     }
   }
