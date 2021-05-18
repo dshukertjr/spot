@@ -1,4 +1,4 @@
-Share awesome local spots with Spot!
+Bringing you smoother experience! 
 
-- Added "my location" button to the map page
-- Minor bug fixes
+- Added dot to indicate new in app notifications
+- 

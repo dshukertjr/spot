@@ -470,4 +470,8 @@ class Repository {
     final position = await Geolocator.getCurrentPosition();
     return LatLng(position.latitude, position.longitude);
   }
+
+  Future<void> updateTimestampOfLastSeenNotification(DateTime time) async {
+    await _localStorage.write(key: _timestampOfLastSeenNotification, value: time.toIso8601String());
+  }
 }

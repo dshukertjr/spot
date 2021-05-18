@@ -28,6 +28,7 @@ Future<void> main() async {
                 actionUid: '',
                 actionUserName: '',
                 actionUserImageUrl: '',
+                isNew: false,
               ),
             ]));
         return NotificationCubit(repository: repository);

@@ -17,9 +17,20 @@ class NotificationCubit extends Cubit<NotificationState> {
     try {
       final notifications = await _repository.getNotifications();
       _notifications.addAll(notifications);
-      emit(NotificationLoaded(notifications: _notifications));
+
+      final hasNewNotification =
+          _notifications.where((notification) => notification.isNew).isNotEmpty;
+
+      emit(NotificationLoaded(
+          notifications: _notifications, hasNewNotification: hasNewNotification));
     } catch (err) {
       emit(NotificationInitial(errorMessage: 'Error loading notifications'));
+    }
+  }
+
+  Future<void> updateTimestampOfLastSeenNotification() async {
+    if (_notifications.isNotEmpty) {
+      return _repository.updateTimestampOfLastSeenNotification(_notifications.first.createdAt);
     }
   }
 }

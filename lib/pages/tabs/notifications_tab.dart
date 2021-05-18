@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/notification_dot.dart';
 import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
 import 'package:spot/models/notification.dart';
@@ -79,20 +80,31 @@ class _NotificationCell extends StatelessWidget {
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: RichText(
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                text: TextSpan(
-                  children: [
-                    TextSpan(text: _notificationText),
-                    TextSpan(
-                      text: ' 1h',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
-                      ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  RichText(
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(text: _notificationText),
+                        TextSpan(
+                          text: ' ${howLongAgo(_notification.createdAt)}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.5),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  if (_notification.isNew)
+                    const Positioned(
+                      top: -2,
+                      right: -2,
+                      child: NotificationDot(),
+                    ),
+                ],
               ),
             ),
             const SizedBox(width: 16),

@@ -26,12 +26,14 @@ void main() {
               targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
               actionUid: 'aaa',
               actionUserName: 'Tyler',
+              isNew: false,
             ),
             AppNotification(
               type: NotificationType.follow,
               createdAt: DateTime.now(),
               actionUid: 'aaa',
               actionUserName: 'Tyler',
+              isNew: false,
             ),
             AppNotification(
               type: NotificationType.comment,
@@ -41,6 +43,7 @@ void main() {
               actionUid: 'aaa',
               actionUserName: 'Tyler',
               commentText: 'hey',
+              isNew: false,
             ),
           ]));
 

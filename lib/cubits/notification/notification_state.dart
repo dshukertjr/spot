@@ -16,8 +16,10 @@ class NotificationEmpty extends NotificationState {
 }
 
 class NotificationLoaded extends NotificationState {
-  NotificationLoaded({required this.notifications, String? errorMessage})
+  NotificationLoaded(
+      {required this.notifications, required this.hasNewNotification, String? errorMessage})
       : super(errorMessage: errorMessage);
 
   final List<AppNotification> notifications;
+  final bool hasNewNotification;
 }

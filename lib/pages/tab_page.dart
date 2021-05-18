@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/gradient_border.dart';
+import 'package:spot/components/notification_dot.dart';
+import 'package:spot/cubits/notification/notification_cubit.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
 import 'package:spot/pages/tabs/notifications_tab.dart';
@@ -79,14 +82,26 @@ class TabPageState extends State<TabPage> {
                   tabIndex: 1,
                 ),
                 const _RecordButton(),
-                _bottomNavigationButton(
-                  label: 'Notifications',
-                  icon: const Icon(
-                    FeatherIcons.bell,
-                    size: 22,
-                  ),
-                  tabIndex: 2,
-                ),
+                BlocBuilder<NotificationCubit, NotificationState>(builder: (context, state) {
+                  var hasNewNotifications = false;
+                  if (state is NotificationLoaded && state.hasNewNotification) {
+                    hasNewNotifications = true;
+                  }
+                  return _bottomNavigationButton(
+                    label: 'Notifications',
+                    icon: const Icon(
+                      FeatherIcons.bell,
+                      size: 22,
+                    ),
+                    tabIndex: 2,
+                    withDot: hasNewNotifications,
+                    onPressed: () {
+                      // Update the last seen notification
+                      BlocProvider.of<NotificationCubit>(context)
+                          .updateTimestampOfLastSeenNotification();
+                    },
+                  );
+                }),
                 _bottomNavigationButton(
                   label: 'Profile',
                   icon: const Icon(
@@ -107,16 +122,29 @@ class TabPageState extends State<TabPage> {
     required String label,
     required Widget icon,
     required int tabIndex,
+    bool withDot = false,
+    void Function()? onPressed,
   }) {
     return Expanded(
       child: InkResponse(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: 22,
-              height: 22,
-              child: icon,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: icon,
+                ),
+                if (withDot)
+                  const Positioned(
+                    top: -2,
+                    right: -2,
+                    child: NotificationDot(),
+                  ),
+              ],
             ),
             const SizedBox(height: 5),
             Text(
@@ -132,6 +160,7 @@ class TabPageState extends State<TabPage> {
           setState(() {
             currentIndex = tabIndex;
           });
+          if (onPressed != null) onPressed();
         },
       ),
     );

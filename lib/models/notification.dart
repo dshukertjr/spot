@@ -58,7 +58,7 @@ class AppNotification {
       (row) {
         final createdAt = DateTime.parse(row['created_at'] as String);
         var isNew = false;
-        if (createdAtOfLastSeenNotification != null &&
+        if (createdAtOfLastSeenNotification == null ||
             createdAt.isAfter(createdAtOfLastSeenNotification)) {
           isNew = true;
         }
