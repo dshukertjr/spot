@@ -21,6 +21,7 @@ class Repository {
   static const _localStorage = FlutterSecureStorage();
   static const _persistantSessionKey = 'supabase_session';
   static const _termsOfServiceAgreementKey = 'agreed';
+  static const _timestampOfLastSeenNotification = 'timestampOfLastSeenNotification';
 
   // Local Cache
   final List<Video> _mapVideos = [];
@@ -344,6 +345,7 @@ class Repository {
         .from('notifications')
         .select()
         .eq('receiver_user_id', uid)
+        .order('created_at')
         .limit(50)
         .execute();
     final data = res.data;
@@ -354,7 +356,14 @@ class Repository {
         message: error.message,
       );
     }
-    return AppNotification.fromData(data);
+    final timestampOfLastSeenNotification =
+        await _localStorage.read(key: _timestampOfLastSeenNotification);
+    DateTime? createdAtOfLastSeenNotification;
+    if (timestampOfLastSeenNotification != null) {
+      createdAtOfLastSeenNotification = DateTime.parse(timestampOfLastSeenNotification);
+    }
+    return AppNotification.fromData(data,
+        createdAtOfLastSeenNotification: createdAtOfLastSeenNotification);
   }
 
   Future<void> block(String blockedUserId) async {

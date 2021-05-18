@@ -6,18 +6,12 @@ import 'package:spot/cubits/notification/notification_cubit.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/pages/profile_page.dart';
 import 'package:spot/pages/view_video_page.dart';
-import 'package:spot/repositories/repository.dart';
 
 class NotificationsTab extends StatelessWidget {
   static Widget create() {
-    return BlocProvider<NotificationCubit>(
-      create: (context) => NotificationCubit(
-        repository: RepositoryProvider.of<Repository>(context),
-      )..initialize(),
-      child: Material(
-        color: Colors.transparent,
-        child: NotificationsTab(),
-      ),
+    return Material(
+      color: Colors.transparent,
+      child: NotificationsTab(),
     );
   }
 
@@ -51,7 +45,7 @@ class _NotificationCell extends StatelessWidget {
   const _NotificationCell({
     Key? key,
     required AppNotification notification,
-  })   : _notification = notification,
+  })  : _notification = notification,
         super(key: key);
 
   final AppNotification _notification;
