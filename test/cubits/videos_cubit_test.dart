@@ -9,6 +9,10 @@ import '../helpers/helpers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    registerFallbackValue<LatLngBounds>(
+        LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45)));
+  });
   test('Initial State', () {
     final repository = MockRepository();
     expect(VideosCubit(repository: repository).state is VideosInitial, true);
@@ -62,27 +66,41 @@ Future<void> main() async {
       'Can load videos from location',
       build: () {
         final repository = MockRepository();
-        when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
-            .thenAnswer((_) => Future.value([
-                  Video(
-                      id: 'id',
-                      url: 'url',
-                      imageUrl: 'imageUrl',
-                      thumbnailUrl: 'thumbnailUrl',
-                      gifUrl: 'gifUrl',
-                      createdAt: DateTime.now(),
-                      description: 'description',
-                      userId: 'userId',
-                      location: const LatLng(0, 0)),
-                ]));
+        when(repository.determinePosition).thenAnswer((invocation) async => const LatLng(0, 0));
+        when(() => repository.getVideosFromLocation(const LatLng(0, 0))).thenAnswer(
+          (_) => Future.value([
+            Video(
+                id: 'id',
+                url: 'url',
+                imageUrl: 'imageUrl',
+                thumbnailUrl: 'thumbnailUrl',
+                gifUrl: 'gifUrl',
+                createdAt: DateTime.now(),
+                description: 'description',
+                userId: 'userId',
+                location: const LatLng(0, 0)),
+          ]),
+        );
+        when(() => repository.mapVideosStream).thenAnswer((invocation) => Stream.value([
+              Video(
+                  id: 'id',
+                  url: 'url',
+                  imageUrl: 'imageUrl',
+                  thumbnailUrl: 'thumbnailUrl',
+                  gifUrl: 'gifUrl',
+                  createdAt: DateTime.now(),
+                  description: 'description',
+                  userId: 'userId',
+                  location: const LatLng(0, 0)),
+            ]));
         return VideosCubit(repository: repository);
       },
       act: (cubit) async {
         await cubit.loadInitialVideos();
       },
-      seed: () => VideosLoaded([]),
       expect: () => [
-        isA<VideosLoadingMore>(),
+        isA<VideosLoading>(),
+        isA<VideosLoaded>(),
       ],
     );
     blocTest<VideosCubit, VideosState>(
@@ -114,8 +132,7 @@ Future<void> main() async {
       'Get initial videos from location and load more afterwards',
       build: () {
         final repository = MockRepository();
-        when(repository.determinePosition)
-            .thenAnswer((invocation) => Future.value(const LatLng(0, 0)));
+        when(repository.determinePosition).thenAnswer((invocation) async => const LatLng(0, 0));
         when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([
               Video(
                 id: 'id',
@@ -142,11 +159,26 @@ Future<void> main() async {
                       userId: 'userId',
                       location: const LatLng(0, 0)),
                 ]));
+        when(() => repository.getVideosInBoundingBox(any<LatLngBounds>()))
+            .thenAnswer((_) => Future.value([
+                  Video(
+                      id: 'id',
+                      url: 'url',
+                      imageUrl: 'imageUrl',
+                      thumbnailUrl: 'thumbnailUrl',
+                      gifUrl: 'gifUrl',
+                      createdAt: DateTime.now(),
+                      description: 'description',
+                      userId: 'userId',
+                      location: const LatLng(0, 0)),
+                ]));
         return VideosCubit(repository: repository);
       },
       act: (cubit) async {
         await cubit.loadInitialVideos();
-        await cubit.loadFromLocation(const LatLng(0, 0));
+        await Future.delayed(const Duration(seconds: 3));
+        await cubit.loadInBoundinngBox(
+            LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45)));
       },
       expect: () => [
         isA<VideosLoading>(),
