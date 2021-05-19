@@ -5,7 +5,6 @@ import 'package:spot/app/constants.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
 import 'package:spot/pages/edit_profile_page.dart';
-import 'package:spot/pages/profile_page.dart';
 import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 
@@ -15,7 +14,7 @@ class UserProfile extends StatelessWidget {
   UserProfile({
     Key? key,
     required String userId,
-  })   : _userId = userId,
+  })  : _userId = userId,
         super(key: key);
 
   final String _userId;

@@ -38,15 +38,6 @@ class VideosCubit extends Cubit<VideosState> {
     }
   }
 
-  Future<void> loadFromLocation(LatLng location) async {
-    try {
-      emit(VideosLoadingMore(_videos));
-      return _repository.getVideosFromLocation(location);
-    } catch (err) {
-      emit(VideosError(message: 'Error loading videos. Please refresh.'));
-    }
-  }
-
   Future<void> loadInBoundinngBox(LatLngBounds bounds) async {
     try {
       emit(VideosLoadingMore(_videos));

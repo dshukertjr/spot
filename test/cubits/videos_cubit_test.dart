@@ -78,7 +78,7 @@ Future<void> main() async {
         return VideosCubit(repository: repository);
       },
       act: (cubit) async {
-        await cubit.loadFromLocation(const LatLng(0, 0));
+        await cubit.loadInitialVideos();
       },
       seed: () => VideosLoaded([]),
       expect: () => [

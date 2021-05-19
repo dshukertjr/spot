@@ -12,6 +12,13 @@ import '../helpers/helpers.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    registerFallbackValue<Profile>(Profile(
+      id: '',
+      name: '',
+    ));
+  });
+
   test('Initial State', () {
     final repository = MockRepository();
     expect(ProfileCubit(repository: repository).state is ProfileLoading, true);
@@ -75,7 +82,7 @@ void main() {
       build: () {
         final repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.saveProfile(profile: any(named: 'map')))
+        when(() => repository.saveProfile(profile: any(named: 'profile')))
             .thenAnswer((_) => Future.value(Profile(id: 'aaa', name: '')));
         return ProfileCubit(repository: repository);
       },
@@ -92,7 +99,7 @@ void main() {
       build: () {
         final repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.saveProfile(profile: any(named: 'map')))
+        when(() => repository.saveProfile(profile: any(named: 'profile')))
             .thenAnswer((_) => Future.value(Profile(id: 'aaa', name: '')));
         when(() => repository.uploadFile(
               bucket: any(named: 'bucket'),

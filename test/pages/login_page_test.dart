@@ -4,7 +4,6 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/components/gradient_button.dart';
-import 'package:spot/models/profile.dart';
 import 'package:spot/pages/edit_profile_page.dart';
 import 'package:spot/pages/login_page.dart';
 
