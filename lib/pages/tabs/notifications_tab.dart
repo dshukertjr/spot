@@ -22,6 +22,8 @@ class NotificationsTab extends StatelessWidget {
     return BlocBuilder<NotificationCubit, NotificationState>(builder: (context, state) {
       if (state is NotificationInitial) {
         return preloader;
+      } else if (state is NotificationEmpty) {
+        return const Center(child: Text('You don\'t have any notificatins yet'));
       } else if (state is NotificationLoaded) {
         final notifications = state.notifications;
         return RefreshIndicator(

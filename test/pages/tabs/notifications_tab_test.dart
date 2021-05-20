@@ -125,5 +125,26 @@ void main() {
 
       expect(find.byType(NotificationDot), findsOneWidget);
     });
+
+    testWidgets('Empty notification will show empty text', (tester) async {
+      final repository = MockRepository();
+
+      when(repository.getNotifications).thenAnswer((invocation) => Future.value([]));
+
+      await tester.pumpApp(
+        widget: BlocProvider<NotificationCubit>(
+          create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+          child: AppScaffold(body: NotificationsTab.create()),
+        ),
+        repository: repository,
+      );
+
+      expect(find.byWidget(preloader), findsOneWidget);
+
+      await tester.pump();
+
+      expect(find.text('You don\'t have any notificatins yet'), findsOneWidget);
+      expect(find.byType(NotificationDot), findsNothing);
+    });
   });
 }

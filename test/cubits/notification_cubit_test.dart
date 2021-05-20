@@ -40,5 +40,19 @@ Future<void> main() async {
         isA<NotificationLoaded>(),
       ],
     );
+    blocTest<NotificationCubit, NotificationState>(
+      'Empty notifications will emit NotificationEmpty state',
+      build: () {
+        final repository = MockRepository();
+        when(repository.getNotifications).thenAnswer((_) => Future.value([]));
+        return NotificationCubit(repository: repository);
+      },
+      act: (cubit) async {
+        await cubit.loadNotifications();
+      },
+      expect: () => [
+        isA<NotificationEmpty>(),
+      ],
+    );
   });
 }

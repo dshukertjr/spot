@@ -16,13 +16,9 @@ import 'package:spot/pages/tabs/search_tab.dart';
 import '../helpers/helpers.dart';
 
 void main() {
-  setUpAll(() {
-    registerFallbackValue<DateTime>(DateTime.parse('2021-05-20T00:00:00.00'));
-  });
   group('TabPage', () {
-    final repository = MockRepository();
-
     testWidgets('Every tab gets rendered', (tester) async {
+      final repository = MockRepository();
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
@@ -41,6 +37,7 @@ void main() {
     });
 
     testWidgets('Initial index is 0', (tester) async {
+      final repository = MockRepository();
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
@@ -56,6 +53,7 @@ void main() {
     });
 
     testWidgets('Tapping Home goes to tab index 0', (tester) async {
+      final repository = MockRepository();
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
@@ -71,6 +69,7 @@ void main() {
       expect(tabPage.createState().currentIndex, 0);
     });
     testWidgets('Tapping Search goes to tab index 1', (tester) async {
+      final repository = MockRepository();
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
@@ -86,6 +85,7 @@ void main() {
       expect(tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 1);
     });
     testWidgets('Tapping Notifications goes to tab index 2', (tester) async {
+      final repository = MockRepository();
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
@@ -103,6 +103,7 @@ void main() {
     });
 
     testWidgets('Tapping Profile goes to tab index 3', (tester) async {
+      final repository = MockRepository();
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
@@ -117,8 +118,14 @@ void main() {
       await tester.tap(find.ancestor(of: find.text('Profile'), matching: find.byType(InkResponse)));
       expect(tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 3);
     });
+  });
 
+  group('NotificationDot', () {
+    setUpAll(() {
+      registerFallbackValue<DateTime>(DateTime.parse('2021-05-20T00:00:00.00'));
+    });
     testWidgets('Notification dots are shown properly', (tester) async {
+      final repository = MockRepository();
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([
           AppNotification(
@@ -185,6 +192,49 @@ void main() {
           .tap(find.ancestor(of: find.text('Notifications'), matching: find.byType(InkResponse)));
       await tester.pump();
       expect(find.byType(NotificationDot), findsNWidgets(1));
+    });
+
+    testWidgets('Users without notifications should not see any Notification Dot', (tester) async {
+      final repository = MockRepository();
+      when(repository.getNotifications).thenAnswer(
+        (_) => Future.value([]),
+      );
+      when(() => repository.updateTimestampOfLastSeenNotification(any()))
+          .thenAnswer((_) => Future.value());
+      when(repository.determinePosition).thenAnswer((_) => Future.value(const LatLng(0, 0)));
+      when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
+          .thenAnswer((_) => Future.value([]));
+      when(() => repository.getVideosInBoundingBox(
+              LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
+          .thenAnswer((_) => Future.value([]));
+      when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([]));
+      when(() => repository.userId).thenReturn('aaa');
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+      when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
+      when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+
+      final tabPage = TabPage();
+      await tester.pumpApp(
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<NotificationCubit>(
+              create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+            ),
+          ],
+          child: tabPage,
+        ),
+        repository: repository,
+      );
+      expect(find.byType(NotificationDot), findsNothing);
+      await tester.pump();
+
+      // Finds the one dot in notification tab and bottom tab bar
+      expect(find.byType(NotificationDot), findsNothing);
+      await tester
+          .tap(find.ancestor(of: find.text('Notifications'), matching: find.byType(InkResponse)));
+      await tester.pump();
+      expect(find.byType(NotificationDot), findsNothing);
     });
   });
 }
