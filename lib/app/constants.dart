@@ -28,8 +28,11 @@ const preloader = Center(
   ),
 );
 
-final String Function(DateTime) howLongAgo = (DateTime time) {
-  final now = DateTime.now();
+final String Function(DateTime, {DateTime? seed}) howLongAgo = (
+  DateTime time, {
+  DateTime? seed,
+}) {
+  final now = seed ?? DateTime.now();
   final difference = now.difference(time);
   if (difference < const Duration(minutes: 1)) {
     return 'now';
@@ -38,11 +41,11 @@ final String Function(DateTime) howLongAgo = (DateTime time) {
   } else if (difference < const Duration(days: 1)) {
     return '${difference.inHours}h';
   } else if (difference < const Duration(days: 30)) {
-    return '${difference.inDays}';
+    return '${difference.inDays}d';
   } else if (now.year == time.year) {
-    return '${time.month}-${time.day}';
+    return '${time.month < 10 ? '0' : ''}${time.month}-${time.day < 10 ? '0' : ''}${time.day}';
   } else {
-    return '${time.year}-${time.month}-${time.day}';
+    return '${time.year}-${time.month < 10 ? '0' : ''}${time.month}-${time.day < 10 ? '0' : ''}${time.day}';
   }
 };
 
