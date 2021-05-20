@@ -170,6 +170,7 @@ class MapState extends State<Map> {
                   border: InputBorder.none,
                   focusedBorder: InputBorder.none,
                 ),
+                textInputAction: TextInputAction.search,
                 onEditingComplete: () async {
                   final currentFocus = FocusScope.of(context);
                   if (!currentFocus.hasPrimaryFocus) {

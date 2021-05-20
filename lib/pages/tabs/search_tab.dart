@@ -36,12 +36,16 @@ class _SearchTabState extends State<SearchTab> {
             controller: _queryStringController,
             onEditingComplete: _search,
             decoration: InputDecoration(
-              hintText: 'Search away my friend',
+              hintText: 'Search by ',
               suffixIcon: IconButton(
-                icon: const Icon(FeatherIcons.search),
+                icon: const Icon(
+                  FeatherIcons.search,
+                  color: Color(0xFFFFFFFF),
+                ),
                 onPressed: _search,
               ),
             ),
+            textInputAction: TextInputAction.search,
           ),
         ),
         BlocBuilder<SearchCubit, SearchState>(

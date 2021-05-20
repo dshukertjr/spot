@@ -32,24 +32,29 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _restoreSession() async {
-    final hasSession = await RepositoryProvider.of<Repository>(context).hasSession();
-    if (!hasSession) {
-      return;
-    }
+    try {
+      final hasSession = await RepositoryProvider.of<Repository>(context).hasSession();
+      if (!hasSession) {
+        return;
+      }
 
-    final jsonStr = await RepositoryProvider.of<Repository>(context).getSessionString();
-    if (jsonStr == null) {
+      final jsonStr = await RepositoryProvider.of<Repository>(context).getSessionString();
+      if (jsonStr == null) {
+        await RepositoryProvider.of<Repository>(context).deleteSession();
+        return;
+      }
+      final session = await RepositoryProvider.of<Repository>(context).recoverSession(jsonStr);
+
+      if (session == null) {
+        await RepositoryProvider.of<Repository>(context).deleteSession();
+        return;
+      }
+
+      await RepositoryProvider.of<Repository>(context)
+          .setSessionString(session.persistSessionString);
+    } catch (e) {
       await RepositoryProvider.of<Repository>(context).deleteSession();
-      return;
     }
-    final session = await RepositoryProvider.of<Repository>(context).recoverSession(jsonStr);
-
-    if (session == null) {
-      await RepositoryProvider.of<Repository>(context).deleteSession();
-      return;
-    }
-
-    await RepositoryProvider.of<Repository>(context).setSessionString(session.persistSessionString);
   }
 
   Future<void> _redirect() async {

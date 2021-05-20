@@ -37,6 +37,7 @@ class TabPageState extends State<TabPage> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+      resizeToAvoidBottomInset: false,
       body: IndexedStack(
         index: currentIndex,
         children: [

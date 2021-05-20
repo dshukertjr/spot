@@ -8,6 +8,7 @@ class AppScaffold extends Scaffold {
     required Widget body,
     Widget? floatingActionButton,
     Widget? bottomNavigationBar,
+    bool resizeToAvoidBottomInset = true,
   }) : super(
           appBar: appBar,
           body: Stack(
@@ -31,6 +32,6 @@ class AppScaffold extends Scaffold {
           floatingActionButton: floatingActionButton,
           bottomNavigationBar: bottomNavigationBar,
           extendBodyBehindAppBar: true,
-          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         );
 }
