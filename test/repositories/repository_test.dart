@@ -8,6 +8,8 @@ import 'package:spot/models/profile.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';
 
+// ignore_for_file: unawaited_futures
+
 class MockSupabaseClient extends Mock implements SupabaseClient {}
 
 void main() {
