@@ -1,4 +1,4 @@
 Bringing you smoother experience! 
 
-- Added dot to indicate new in app notifications
-- Few bug fixes
+- Fixed design of login form
+

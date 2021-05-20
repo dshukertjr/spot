@@ -31,6 +31,7 @@ class App extends StatelessWidget {
         ],
         child: MaterialApp(
           theme: ThemeData.dark().copyWith(
+            textSelectionTheme: const TextSelectionThemeData(cursorColor: Color(0xFFFFFFFF)),
             primaryColor: const Color(0xFFFFFFFF),
             accentColor: const Color(0xFFFFFFFF),
             appBarTheme: const AppBarTheme(
@@ -38,12 +39,14 @@ class App extends StatelessWidget {
               shadowColor: Colors.transparent,
             ),
             inputDecorationTheme: const InputDecorationTheme(
+              labelStyle: TextStyle(color: Color(0xFFFFFFFF)),
               border: OutlineInputBorder(
-                borderSide: BorderSide(width: 1),
+                borderSide: BorderSide(width: 1, color: Color(0xFFFFFFFF)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(width: 1, color: Color(0xFFFFFFFF)),
               ),
+              focusColor: Color(0xFFFFFFFF),
               isDense: true,
             ),
             outlinedButtonTheme: OutlinedButtonThemeData(

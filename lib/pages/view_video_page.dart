@@ -476,6 +476,7 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
               const Text('Could you please tell us why you would like to report this video?'),
               const SizedBox(height: 12),
               TextFormField(
+                maxLines: null,
                 controller: _reasonController,
                 decoration: const InputDecoration(
                   labelText: 'Report Reason',

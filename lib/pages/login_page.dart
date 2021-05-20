@@ -310,7 +310,10 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         keyboardType: TextInputType.emailAddress,
         decoration: const InputDecoration(
           labelText: 'Email',
-          prefixIcon: Icon(FeatherIcons.mail),
+          prefixIcon: Icon(
+            FeatherIcons.mail,
+            color: Color(0xFFFFFFFF),
+          ),
         ),
       ),
       const SizedBox(height: 24.5),
@@ -319,7 +322,10 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         obscureText: true,
         decoration: const InputDecoration(
           labelText: 'Password',
-          prefixIcon: Icon(FeatherIcons.lock),
+          prefixIcon: Icon(
+            FeatherIcons.lock,
+            color: Color(0xFFFFFFFF),
+          ),
         ),
       ),
       const SizedBox(height: 24.5),
@@ -381,7 +387,10 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         keyboardType: TextInputType.emailAddress,
         decoration: const InputDecoration(
           labelText: 'Email',
-          prefixIcon: Icon(FeatherIcons.mail),
+          prefixIcon: Icon(
+            FeatherIcons.mail,
+            color: Color(0xFFFFFFFF),
+          ),
         ),
       ),
       const SizedBox(height: 24.5),
@@ -390,7 +399,10 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         obscureText: true,
         decoration: const InputDecoration(
           labelText: 'Password',
-          prefixIcon: Icon(FeatherIcons.lock),
+          prefixIcon: Icon(
+            FeatherIcons.lock,
+            color: Color(0xFFFFFFFF),
+          ),
         ),
       ),
       const SizedBox(height: 24.5),

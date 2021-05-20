@@ -236,5 +236,60 @@ void main() {
       await tester.pump();
       expect(find.byType(NotificationDot), findsNothing);
     });
+
+    testWidgets(
+        'Users who don\'t have timestampOfLastSeenNotification and have notifications will see a dot',
+        (tester) async {
+      final repository = MockRepository();
+      when(repository.getNotifications).thenAnswer(
+        (_) => Future.value([
+          AppNotification(
+            type: NotificationType.like,
+            createdAt: DateTime.now(),
+            targetVideoId: '',
+            targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
+            actionUid: 'aaa',
+            actionUserName: 'Tyler',
+            isNew: true,
+          ),
+        ]),
+      );
+      when(() => repository.updateTimestampOfLastSeenNotification(any()))
+          .thenAnswer((_) => Future.value());
+      when(repository.determinePosition).thenAnswer((_) => Future.value(const LatLng(0, 0)));
+      when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
+          .thenAnswer((_) => Future.value([]));
+      when(() => repository.getVideosInBoundingBox(
+              LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
+          .thenAnswer((_) => Future.value([]));
+      when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([]));
+      when(() => repository.userId).thenReturn('aaa');
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+      when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
+      when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+
+      final tabPage = TabPage();
+      await tester.pumpApp(
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<NotificationCubit>(
+              create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+            ),
+          ],
+          child: tabPage,
+        ),
+        repository: repository,
+      );
+      expect(find.byType(NotificationDot), findsNothing);
+      await tester.pump();
+
+      // Finds the one dot in notification tab and bottom tab bar
+      expect(find.byType(NotificationDot), findsNWidgets(2));
+      await tester
+          .tap(find.ancestor(of: find.text('Notifications'), matching: find.byType(InkResponse)));
+      await tester.pump();
+      expect(find.byType(NotificationDot), findsOneWidget);
+    });
   });
 }
