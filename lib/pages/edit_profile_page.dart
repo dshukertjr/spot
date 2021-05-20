@@ -110,6 +110,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               Expanded(
                 child: TextFormField(
                   controller: _userNameController,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(
                     labelText: 'User Name',
                   ),
@@ -130,6 +131,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           const SizedBox(height: 22),
           TextFormField(
             controller: _descriptionController,
+            textCapitalization: TextCapitalization.sentences,
             maxLines: null,
             decoration: const InputDecoration(
               labelText: 'Bio',

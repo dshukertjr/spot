@@ -5,8 +5,10 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/gradient_border.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
 import 'package:http/http.dart' as http;
 import 'package:spot/models/video.dart';
@@ -86,6 +88,8 @@ class MapState extends State<Map> {
 
   var _loading = false;
 
+  final TextEditingController _citySearchQueryController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -119,6 +123,12 @@ class MapState extends State<Map> {
             _controller.complete(controller);
           },
         ),
+        Positioned(
+          top: 10 + MediaQuery.of(context).padding.top,
+          left: 36,
+          right: 36 + (Theme.of(context).platform == TargetPlatform.android ? 36 : 0),
+          child: _searchBar(context),
+        ),
         if (widget._isLoading)
           Align(
             alignment: Alignment.topRight,
@@ -135,11 +145,88 @@ class MapState extends State<Map> {
     );
   }
 
+  Widget _searchBar(BuildContext context) {
+    return GradientBorder(
+      borderRadius: 50,
+      strokeWidth: 1,
+      gradient: redOrangeGradient,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 18),
+        decoration: BoxDecoration(
+          color: const Color(0xFF000000)
+              .withOpacity(_citySearchQueryController.text.isEmpty ? 0.15 : 0.5),
+          borderRadius: const BorderRadius.all(Radius.circular(50)),
+        ),
+        child: Row(
+          children: [
+            const Icon(FeatherIcons.search),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextFormField(
+                controller: _citySearchQueryController,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  hintText: 'Search by city',
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
+                onEditingComplete: () async {
+                  final currentFocus = FocusScope.of(context);
+                  if (!currentFocus.hasPrimaryFocus) {
+                    currentFocus.unfocus();
+                  }
+                  final location = await RepositoryProvider.of<Repository>(context)
+                      .searchLocation(_citySearchQueryController.text);
+                  if (location == null) {
+                    context.showSnackbar('Could not find the location');
+                    return;
+                  }
+                  final controller = await _controller.future;
+                  await controller.moveCamera(CameraUpdate.newLatLng(location));
+                },
+              ),
+            ),
+            if (_citySearchQueryController.text.isNotEmpty)
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    setState(_citySearchQueryController.clear);
+                  },
+                  icon: const Icon(Icons.close),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void didUpdateWidget(covariant Map oldWidget) {
     _createMarkers(videos: widget._videos, context: context)
         .then((_) => _moveCameraToShowAllMarkers());
     super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void initState() {
+    _citySearchQueryController.addListener(updateUI);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _citySearchQueryController
+      ..removeListener(updateUI)
+      ..dispose();
+    super.dispose();
+  }
+
+  void updateUI() {
+    setState(() {});
   }
 
   Future<void> _moveCameraToShowAllMarkers() async {

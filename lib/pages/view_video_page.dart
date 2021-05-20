@@ -478,6 +478,7 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
               TextFormField(
                 maxLines: null,
                 controller: _reasonController,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: const InputDecoration(
                   labelText: 'Report Reason',
                 ),
@@ -583,6 +584,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                   Expanded(
                     child: TextFormField(
                       controller: _commentController,
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                         border: InputBorder.none,

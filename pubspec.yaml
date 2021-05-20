@@ -26,6 +26,7 @@ dependencies:
   flutter_cache_manager: ^3.0.1
   flutter_markdown: ^0.6.1
   rxdart: ^0.26.0
+  geocoding: ^2.0.0
   
 
 dev_dependencies:

@@ -13,6 +13,7 @@ import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:supabase/supabase.dart';
 import 'package:video_player/video_player.dart';
+import 'package:geocoding/geocoding.dart';
 
 class Repository {
   Repository({required SupabaseClient supabaseClient}) : _supabaseClient = supabaseClient;
@@ -473,5 +474,18 @@ class Repository {
 
   Future<void> updateTimestampOfLastSeenNotification(DateTime time) async {
     await _localStorage.write(key: _timestampOfLastSeenNotification, value: time.toIso8601String());
+  }
+
+  Future<LatLng?> searchLocation(String searchQuery) async {
+    try {
+      final locations = await locationFromAddress(searchQuery);
+      if (locations.isEmpty) {
+        return null;
+      }
+      final location = locations.first;
+      return LatLng(location.latitude, location.longitude);
+    } catch (e) {
+      return null;
+    }
   }
 }
