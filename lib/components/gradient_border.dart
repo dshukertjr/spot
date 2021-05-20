@@ -8,7 +8,7 @@ class GradientBorder extends StatelessWidget {
     required double strokeWidth,
     required Gradient gradient,
     required Widget child,
-  })   : _borderRadius = borderRadius,
+  })  : _borderRadius = borderRadius,
         _strokeWidth = strokeWidth,
         _gradient = gradient,
         _child = child,
@@ -40,7 +40,7 @@ class _GradientBorderPainter extends CustomPainter {
     required double strokeWidth,
     required double borderRadius,
     required Gradient gradient,
-  })   : _strokeWidth = strokeWidth,
+  })  : _strokeWidth = strokeWidth,
         _borderRadius = borderRadius,
         _gradient = gradient;
 

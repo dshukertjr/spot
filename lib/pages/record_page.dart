@@ -101,7 +101,7 @@ class RecordPreview extends StatefulWidget {
     Key? key,
     required CameraController controller,
     required bool isPaused,
-  })   : _controller = controller,
+  })  : _controller = controller,
         _isPaused = isPaused,
         super(key: key);
 
@@ -247,7 +247,7 @@ class _RecordingCompleteButton extends StatefulWidget {
   const _RecordingCompleteButton({
     Key? key,
     required bool isPastMimimumDuration,
-  })   : _isPastMimimumDuration = isPastMimimumDuration,
+  })  : _isPastMimimumDuration = isPastMimimumDuration,
         super(key: key);
 
   final bool _isPastMimimumDuration;
@@ -348,7 +348,7 @@ class _RecordingGaugeIndicator extends StatefulWidget {
     Key? key,
     required bool isPaused,
     required void Function() onPastMinimumDuration,
-  })   : _onPastMinimumDuration = onPastMinimumDuration,
+  })  : _onPastMinimumDuration = onPastMinimumDuration,
         _isPaused = isPaused,
         super(key: key);
 
@@ -436,7 +436,7 @@ class _RecordButtonTarget extends StatefulWidget {
   const _RecordButtonTarget({
     Key? key,
     required bool isPaused,
-  })   : _isRecording = isPaused,
+  })  : _isRecording = isPaused,
         super(key: key);
 
   final bool _isRecording;

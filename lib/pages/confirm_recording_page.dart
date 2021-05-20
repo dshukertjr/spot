@@ -82,7 +82,7 @@ class VideoConfirmationPage extends StatefulWidget {
   VideoConfirmationPage({
     Key? key,
     required VideoPlayerController videoPlayerController,
-  })   : _videoPlayerController = videoPlayerController,
+  })  : _videoPlayerController = videoPlayerController,
         super(key: key);
 
   final VideoPlayerController _videoPlayerController;

@@ -311,7 +311,7 @@ class _DeletingDialogContent extends StatefulWidget {
   _DeletingDialogContent({
     Key? key,
     required VideoCubit videoCubit,
-  })   : _videoCubit = videoCubit,
+  })  : _videoCubit = videoCubit,
         super(key: key);
 
   final VideoCubit _videoCubit;
@@ -378,7 +378,7 @@ class _BlockingDialogContent extends StatefulWidget {
     Key? key,
     required VideoCubit videoCubit,
     required String blockedUserId,
-  })   : _videoCubit = videoCubit,
+  })  : _videoCubit = videoCubit,
         _blockedUserId = blockedUserId,
         super(key: key);
 
@@ -447,7 +447,7 @@ class _ReportingDialogContent extends StatefulWidget {
     Key? key,
     required VideoCubit videoCubit,
     required String videoId,
-  })   : _videoCubit = videoCubit,
+  })  : _videoCubit = videoCubit,
         _videoId = videoId,
         super(key: key);
 
@@ -533,7 +533,7 @@ class CommentsOverlay extends StatefulWidget {
     Key? key,
     required void Function() onClose,
     required List<Comment>? comments,
-  })   : _onClose = onClose,
+  })  : _onClose = onClose,
         _comments = comments,
         super(key: key);
 

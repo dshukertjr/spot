@@ -13,7 +13,7 @@ part 'profile_state.dart';
 class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit({
     required Repository repository,
-  })   : _repository = repository,
+  })  : _repository = repository,
         super(ProfileLoading());
 
   final Repository _repository;
