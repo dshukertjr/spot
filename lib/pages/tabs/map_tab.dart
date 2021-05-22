@@ -77,8 +77,10 @@ class Map extends StatefulWidget {
   MapState createState() => MapState();
 }
 
+@visibleForTesting
 class MapState extends State<Map> {
-  final Completer<GoogleMapController> _controller = Completer();
+  @visibleForTesting
+  final Completer<GoogleMapController> controller = Completer();
 
   /// Holds all the markers for the map
   final _markers = <Marker>{};
@@ -112,15 +114,19 @@ class MapState extends State<Map> {
             }
             _loading = true;
             // Finds the center of the map and load videos around that location
-            final controller = await _controller.future;
-            final bounds = await controller.getVisibleRegion();
+            final mapController = await controller.future;
+            final bounds = await mapController.getVisibleRegion();
             await BlocProvider.of<VideosCubit>(context).loadInBoundinngBox(bounds);
             _loading = false;
           },
-          onMapCreated: (GoogleMapController controller) {
-            controller.setMapStyle(
-                '[{"featureType":"all","elementType":"geometry","stylers":[{"color":"#202c3e"}]},{"featureType":"all","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"gamma":0.01},{"lightness":20},{"weight":"1.39"},{"color":"#ffffff"},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"weight":"0.96"},{"saturation":"9"},{"visibility":"off"},{"color":"#000000"}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"lightness":30},{"saturation":"9"},{"color":"#273556"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"saturation":20}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"lightness":20},{"saturation":-20}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":10},{"saturation":-30}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#3f499d"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"saturation":25},{"lightness":25},{"weight":"0.01"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#ff0000"}]},{"featureType":"water","elementType":"all","stylers":[{"lightness":-20}]}]');
-            _controller.complete(controller);
+          onMapCreated: (GoogleMapController mapController) {
+            try {
+              controller.complete(mapController);
+              mapController.setMapStyle(
+                  '[{"featureType":"all","elementType":"geometry","stylers":[{"color":"#202c3e"}]},{"featureType":"all","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.fill","stylers":[{"gamma":0.01},{"lightness":20},{"weight":"1.39"},{"color":"#ffffff"},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"weight":"0.96"},{"saturation":"9"},{"visibility":"off"},{"color":"#000000"}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"lightness":30},{"saturation":"9"},{"color":"#273556"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"saturation":20}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"lightness":20},{"saturation":-20}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":10},{"saturation":-30}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#3f499d"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"saturation":25},{"lightness":25},{"weight":"0.01"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#ff0000"}]},{"featureType":"water","elementType":"all","stylers":[{"lightness":-20}]}]');
+            } catch (e) {
+              context.showErrorSnackbar('Error setting map style');
+            }
           },
         ),
         Positioned(
@@ -182,8 +188,8 @@ class MapState extends State<Map> {
                     context.showSnackbar('Could not find the location');
                     return;
                   }
-                  final controller = await _controller.future;
-                  await controller.moveCamera(CameraUpdate.newLatLng(location));
+                  final mapController = await controller.future;
+                  await mapController.moveCamera(CameraUpdate.newLatLng(location));
                 },
               ),
             ),
@@ -238,10 +244,10 @@ class MapState extends State<Map> {
       return;
     }
     _hasLoadedMarkers = true;
-    final controller = await _controller.future;
+    final mapController = await controller.future;
     if (_markers.length == 1) {
       // If there is only 1 marker, move camera to centre that marker
-      return controller.moveCamera(CameraUpdate.newLatLng(_markers.first.position));
+      return mapController.moveCamera(CameraUpdate.newLatLng(_markers.first.position));
     }
     final cordinatesList = List<LatLng>.from(_markers.map((marker) => marker.position))
       ..sort((a, b) => b.latitude.compareTo(a.latitude));
@@ -256,7 +262,7 @@ class MapState extends State<Map> {
       northeast: LatLng(northernLatitude, easternLongitude),
       southwest: LatLng(southernLatitude, westernLongitude),
     );
-    return controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 40));
+    return mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 40));
   }
 
   Future<void> _createMarkers({
