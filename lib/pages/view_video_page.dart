@@ -160,7 +160,15 @@ class _VideoScreenState extends State<VideoScreen> {
                   Text(widget._video.commentCount.toString()),
                   const SizedBox(height: 36),
                   IconButton(
-                    icon: const Icon(FeatherIcons.heart),
+                    icon: widget._video.haveLiked
+                        ? const Icon(
+                            Icons.favorite,
+                            color: appOrange,
+                          )
+                        : const Icon(
+                            Icons.favorite_border_outlined,
+                            color: Color(0xFFFFFFFF),
+                          ),
                     onPressed: () {
                       if (widget._video.haveLiked) {
                         BlocProvider.of<VideoCubit>(context).unlike();

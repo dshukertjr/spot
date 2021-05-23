@@ -220,7 +220,7 @@ $func$
         st_astext(videos.location) as location,
         (select count(*) from likes where video_id = videos.id)::int as like_count,
         (select count(*) from comments where video_id = videos.id)::int as comment_count,
-        (select count(*) from likes where video_id = videos.id and videos.user_id = $2)::int as have_liked
+        (select count(*) from likes where video_id = videos.id and user_id = $2)::int as have_liked
     from videos
     join users on videos.user_id = users.id
     where videos.id = $1;
