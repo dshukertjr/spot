@@ -274,7 +274,7 @@ class MapState extends State<Map> {
     final newVideos = videos.where((video) => !markerIds.contains(video.id));
     final newMarkers = await Future.wait(
       newVideos.map<Future<Marker>>(
-        (video) => _createMarkerImageFromAsset(video: video, context: context),
+        (video) => _createMarkerFromVideo(video: video, context: context),
       ),
     );
 
@@ -289,7 +289,7 @@ class MapState extends State<Map> {
     }
   }
 
-  Future<Marker> _createMarkerImageFromAsset({
+  Future<Marker> _createMarkerFromVideo({
     required Video video,
     required BuildContext context,
   }) async {
@@ -376,6 +376,7 @@ class MapState extends State<Map> {
       markerId: MarkerId(video.id),
       position: video.location!,
       icon: BitmapDescriptor.fromBytes(markerIcon),
+      zIndex: video.createdAt.millisecondsSinceEpoch.toDouble(),
     );
   }
 

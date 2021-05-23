@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
@@ -16,7 +15,6 @@ import 'package:spot/models/video.dart';
 import 'package:spot/pages/profile_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
-import 'package:share/share.dart';
 
 import '../app/constants.dart';
 import '../components/app_scaffold.dart';
