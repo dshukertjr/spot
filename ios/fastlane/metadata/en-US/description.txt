@@ -1,6 +1,6 @@
 Take a virtual journey around the world with Spot.
 
-Spot is a geo-tagged video sharing app, meaning every video recorded in Spot is saved on a location. Anybody can scroll though the map and find the videos recorded in any location in the world.
+Spot is a map based video sharing app, meaning every video recorded in Spot is saved on a location. Anybody can scroll though the map and find the videos recorded in any location in the world.
 
 DISCOVER
 With Spot, you can view what is going on anywhere in the world. All videos in Spot are geo-tagged, meaning they are marked at the location they were recorded. That means if you want to take a look at what is going on in New York right now, you just go to NewYork within the app and view what people are posting. Same for LA, Paris, Tokyo or anywhere else in the world!
