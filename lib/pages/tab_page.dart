@@ -85,7 +85,7 @@ class TabPageState extends State<TabPage> {
                   ),
                   tabIndex: 1,
                 ),
-                const _RecordButton(),
+                const RecordButton(),
                 BlocBuilder<NotificationCubit, NotificationState>(builder: (context, state) {
                   var hasNewNotifications = false;
                   if (state is NotificationLoaded && state.hasNewNotification) {
@@ -171,8 +171,9 @@ class TabPageState extends State<TabPage> {
   }
 }
 
-class _RecordButton extends StatelessWidget {
-  const _RecordButton({
+@visibleForTesting
+class RecordButton extends StatelessWidget {
+  const RecordButton({
     Key? key,
   }) : super(key: key);
 
@@ -215,7 +216,7 @@ class _RecordButton extends StatelessWidget {
                   } else {
                     await showDialog(
                       context: context,
-                      builder: (dialogContext) {
+                      builder: (context) {
                         return FrostedDialog(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,

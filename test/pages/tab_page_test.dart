@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/notification_dot.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
+import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tab_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
 import 'package:spot/pages/tabs/notifications_tab.dart';
@@ -14,6 +16,8 @@ import 'package:spot/pages/tabs/profile_tab.dart';
 import 'package:spot/pages/tabs/search_tab.dart';
 
 import '../helpers/helpers.dart';
+
+class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {
   group('TabPage', () {
@@ -290,6 +294,100 @@ void main() {
           .tap(find.ancestor(of: find.text('Notifications'), matching: find.byType(InkResponse)));
       await tester.pump();
       expect(find.byType(NotificationDot), findsOneWidget);
+    });
+  });
+
+  group('Opening record page', () {
+    setUpAll(() {
+      registerFallbackValue<DateTime>(DateTime.parse('2021-05-20T00:00:00.00'));
+    });
+    testWidgets('Users with location permission will be able to go to record page', (tester) async {
+      final repository = MockRepository();
+      when(repository.getNotifications).thenAnswer(
+        (_) => Future.value([]),
+      );
+      when(() => repository.updateTimestampOfLastSeenNotification(any()))
+          .thenAnswer((_) => Future.value());
+      when(repository.determinePosition).thenAnswer((_) async => const LatLng(0, 0));
+      when(repository.hasLocationPermission).thenAnswer((_) async => true);
+      when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
+          .thenAnswer((_) => Future.value([]));
+      when(() => repository.getVideosInBoundingBox(
+              LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
+          .thenAnswer((_) => Future.value([]));
+      when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([]));
+      when(() => repository.userId).thenReturn('aaa');
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+      when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
+      when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+
+      final tabPage = TabPage();
+      await tester.pumpApp(
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<NotificationCubit>(
+              create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+            ),
+          ],
+          child: tabPage,
+        ),
+        repository: repository,
+      );
+
+      await tester.pump();
+
+      await tester
+          .tap(find.descendant(of: find.byType(RecordButton), matching: find.byType(InkWell)));
+
+      await tester.pump();
+
+      expect(find.byType(RecordPage, skipOffstage: false), findsOneWidget);
+      expect(find.byType(FrostedDialog), findsNothing);
+    });
+
+    testWidgets('Users without location permission will see a dialog', (tester) async {
+      final repository = MockRepository();
+      when(repository.getNotifications).thenAnswer(
+        (_) => Future.value([]),
+      );
+      when(() => repository.updateTimestampOfLastSeenNotification(any()))
+          .thenAnswer((_) => Future.value());
+      when(repository.determinePosition).thenAnswer((_) async => const LatLng(0, 0));
+      when(repository.hasLocationPermission).thenAnswer((_) async => false);
+      when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
+          .thenAnswer((_) => Future.value([]));
+      when(() => repository.getVideosInBoundingBox(
+              LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
+          .thenAnswer((_) => Future.value([]));
+      when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([]));
+      when(() => repository.userId).thenReturn('aaa');
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+      when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
+      when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+
+      final tabPage = TabPage();
+      await tester.pumpApp(
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<NotificationCubit>(
+              create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+            ),
+          ],
+          child: tabPage,
+        ),
+        repository: repository,
+      );
+
+      await tester.pump();
+
+      await tester.tap(find.byType(RecordButton));
+
+      await tester.pump();
+
+      expect(find.byType(RecordPage, skipOffstage: false), findsNothing);
+      expect(find.byType(FrostedDialog), findsOneWidget);
     });
   });
 }
