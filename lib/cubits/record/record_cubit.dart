@@ -27,7 +27,7 @@ class RecordCubit extends Cubit<RecordState> {
       await _controller!.prepareForVideoRecording();
       emit(RecordReady(controller: _controller!));
     } catch (e) {
-      emit(RecordError('Camera initialization error occured'));
+      emit(RecordError('Camera initialization error'));
     }
   }
 

@@ -6,9 +6,9 @@ class FrostedDialog extends StatefulWidget {
   const FrostedDialog({
     Key? key,
     required Widget child,
-    bool? hasBackdropShadow,
+    bool hasBackdropShadow = false,
   })  : _child = child,
-        _hasBackdropShadow = hasBackdropShadow ?? false,
+        _hasBackdropShadow = hasBackdropShadow,
         super(key: key);
 
   final Widget _child;

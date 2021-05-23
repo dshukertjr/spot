@@ -443,6 +443,15 @@ class Repository {
     return VideoPlayerController.file(file);
   }
 
+  Future<bool> hasLocationPermission() async {
+    final result = await Geolocator.requestPermission();
+    return result != LocationPermission.denied && result != LocationPermission.deniedForever;
+  }
+
+  Future<bool> openLocationSettingsPage() {
+    return Geolocator.openLocationSettings();
+  }
+
   Future<LatLng> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
