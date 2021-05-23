@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:share/share.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
@@ -487,5 +488,13 @@ class Repository {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<void> shareVideo(String videoUrl) async {
+    final file = await DefaultCacheManager().getSingleFile(videoUrl);
+    await Share.shareFiles(
+      [file.path],
+      text: 'Check out this video on Spot https://spot9752f.page.link/IA',
+    );
   }
 }

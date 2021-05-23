@@ -27,6 +27,7 @@ dependencies:
   flutter_markdown: ^0.6.1
   rxdart: ^0.26.0
   geocoding: ^2.0.0
+  share: ^2.0.1
   
 
 dev_dependencies:

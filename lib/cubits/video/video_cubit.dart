@@ -152,6 +152,10 @@ class VideoCubit extends Cubit<VideoState> {
     return _repository.delete(videoId: _videoId);
   }
 
+  Future<void> shareVideo() {
+    return _repository.shareVideo(_videoDetail!.url);
+  }
+
   Future<void> _initializeVideo() async {
     try {
       if (_videoPlayerController == null) {
