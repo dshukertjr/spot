@@ -166,7 +166,7 @@ class _VideoScreenState extends State<VideoScreen> {
                             color: appOrange,
                           )
                         : const Icon(
-                            Icons.favorite_border_outlined,
+                            Icons.favorite_border,
                             color: Color(0xFFFFFFFF),
                           ),
                     onPressed: () {

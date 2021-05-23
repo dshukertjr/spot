@@ -267,7 +267,10 @@ void main() {
 
       expect(find.byType(VideoScreen), findsOneWidget);
 
-      await tester.tap(find.byIcon(FeatherIcons.heart));
+      expect(find.byIcon(Icons.favorite), findsNothing);
+      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.favorite_border));
 
       await tester.pump();
 
@@ -335,7 +338,10 @@ void main() {
 
       expect(find.byType(VideoScreen), findsOneWidget);
 
-      await tester.tap(find.byIcon(FeatherIcons.heart));
+      expect(find.byIcon(Icons.favorite), findsOneWidget);
+      expect(find.byIcon(Icons.favorite_border), findsNothing);
+
+      await tester.tap(find.byIcon(Icons.favorite));
 
       await tester.pump();
 
