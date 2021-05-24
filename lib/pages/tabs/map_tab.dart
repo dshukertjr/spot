@@ -10,7 +10,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/gradient_border.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
-import 'package:http/http.dart' as http;
 import 'package:spot/models/video.dart';
 import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
@@ -157,7 +156,7 @@ class MapState extends State<Map> {
       strokeWidth: 1,
       gradient: redOrangeGradient,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 18),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 18),
         decoration: BoxDecoration(
           color: const Color(0xFF000000)
               .withOpacity(_citySearchQueryController.text.isEmpty ? 0.15 : 0.5),
