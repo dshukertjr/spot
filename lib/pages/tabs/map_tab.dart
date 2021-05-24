@@ -333,8 +333,10 @@ class MapState extends State<Map> {
     }
 
     // start adding images
-    final res = await http.get(Uri.parse(video.thumbnailUrl));
-    final imageBytes = res.bodyBytes;
+    final imageFile =
+        await RepositoryProvider.of<Repository>(context).getCachedFile(video.thumbnailUrl);
+
+    final imageBytes = await imageFile.readAsBytes();
     final imageCodec = await ui.instantiateImageCodec(
       imageBytes,
       targetWidth: imageSize.toInt(),

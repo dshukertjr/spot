@@ -506,4 +506,8 @@ class Repository {
       text: 'Check out this video on Spot https://spot9752f.page.link/IA',
     );
   }
+
+  Future<File> getCachedFile(String url) {
+    return DefaultCacheManager().getSingleFile(url);
+  }
 }
