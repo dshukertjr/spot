@@ -129,11 +129,11 @@ class _NotificationCell extends StatelessWidget {
   String get _notificationText {
     switch (_notification.type) {
       case NotificationType.like:
-        return '${_notification.actionUserName} liked your video"';
+        return '${_notification.actionUserName} liked your video';
       case NotificationType.comment:
-        return '${_notification.actionUserName} commented "${_notification.commentText}"';
+        return '${_notification.actionUserName} commented ${_notification.commentText}';
       case NotificationType.follow:
-        return '${_notification.actionUserName} started following you"';
+        return '${_notification.actionUserName} started following you';
       case NotificationType.other:
         return '';
     }

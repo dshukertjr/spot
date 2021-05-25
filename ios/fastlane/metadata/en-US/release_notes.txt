@@ -1,5 +1,6 @@
 Bringing you smoother experience! 
 
+- Improved map loading performance
 - Can search by city on the map page now
 - Fixed design of login form
 - Fixed a bug where the like button did not change color

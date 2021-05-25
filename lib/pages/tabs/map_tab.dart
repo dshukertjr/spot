@@ -213,7 +213,7 @@ class MapState extends State<Map> {
   @override
   void didUpdateWidget(covariant Map oldWidget) {
     _createMarkers(videos: widget._videos, context: context)
-        .then((_) => _moveCameraToShowAllMarkers());
+        .then((_) => _initiallyMoveCameraToShowAllMarkers());
     super.didUpdateWidget(oldWidget);
   }
 
@@ -235,7 +235,7 @@ class MapState extends State<Map> {
     setState(() {});
   }
 
-  Future<void> _moveCameraToShowAllMarkers() async {
+  Future<void> _initiallyMoveCameraToShowAllMarkers() async {
     if (_markers.isEmpty) {
       return;
     }
@@ -271,29 +271,65 @@ class MapState extends State<Map> {
     /// Only create markers for videos that the marker does not exist yet.
     final markerIds = _markers.toList().map((marker) => marker.markerId.value).toList();
     final newVideos = videos.where((video) => !markerIds.contains(video.id));
-    final newMarkers = await Future.wait(
-      newVideos.map<Future<Marker>>(
+
+    if (videos.length < _markers.length) {
+      /// Delete marker for videos that is not included in videos
+      final videoIds = videos.map((video) => video.id).toList();
+
+      setState(() {
+        _markers.removeWhere((marker) => !videoIds.contains(marker.markerId.value));
+      });
+      return;
+    }
+    if (newVideos.isEmpty) {
+      return;
+    }
+    final markerSize = _getMarkerSize();
+    final loadingMarkerImage = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(
+          devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
+          size: Size(markerSize, markerSize)),
+      'assets/images/loading-marker.png',
+    );
+
+    final loadingNewMarkers = newVideos.map((video) => Marker(
+          anchor: const Offset(0.5, 0.5),
+          markerId: MarkerId(video.id),
+          position: video.location!,
+          icon: loadingMarkerImage,
+          zIndex: video.createdAt.millisecondsSinceEpoch.toDouble(),
+        ));
+    setState(() {
+      _markers.addAll(loadingNewMarkers.toSet());
+    });
+
+    await Future.wait(
+      newVideos.map<Future<void>>(
         (video) => _createMarkerFromVideo(video: video, context: context),
       ),
     );
-
-    /// Delete marker for videos that is not included in videos
-    final videoIds = videos.map((video) => video.id).toList();
-    _markers.removeWhere((marker) => !videoIds.contains(marker.markerId.value));
-
-    if (newMarkers.isNotEmpty) {
-      setState(() {
-        _markers.addAll(newMarkers.toSet());
-      });
-    }
   }
 
-  Future<Marker> _createMarkerFromVideo({
+  double _getMarkerSize() {
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    var factor = 1;
+    if (devicePixelRatio >= 1.5) {
+      factor = 2;
+    } else if (devicePixelRatio >= 2.5) {
+      factor = 3;
+    } else if (devicePixelRatio >= 3.5) {
+      factor = 4;
+    }
+
+    const markerSize = 100.0;
+    return factor * markerSize;
+  }
+
+  Future<void> _createMarkerFromVideo({
     required Video video,
     required BuildContext context,
   }) async {
-    const markerSize = 100.0;
-    const lifeTimeIndicatorWidth = 6.0;
+    const borderWidth = 6.0;
 
     var onTap = () {
       Navigator.of(context).push(
@@ -311,8 +347,8 @@ class MapState extends State<Map> {
       factor = 4;
     }
 
-    final size = markerSize * factor;
-    final imagePadding = lifeTimeIndicatorWidth * factor;
+    final size = _getMarkerSize();
+    final imagePadding = borderWidth * factor;
     final imageSize = size - imagePadding * 2;
 
     final pictureRecorder = ui.PictureRecorder();
@@ -370,7 +406,7 @@ class MapState extends State<Map> {
     }
     final markerIcon = data.buffer.asUint8List();
 
-    return Marker(
+    final marker = Marker(
       anchor: const Offset(0.5, 0.5),
       onTap: onTap,
       consumeTapEvents: true,
@@ -379,6 +415,11 @@ class MapState extends State<Map> {
       icon: BitmapDescriptor.fromBytes(markerIcon),
       zIndex: video.createdAt.millisecondsSinceEpoch.toDouble(),
     );
+
+    _markers.removeWhere((targetMarker) => targetMarker.markerId == marker.markerId);
+    setState(() {
+      _markers.add(marker);
+    });
   }
 
   Future<ui.Image> _loadImage(Uint8List img) async {
