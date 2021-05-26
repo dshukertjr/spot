@@ -38,7 +38,7 @@ class VideosCubit extends Cubit<VideosState> {
     }
   }
 
-  Future<void> loadInBoundinngBox(LatLngBounds bounds) async {
+  Future<void> loadVideosWithinBoundingBox(LatLngBounds bounds) async {
     try {
       emit(VideosLoadingMore(_videos));
       return _repository.getVideosInBoundingBox(bounds);

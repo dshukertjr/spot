@@ -177,7 +177,7 @@ Future<void> main() async {
       act: (cubit) async {
         await cubit.loadInitialVideos();
         await Future.delayed(const Duration(seconds: 3));
-        await cubit.loadInBoundinngBox(
+        await cubit.loadVideosWithinBoundingBox(
             LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45)));
       },
       expect: () => [

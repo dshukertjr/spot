@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -115,7 +116,7 @@ class MapState extends State<Map> {
             // Finds the center of the map and load videos around that location
             final mapController = await controller.future;
             final bounds = await mapController.getVisibleRegion();
-            await BlocProvider.of<VideosCubit>(context).loadInBoundinngBox(bounds);
+            await BlocProvider.of<VideosCubit>(context).loadVideosWithinBoundingBox(bounds);
             _loading = false;
           },
           onMapCreated: (GoogleMapController mapController) {
@@ -284,13 +285,11 @@ class MapState extends State<Map> {
     if (newVideos.isEmpty) {
       return;
     }
-    final markerSize = _getMarkerSize();
-    final loadingMarkerImage = await BitmapDescriptor.fromAssetImage(
-      ImageConfiguration(
-          devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
-          size: Size(markerSize, markerSize)),
-      'assets/images/loading-marker.png',
-    );
+    final factor = _getMapFactor();
+    final markerSize = _getMarkerSize(factor);
+
+    final loadingMarkerImage =
+        await _createLoadingMarkerImage(factor: factor, markerSize: markerSize);
 
     final loadingNewMarkers = newVideos.map((video) => Marker(
           anchor: const Offset(0.5, 0.5),
@@ -299,18 +298,25 @@ class MapState extends State<Map> {
           icon: loadingMarkerImage,
           zIndex: video.createdAt.millisecondsSinceEpoch.toDouble(),
         ));
+
     setState(() {
       _markers.addAll(loadingNewMarkers.toSet());
     });
 
     await Future.wait(
       newVideos.map<Future<void>>(
-        (video) => _createMarkerFromVideo(video: video, context: context),
+        (video) => _createMarkerFromVideo(
+          video: video,
+          context: context,
+          factor: factor,
+          markerSize: markerSize,
+        ),
       ),
     );
   }
 
-  double _getMarkerSize() {
+  /// Get factor of marker size depending on device's pixel ratio
+  int _getMapFactor() {
     final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     var factor = 1;
     if (devicePixelRatio >= 1.5) {
@@ -320,40 +326,78 @@ class MapState extends State<Map> {
     } else if (devicePixelRatio >= 3.5) {
       factor = 4;
     }
+    return factor;
+  }
 
-    const markerSize = 100.0;
-    return factor * markerSize;
+  /// Get markers' actual size
+  double _getMarkerSize(int factor) => factor * markerSize;
+
+  Future<BitmapDescriptor> _createLoadingMarkerImage({
+    required int factor,
+    required double markerSize,
+  }) async {
+    final imagePadding = borderWidth * factor;
+    final imageSize = markerSize - imagePadding * 2;
+
+    final pictureRecorder = ui.PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+    final boundingRect = Rect.fromLTWH(0.0, 0.0, markerSize, markerSize);
+
+    final paint = Paint()
+      ..shader = redOrangeGradient.createShader(
+        boundingRect,
+      );
+
+    final centerOffset = Offset(markerSize / 2, markerSize / 2);
+
+    canvas
+      ..drawCircle(centerOffset, markerSize / 2, paint)
+      ..drawCircle(centerOffset, imageSize / 2, paint..blendMode = BlendMode.srcOut)
+      ..restore();
+
+    final span =
+        const TextSpan(style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 36), text: 'Loading');
+    final textPainter = TextPainter(
+      text: span,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    )..layout();
+    textPainter.paint(
+        canvas, centerOffset.translate(-textPainter.width / 2, -textPainter.height / 2));
+
+    final img =
+        await pictureRecorder.endRecording().toImage(markerSize.toInt(), markerSize.toInt());
+
+    final data = await img.toByteData(format: ui.ImageByteFormat.png);
+    if (data == null) {
+      throw PlatformException(
+        code: 'marker error',
+        message: 'Error while creating byteData',
+      );
+    }
+    final markerIcon = data.buffer.asUint8List();
+    return BitmapDescriptor.fromBytes(markerIcon);
   }
 
   Future<void> _createMarkerFromVideo({
     required Video video,
     required BuildContext context,
+    required int factor,
+    required double markerSize,
   }) async {
-    const borderWidth = 6.0;
-
     var onTap = () {
       Navigator.of(context).push(
         ViewVideoPage.route(video.id),
       );
     };
 
-    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
-    var factor = 1;
-    if (devicePixelRatio >= 1.5) {
-      factor = 2;
-    } else if (devicePixelRatio >= 2.5) {
-      factor = 3;
-    } else if (devicePixelRatio >= 3.5) {
-      factor = 4;
-    }
-
-    final size = _getMarkerSize();
     final imagePadding = borderWidth * factor;
-    final imageSize = size - imagePadding * 2;
+    final imageSize = markerSize - imagePadding * 2;
 
     final pictureRecorder = ui.PictureRecorder();
     final canvas = Canvas(pictureRecorder);
-    final boundingRect = Rect.fromLTWH(0.0, 0.0, size, size);
+    final boundingRect = Rect.fromLTWH(0.0, 0.0, markerSize, markerSize);
+    final centerOffset = Offset(markerSize / 2, markerSize / 2);
 
     /// Adding gradient to the background of the marker
     final paint = Paint();
@@ -387,15 +431,15 @@ class MapState extends State<Map> {
     final resizedMarkerImageBytes = byteData.buffer.asUint8List();
     final image = await _loadImage(Uint8List.view(resizedMarkerImageBytes.buffer));
 
-    //start adding duration indicator
     canvas
-      ..drawCircle(Offset(size / 2, size / 2), size / 2, paint)
+      ..drawCircle(centerOffset, markerSize / 2, paint)
       ..saveLayer(boundingRect, paint)
-      ..drawCircle(Offset(size / 2, size / 2), imageSize / 2, paint)
+      ..drawCircle(centerOffset, imageSize / 2, paint)
       ..drawImage(image, Offset(imagePadding, imagePadding), paint..blendMode = BlendMode.srcIn)
       ..restore();
 
-    final img = await pictureRecorder.endRecording().toImage(size.toInt(), size.toInt());
+    final img =
+        await pictureRecorder.endRecording().toImage(markerSize.toInt(), markerSize.toInt());
 
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
     if (data == null) {
