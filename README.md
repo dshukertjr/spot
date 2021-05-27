@@ -82,6 +82,19 @@ create policy "Can insert comments" on public.comments for insert with check (au
 create policy "Can update comments" on public.comments for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Can delete comments" on public.comments for delete using (auth.uid() = user_id);
 
+create table if not exists public.mentions (
+    id uuid not null primary key DEFAULT uuid_generate_v4 (),
+    comment_id uuid references public.comments on delete cascade not null,
+    user_id uuid references public.users on delete cascade not null
+);
+comment on table public.comments is 'Holds all of the mentions within comments';
+
+alter table public.mentions enable row level security;
+create policy "Mentions are viewable by everyone. " on public.mentions for select using (true);
+create policy "Mentions can be inserted by the creator of the comment. " on public.mentions for insert with check (auth.uid() = (select user_id from public.comments where comment_id = comment_id));
+create policy "Mentions can be updated by the creator of the comment." on public.mentions for update using (auth.uid() = user_id) with check (auth.uid() = (select user_id from public.comments where comment_id = comment_id));
+create policy "Mentions can be deleted by the creator of the comment." on public.mentions for delete using (auth.uid() = (select user_id from public.comments where comment_id = comment_id));
+
 
 create table if not exists public.likes (
     video_id uuid references public.videos on delete cascade not null,
