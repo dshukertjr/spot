@@ -51,8 +51,10 @@ class VideoCubit extends Cubit<VideoState> {
             emit(VideoLoading(_videoDetail!));
           } else if (state is VideoPlaying) {
             emit(VideoPlaying(
-              video: _videoDetail!,
+              videoDetail: _videoDetail!,
               videoPlayerController: _videoPlayerController!,
+              isCommentsShown: _isCommentsShown,
+              comments: _comments,
             ));
           }
         }
@@ -83,16 +85,17 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> showComments() async {
     try {
       _isCommentsShown = true;
+      await _videoPlayerController?.pause();
       emit(VideoPlaying(
-        video: _videoDetail!,
-        videoPlayerController: _videoPlayerController!,
+        videoDetail: _videoDetail!,
+        videoPlayerController: _videoPlayerController,
         isCommentsShown: _isCommentsShown,
         comments: _comments,
       ));
       _comments ??= await _repository.getComments(_videoId);
       emit(VideoPlaying(
-        video: _videoDetail!,
-        videoPlayerController: _videoPlayerController!,
+        videoDetail: _videoDetail!,
+        videoPlayerController: _videoPlayerController,
         isCommentsShown: _isCommentsShown,
         comments: _comments,
       ));
@@ -101,11 +104,12 @@ class VideoCubit extends Cubit<VideoState> {
     }
   }
 
-  void hideComments() {
+  Future<void> hideComments() async {
     _isCommentsShown = false;
+    await _videoPlayerController?.play();
     emit(VideoPlaying(
-      video: _videoDetail!,
-      videoPlayerController: _videoPlayerController!,
+      videoDetail: _videoDetail!,
+      videoPlayerController: _videoPlayerController,
       isCommentsShown: _isCommentsShown,
     ));
   }
@@ -123,7 +127,7 @@ class VideoCubit extends Cubit<VideoState> {
       );
       _comments!.insert(0, comment);
       emit(VideoPlaying(
-        video: _videoDetail!,
+        videoDetail: _videoDetail!,
         videoPlayerController: _videoPlayerController!,
         isCommentsShown: _isCommentsShown,
         comments: _comments,
@@ -165,8 +169,10 @@ class VideoCubit extends Cubit<VideoState> {
         await _videoPlayerController!.play();
 
         emit(VideoPlaying(
-          video: _videoDetail!,
+          videoDetail: _videoDetail!,
           videoPlayerController: _videoPlayerController!,
+          isCommentsShown: _isCommentsShown,
+          comments: _comments,
         ));
       }
     } catch (err) {

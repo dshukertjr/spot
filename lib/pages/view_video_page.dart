@@ -46,14 +46,14 @@ class ViewVideoPage extends StatelessWidget {
           if (state is VideoInitial) {
             return preloader;
           } else if (state is VideoLoading) {
-            final video = state.video;
+            final video = state.videoDetail;
             return VideoScreen(
               video: video,
             );
           } else if (state is VideoPlaying) {
             return VideoScreen(
               controller: state.videoPlayerController,
-              video: state.video,
+              video: state.videoDetail,
               isCommentsShown: state.isCommentsShown,
               comments: state.comments,
             );
@@ -256,14 +256,14 @@ class _VideoScreenState extends State<VideoScreen> {
           Positioned.fill(
             child: WillPopScope(
               onWillPop: () async {
-                await widget._controller!.play();
+                await widget._controller?.play();
                 BlocProvider.of<VideoCubit>(context).hideComments();
                 return false;
               },
               child: CommentsOverlay(
                 comments: widget._comments,
                 onClose: () async {
-                  await widget._controller!.play();
+                  await widget._controller?.play();
                   BlocProvider.of<VideoCubit>(context).hideComments();
                 },
               ),
