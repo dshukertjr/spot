@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 
 import 'package:meta/meta.dart';
 import 'package:spot/models/comment.dart';
+import 'package:spot/models/profile.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
@@ -52,7 +53,7 @@ class VideoCubit extends Cubit<VideoState> {
           } else if (state is VideoPlaying) {
             emit(VideoPlaying(
               videoDetail: _videoDetail!,
-              videoPlayerController: _videoPlayerController!,
+              videoPlayerController: _videoPlayerController,
               isCommentsShown: _isCommentsShown,
               comments: _comments,
             ));
@@ -158,6 +159,51 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> shareVideo() {
     return _repository.shareVideo(_videoDetail!.url);
+  }
+
+  Future<void> getMentionSuggestion(String comment) async {
+    final mentionedUserName = getMentionedUserName(comment);
+    if (mentionedUserName == null) {
+      return;
+    }
+    emit(VideoPlaying(
+      videoDetail: _videoDetail!,
+      videoPlayerController: _videoPlayerController,
+      isCommentsShown: _isCommentsShown,
+      comments: _comments,
+      isLoadingMentions: true,
+    ));
+    final mentionSuggestions = await _repository.getMentions(mentionedUserName);
+    emit(VideoPlaying(
+      videoDetail: _videoDetail!,
+      videoPlayerController: _videoPlayerController,
+      isCommentsShown: _isCommentsShown,
+      comments: _comments,
+      mentionSuggestions: mentionSuggestions,
+    ));
+  }
+
+  @visibleForTesting
+  List<Profile> mentionedUsers(String comment) {
+    final userNames = comment
+        .split(' ')
+        .where((word) => word.isNotEmpty && word[0] == '@')
+        .map((word) => word.substring(1))
+        .toList();
+    return _repository.getMentionedProfiles(userNames);
+  }
+
+  @visibleForTesting
+  String? getMentionedUserName(String comment) {
+    final mention = comment.split(' ').last;
+    if (mention.isEmpty || mention[0] != '@') {
+      return null;
+    }
+    final mentionedUserName = mention.substring(1);
+    if (mentionedUserName.isEmpty) {
+      return null;
+    }
+    return mentionedUserName;
   }
 
   Future<void> _initializeVideo() async {

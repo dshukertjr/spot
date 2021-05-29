@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:spot/components/gradient_button.dart';
 import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/comment.dart';
+import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/pages/profile_page.dart';
 import 'package:spot/repositories/repository.dart';
@@ -56,6 +58,8 @@ class ViewVideoPage extends StatelessWidget {
               video: state.videoDetail,
               isCommentsShown: state.isCommentsShown,
               comments: state.comments,
+              mentionSuggestions: state.mentionSuggestions,
+              isMentionnsLoading: state.isLoadingMentions,
             );
           } else if (state is VideoError) {
             return Stack(
@@ -87,16 +91,22 @@ class VideoScreen extends StatefulWidget {
     required VideoDetail video,
     bool? isCommentsShown,
     List<Comment>? comments,
+    List<Profile>? mentionSuggestions,
+    bool isMentionnsLoading = false,
   })  : _controller = controller,
         _video = video,
         _isCommentsShown = isCommentsShown ?? false,
         _comments = comments,
+        _mentionSuggestions = mentionSuggestions,
+        _isLoadingMentions = isMentionnsLoading,
         super(key: key);
 
   final VideoPlayerController? _controller;
   final VideoDetail _video;
   final bool _isCommentsShown;
   final List<Comment>? _comments;
+  final List<Profile>? _mentionSuggestions;
+  final bool _isLoadingMentions;
 
   @override
   _VideoScreenState createState() => _VideoScreenState();
@@ -257,15 +267,17 @@ class _VideoScreenState extends State<VideoScreen> {
             child: WillPopScope(
               onWillPop: () async {
                 await widget._controller?.play();
-                BlocProvider.of<VideoCubit>(context).hideComments();
+                await BlocProvider.of<VideoCubit>(context).hideComments();
                 return false;
               },
               child: CommentsOverlay(
-                comments: widget._comments,
                 onClose: () async {
                   await widget._controller?.play();
-                  BlocProvider.of<VideoCubit>(context).hideComments();
+                  await BlocProvider.of<VideoCubit>(context).hideComments();
                 },
+                comments: widget._comments,
+                mentionSuggestions: widget._mentionSuggestions,
+                isLoadingMentions: widget._isLoadingMentions,
               ),
             ),
           ),
@@ -550,19 +562,25 @@ class CommentsOverlay extends StatefulWidget {
     Key? key,
     required void Function() onClose,
     required List<Comment>? comments,
+    required List<Profile>? mentionSuggestions,
+    required bool isLoadingMentions,
   })  : _onClose = onClose,
         _comments = comments,
+        _mentionSuggestions = mentionSuggestions,
+        _isLoadingMentions = isLoadingMentions,
         super(key: key);
 
   final void Function() _onClose;
   final List<Comment>? _comments;
+  final List<Profile>? _mentionSuggestions;
+  final bool _isLoadingMentions;
 
   @override
   _CommentsOverlayState createState() => _CommentsOverlayState();
 }
 
 class _CommentsOverlayState extends State<CommentsOverlay> {
-  final _commentController = TextEditingController();
+  late final TextEditingController _commentController;
 
   @override
   Widget build(BuildContext context) {
@@ -590,6 +608,14 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
             ),
             Expanded(
               child: _commentsList(),
+            ),
+            SizedBox(
+              height: 0,
+              child: OverflowBox(
+                maxHeight: 112,
+                alignment: Alignment.bottomCenter,
+                child: _suggestionList(),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(4.0)
@@ -627,6 +653,59 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    _commentController = TextEditingController()..addListener(_getMentions);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _commentController
+      ..removeListener(_getMentions)
+      ..dispose();
+    super.dispose();
+  }
+
+  Widget _suggestionList() {
+    final mentionSuggestions = widget._mentionSuggestions;
+    if (widget._isLoadingMentions) {
+      return const SizedBox(
+        height: 120,
+        child: preloader,
+      );
+    } else if (mentionSuggestions != null) {
+      if (mentionSuggestions.isEmpty) {
+        return const SizedBox(
+          height: 120,
+          child: Center(
+            child: Text('No matching user found'),
+          ),
+        );
+      } else {
+        return SizedBox(
+          height: 56.0 * min(mentionSuggestions.length, 2) + 8,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(color: Color(0x33000000)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: mentionSuggestions
+                  .map<Widget>(
+                    (mentionnSuggestion) => ListTile(
+                      leading: ProfileImage(imageUrl: mentionnSuggestion.imageUrl),
+                      title: Text(mentionnSuggestion.name),
+                      onTap: () {},
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        );
+      }
+    }
+    return Container();
   }
 
   Widget _commentsList() {
@@ -679,9 +758,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
     );
   }
 
-  @override
-  void dispose() {
-    _commentController.dispose();
-    super.dispose();
+  Future<void> _getMentions() {
+    return BlocProvider.of<VideoCubit>(context).getMentionSuggestion(_commentController.text);
   }
 }

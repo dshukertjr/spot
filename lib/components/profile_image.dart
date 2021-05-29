@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 class ProfileImage extends StatelessWidget {
   const ProfileImage({
     Key? key,
-    double? size,
+    double size = 50,
     String? imageUrl,
     void Function()? onPressed,
-  })  : _size = size ?? 50,
+  })  : _size = size,
         _imageUrl = imageUrl,
         _onPressed = onPressed,
         super(key: key);

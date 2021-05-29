@@ -310,8 +310,12 @@ class Repository {
   }
 
   Future<List<Comment>> getComments(String videoId) async {
-    final res =
-        await _supabaseClient.from('video_comments').select().eq('video_id', videoId).execute();
+    final res = await _supabaseClient
+        .from('video_comments')
+        .select()
+        .eq('video_id', videoId)
+        .order('created_at')
+        .execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
@@ -509,5 +513,32 @@ class Repository {
 
   Future<File> getCachedFile(String url) {
     return DefaultCacheManager().getSingleFile(url);
+  }
+
+  Future<List<Profile>> getMentions(String queryString) async {
+    final res =
+        await _supabaseClient.from('users').select().like('name', '%$queryString%').execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(code: 'Error finding mentionend users', message: error.message);
+    }
+    final data = List.from(res.data);
+    final profiles =
+        data.map<Profile>((row) => Profile.fromData(Map<String, dynamic>.from(row))).toList();
+    _profiles.addEntries(
+        profiles.map<MapEntry<String, Profile>>((profile) => MapEntry(profile.id, profile)));
+    _profileStreamController.sink.add(_profiles);
+    return profiles;
+  }
+
+  List<Profile> getMentionedProfiles(List<String> userNames) {
+    final userNameMap = <String, Profile>{}..addEntries(_profiles.values
+        .map<MapEntry<String, Profile>>((profile) => MapEntry(profile.name, profile)));
+    final profiles = userNames
+        .map<Profile?>((userName) => userNameMap[userName])
+        .where((profile) => profile != null)
+        .map<Profile>((e) => e!)
+        .toList();
+    return profiles;
   }
 }

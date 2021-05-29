@@ -17,12 +17,16 @@ class VideoPlaying extends VideoState {
     this.videoPlayerController,
     bool? isCommentsShown,
     this.comments,
+    this.mentionSuggestions,
+    this.isLoadingMentions = false,
   }) : isCommentsShown = isCommentsShown ?? false;
 
   final VideoDetail videoDetail;
   final VideoPlayerController? videoPlayerController;
   final bool isCommentsShown;
   final List<Comment>? comments;
+  final List<Profile>? mentionSuggestions;
+  final bool isLoadingMentions;
 }
 
 class VideoError extends VideoState {
