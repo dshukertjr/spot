@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/app/validators.dart';
 import 'package:spot/components/app_scaffold.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
@@ -115,15 +116,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     labelText: 'User Name',
                   ),
                   maxLength: 18,
-                  validator: (val) {
-                    if (val == null) {
-                      return 'Please enter more then 1 letters';
-                    }
-                    if (val.isEmpty) {
-                      return 'Please enter more then 1 letters';
-                    }
-                    return null;
-                  },
+                  validator: Validator.username,
                 ),
               ),
             ],

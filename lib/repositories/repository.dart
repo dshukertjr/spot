@@ -38,6 +38,8 @@ class Repository {
   final _profileStreamController = BehaviorSubject<Map<String, Profile>>();
   Stream<Map<String, Profile>> get profileStream => _profileStreamController.stream;
 
+  final _mentionSuggestionCache = <String, List<Profile>>{};
+
   String? get userId => _supabaseClient.auth.currentUser?.id;
 
   Future<bool> get hasAgreedToTermsOfService =>
@@ -537,6 +539,9 @@ class Repository {
   }
 
   Future<List<Profile>> getMentions(String queryString) async {
+    if (_mentionSuggestionCache[queryString] != null) {
+      return _mentionSuggestionCache[queryString]!;
+    }
     final res =
         await _supabaseClient.from('users').select().like('name', '%$queryString%').execute();
     final error = res.error;
@@ -546,6 +551,7 @@ class Repository {
     final data = List.from(res.data);
     final profiles =
         data.map<Profile>((row) => Profile.fromData(Map<String, dynamic>.from(row))).toList();
+    _mentionSuggestionCache[queryString] = profiles;
     _profiles.addEntries(
         profiles.map<MapEntry<String, Profile>>((profile) => MapEntry(profile.id, profile)));
     _profileStreamController.sink.add(_profiles);

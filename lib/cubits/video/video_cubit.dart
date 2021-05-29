@@ -191,6 +191,7 @@ class VideoCubit extends Cubit<VideoState> {
     ));
   }
 
+  /// Replaces mentioned user names with users' id in comment text
   @visibleForTesting
   String replaceMentionsInAComment({required String comment, required List<Profile> mentions}) {
     var mentionReplacedText = comment;
@@ -200,6 +201,7 @@ class VideoCubit extends Cubit<VideoState> {
     return mentionReplacedText;
   }
 
+  /// Extracts the username to be searched within the database
   @visibleForTesting
   String? getMentionedUserName(String comment) {
     final mention = comment.split(' ').last;
