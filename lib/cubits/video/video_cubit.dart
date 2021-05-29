@@ -126,14 +126,16 @@ class VideoCubit extends Cubit<VideoState> {
         videoId: _videoId,
         user: user!,
       );
-      _comments!.insert(0, comment);
+      _comments?.insert(0, comment);
       emit(VideoPlaying(
         videoDetail: _videoDetail!,
         videoPlayerController: _videoPlayerController!,
         isCommentsShown: _isCommentsShown,
         comments: _comments,
       ));
-      await _repository.comment(text: text, videoId: _videoId);
+      final mentions = _repository.getMentionedProfiles(comment.text);
+      final mentionReplacedText = replaceMentionsInAComment(comment: text, mentions: mentions);
+      await _repository.comment(text: mentionReplacedText, videoId: _videoId, mentions: mentions);
     } catch (err) {
       emit(VideoError(message: 'Error commenting.'));
     }
@@ -164,6 +166,12 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> getMentionSuggestion(String comment) async {
     final mentionedUserName = getMentionedUserName(comment);
     if (mentionedUserName == null) {
+      emit(VideoPlaying(
+        videoDetail: _videoDetail!,
+        videoPlayerController: _videoPlayerController,
+        isCommentsShown: _isCommentsShown,
+        comments: _comments,
+      ));
       return;
     }
     emit(VideoPlaying(
@@ -184,13 +192,12 @@ class VideoCubit extends Cubit<VideoState> {
   }
 
   @visibleForTesting
-  List<Profile> mentionedUsers(String comment) {
-    final userNames = comment
-        .split(' ')
-        .where((word) => word.isNotEmpty && word[0] == '@')
-        .map((word) => word.substring(1))
-        .toList();
-    return _repository.getMentionedProfiles(userNames);
+  String replaceMentionsInAComment({required String comment, required List<Profile> mentions}) {
+    var mentionReplacedText = comment;
+    for (final mention in mentions) {
+      mentionReplacedText = mentionReplacedText.replaceAll('@${mention.name}', '@${mention.id}');
+    }
+    return mentionReplacedText;
   }
 
   @visibleForTesting

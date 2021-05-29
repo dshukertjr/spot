@@ -330,6 +330,7 @@ class Repository {
   Future<void> comment({
     required String text,
     required String videoId,
+    required List<Profile> mentions,
   }) async {
     final userId = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient
@@ -341,6 +342,26 @@ class Repository {
       throw PlatformException(
         code: error.code ?? 'commet Video',
         message: error.message,
+      );
+    }
+    if (mentions.isEmpty) {
+      return;
+    }
+    final commentId = res.data![0].id;
+    final mentionRes = await _supabaseClient
+        .from('mentions')
+        .insert(mentions
+            .map((profile) => {
+                  'comment_id': commentId,
+                  'user_id': profile.id,
+                })
+            .toList())
+        .execute();
+    final mentionError = mentionRes.error;
+    if (mentionError != null) {
+      throw PlatformException(
+        code: mentionError.code ?? 'commet Video',
+        message: mentionError.message,
       );
     }
   }
@@ -531,7 +552,12 @@ class Repository {
     return profiles;
   }
 
-  List<Profile> getMentionedProfiles(List<String> userNames) {
+  List<Profile> getMentionedProfiles(String commentText) {
+    final userNames = commentText
+        .split(' ')
+        .where((word) => word.isNotEmpty && word[0] == '@')
+        .map((word) => word.substring(1))
+        .toList();
     final userNameMap = <String, Profile>{}..addEntries(_profiles.values
         .map<MapEntry<String, Profile>>((profile) => MapEntry(profile.name, profile)));
     final profiles = userNames

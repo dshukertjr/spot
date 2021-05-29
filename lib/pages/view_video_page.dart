@@ -607,14 +607,15 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
               ),
             ),
             Expanded(
-              child: _commentsList(),
-            ),
-            SizedBox(
-              height: 0,
-              child: OverflowBox(
-                maxHeight: 112,
-                alignment: Alignment.bottomCenter,
-                child: _suggestionList(),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _commentsList(),
+                  Positioned.fill(
+                    top: null,
+                    child: _mentionSuggestionList(),
+                  ),
+                ],
               ),
             ),
             Padding(
@@ -669,34 +670,55 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
     super.dispose();
   }
 
-  Widget _suggestionList() {
+  Widget _mentionSuggestionList() {
     final mentionSuggestions = widget._mentionSuggestions;
     if (widget._isLoadingMentions) {
       return const SizedBox(
         height: 120,
-        child: preloader,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Color(0x33000000),
+          ),
+          child: preloader,
+        ),
       );
     } else if (mentionSuggestions != null) {
       if (mentionSuggestions.isEmpty) {
         return const SizedBox(
           height: 120,
-          child: Center(
-            child: Text('No matching user found'),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Color(0x33000000),
+            ),
+            child: Center(
+              child: Text('No matching user found'),
+            ),
           ),
         );
       } else {
-        return SizedBox(
-          height: 56.0 * min(mentionSuggestions.length, 2) + 8,
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
           child: DecoratedBox(
             decoration: const BoxDecoration(color: Color(0x33000000)),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: mentionSuggestions
                   .map<Widget>(
-                    (mentionnSuggestion) => ListTile(
-                      leading: ProfileImage(imageUrl: mentionnSuggestion.imageUrl),
-                      title: Text(mentionnSuggestion.name),
-                      onTap: () {},
+                    (profile) => ListTile(
+                      leading: ProfileImage(imageUrl: profile.imageUrl),
+                      title: Text(profile.name),
+                      onTap: () {
+                        final comment = _commentController.text;
+                        final lastSpaceIndex =
+                            comment.lastIndexOf(' ') < 0 ? 0 : comment.lastIndexOf(' ');
+                        final replacedComment =
+                            '${comment.substring(0, lastSpaceIndex)} @${profile.name} ';
+                        setState(() {
+                          _commentController
+                            ..text = replacedComment
+                            ..selection = TextSelection.fromPosition(
+                                TextPosition(offset: _commentController.text.length));
+                        });
+                      },
                     ),
                   )
                   .toList(),
