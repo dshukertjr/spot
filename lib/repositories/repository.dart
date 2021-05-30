@@ -439,8 +439,7 @@ class Repository {
   }
 
   Future<VideoPlayerController> getVideoPlayerController(String url) async {
-    final file = await DefaultCacheManager().getSingleFile(url);
-    return VideoPlayerController.file(file);
+    return VideoPlayerController.network(url);
   }
 
   Future<bool> hasLocationPermission() async {

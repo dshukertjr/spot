@@ -161,7 +161,6 @@ class VideoCubit extends Cubit<VideoState> {
       if (_videoPlayerController == null) {
         _videoPlayerController = await _repository.getVideoPlayerController(_videoDetail!.url);
         await _videoPlayerController!.initialize();
-        await _videoPlayerController!.setLooping(true);
         await _videoPlayerController!.play();
 
         emit(VideoPlaying(
