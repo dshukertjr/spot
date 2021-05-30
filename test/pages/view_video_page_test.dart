@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -15,6 +16,8 @@ import 'package:spot/pages/view_video_page.dart';
 import 'package:video_player/video_player.dart';
 
 import '../helpers/helpers.dart';
+
+class MockVideoCubit extends MockCubit<VideoState> implements VideoCubit {}
 
 void main() {
   setUpAll(() => HttpOverrides.global = null);
@@ -413,6 +416,64 @@ void main() {
       );
 
       await tester.pump();
+
+      expect(find.byType(VideoScreen), findsOneWidget);
+
+      await tester.tap(find.byIcon(FeatherIcons.messageCircle));
+
+      await tester.pump();
+
+      expect(find.byType(CommentsOverlay), findsOneWidget);
+
+      // Comments are loaded and displaed
+      expect(
+          find.byWidgetPredicate((widget) =>
+              widget is RichText && widget.text.toPlainText().contains('sample comment')),
+          findsOneWidget);
+    });
+  });
+
+  group('Mentions', () {
+    testWidgets('Can view comments', (tester) async {
+      final repository = MockRepository();
+      final mockVideoCubit = MockVideoCubit();
+
+      // TODO implement proper mock states
+      whenListen(
+        mockVideoCubit,
+        Stream.fromIterable([
+          VideoPlaying(
+            videoDetail: VideoDetail(
+              id: 'id',
+              url: 'url',
+              imageUrl: 'imageUrl',
+              thumbnailUrl: 'thumbnailUrl',
+              gifUrl: 'gifUrl',
+              createdAt: DateTime.now(),
+              description: 'description',
+              location: const LatLng(0, 0),
+              userId: 'userId',
+              likeCount: 1,
+              commentCount: 1,
+              haveLiked: false,
+              createdBy: Profile(id: 'id', name: 'name'),
+            ),
+          )
+        ]),
+        initialState: 0,
+      );
+
+      await tester.pumpApp(
+        widget: BlocProvider<VideoCubit>(
+          create: (BuildContext context) => mockVideoCubit,
+          child: ViewVideoPage(),
+        ),
+        repository: repository,
+      );
+
+      await tester.pump();
+
+      // TODO verify that mentions would show up when there are mention parameter present in VideoPlaying state
 
       expect(find.byType(VideoScreen), findsOneWidget);
 
