@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -13,7 +14,7 @@ import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:supabase/supabase.dart';
-import 'package:video_player/video_player.dart';
+
 import 'package:geocoding/geocoding.dart';
 
 class Repository {

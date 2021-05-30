@@ -1,3 +1,4 @@
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -6,7 +7,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
-import 'package:video_player/video_player.dart';
 
 import '../helpers/helpers.dart';
 

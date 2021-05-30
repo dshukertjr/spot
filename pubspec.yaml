@@ -1,6 +1,6 @@
 name: spot
 description: Find local video posts
-version: 1.0.12+22
+version: 1.0.13+23
 publish_to: none
 
 environment:
@@ -15,7 +15,7 @@ dependencies:
   flutter_bloc: ^7.0.0
   intl: ^0.17.0
   google_maps_flutter: ^2.0.1
-  video_player: ^2.0.2
+  cached_video_player: ^2.0.0-dev.1
   flutter_ffmpeg: ^0.4.0
   path_provider: ^2.0.1
   geolocator: ^7.0.1

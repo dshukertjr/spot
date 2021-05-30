@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
@@ -8,7 +9,6 @@ import 'package:meta/meta.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
-import 'package:video_player/video_player.dart';
 
 part 'confirm_video_state.dart';
 

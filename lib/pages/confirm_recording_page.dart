@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +13,6 @@ import 'package:spot/cubits/confirm_video/confirm_video_cubit.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tab_page.dart';
 import 'package:spot/repositories/repository.dart';
-import 'package:video_player/video_player.dart';
 
 import '../components/app_scaffold.dart';
 

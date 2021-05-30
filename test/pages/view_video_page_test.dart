@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_video_player/cached_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -12,7 +13,6 @@ import 'package:spot/models/comment.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/pages/view_video_page.dart';
-import 'package:video_player/video_player.dart';
 
 import '../helpers/helpers.dart';
 

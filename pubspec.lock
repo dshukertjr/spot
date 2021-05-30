@@ -57,6 +57,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  cached_video_player:
+    dependency: "direct main"
+    description:
+      name: cached_video_player
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0-dev.1"
   camera:
     dependency: "direct main"
     description:
@@ -740,13 +747,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
-  video_player:
-    dependency: "direct main"
-    description:
-      name: video_player
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.1"
   video_player_platform_interface:
     dependency: transitive
     description:

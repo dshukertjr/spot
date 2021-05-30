@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:cached_video_player/cached_video_player.dart';
 
 import 'package:meta/meta.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/repositories/repository.dart';
-import 'package:video_player/video_player.dart';
 
 import '../../models/video.dart';
 
