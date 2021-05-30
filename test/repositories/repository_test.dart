@@ -289,5 +289,135 @@ void main() {
         ),
       );
     });
+
+    group('Mentions', () {
+      test('getMentionedProfiles on a comment with email address', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'Email me at sample@example.com';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 0);
+      });
+      test('getMentionedProfiles on a comment with no mentions', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'What do you think?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 0);
+      });
+      test('getMentionedProfiles at the beginning of sentence', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = '@John What do you think?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 1);
+        expect(profiles.first.id, 'aaa');
+      });
+      test('getMentionedProfiles in a sentence', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'Hey @John ! How are you?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 1);
+        expect(profiles.first.id, 'aaa');
+      });
+      test('getMentionedProfiles with one matching username', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'What do you think @John?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 1);
+        expect(profiles.first.id, 'aaa');
+      });
+      test('getMentionedProfiles with two matching username', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'What do you think @John, @Mary?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 2);
+        expect(profiles.first.id, 'aaa');
+        expect(profiles[1].id, 'bbb');
+      });
+      test('getMentionedProfiles with space in the username would not work', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'What do you think @John Tyter?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John Tyter',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 0);
+      });
+    });
   });
 }

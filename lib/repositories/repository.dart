@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -34,7 +35,8 @@ class Repository {
   final _videoDetailStreamController = BehaviorSubject<VideoDetail?>();
   Stream<VideoDetail?> get videoDetailStream => _videoDetailStreamController.stream;
 
-  final Map<String, Profile> _profiles = {};
+  @visibleForTesting
+  final Map<String, Profile> profilesCache = {};
   final _profileStreamController = BehaviorSubject<Map<String, Profile>>();
   Stream<Map<String, Profile>> get profileStream => _profileStreamController.stream;
 
@@ -160,7 +162,7 @@ class Repository {
   }
 
   Future<Profile?> getProfile(String uid) async {
-    final targetProfile = _profiles[uid];
+    final targetProfile = profilesCache[uid];
     if (targetProfile != null) {
       return targetProfile;
     }
@@ -175,13 +177,13 @@ class Repository {
     }
 
     if (data.isEmpty) {
-      _profileStreamController.sink.add(_profiles);
+      _profileStreamController.sink.add(profilesCache);
       return null;
     }
 
     final profile = Profile.fromData(data[0]);
-    _profiles[uid] = profile;
-    _profileStreamController.sink.add(_profiles);
+    profilesCache[uid] = profile;
+    _profileStreamController.sink.add(profilesCache);
     return profile;
   }
 
@@ -203,8 +205,8 @@ class Repository {
     }
 
     final newProfile = Profile.fromData(data[0]);
-    _profiles[profile.id] = newProfile;
-    _profileStreamController.sink.add(_profiles);
+    profilesCache[profile.id] = newProfile;
+    _profileStreamController.sink.add(profilesCache);
   }
 
   /// Uploads the video and returns the download URL
@@ -552,9 +554,9 @@ class Repository {
     final profiles =
         data.map<Profile>((row) => Profile.fromData(Map<String, dynamic>.from(row))).toList();
     _mentionSuggestionCache[queryString] = profiles;
-    _profiles.addEntries(
+    profilesCache.addEntries(
         profiles.map<MapEntry<String, Profile>>((profile) => MapEntry(profile.id, profile)));
-    _profileStreamController.sink.add(_profiles);
+    _profileStreamController.sink.add(profilesCache);
     return profiles;
   }
 
@@ -562,15 +564,15 @@ class Repository {
     final userNames = commentText
         .split(' ')
         .where((word) => word.isNotEmpty && word[0] == '@')
-        .map((word) => word.substring(1))
+        .map((word) => RegExp(r'^\w*').firstMatch(word.substring(1))!.group(0)!)
         .toList();
-    final userNameMap = <String, Profile>{}..addEntries(_profiles.values
+    final userNameMap = <String, Profile>{}..addEntries(profilesCache.values
         .map<MapEntry<String, Profile>>((profile) => MapEntry(profile.name, profile)));
-    final profiles = userNames
+    final mentionedProfiles = userNames
         .map<Profile?>((userName) => userNameMap[userName])
         .where((profile) => profile != null)
-        .map<Profile>((e) => e!)
+        .map<Profile>((profile) => profile!)
         .toList();
-    return profiles;
+    return mentionedProfiles;
   }
 }

@@ -153,7 +153,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   try {
                     final user = RepositoryProvider.of<Repository>(context).userId;
                     if (user == null) {
-                      context.showSnackbar('Your session has expired');
+                      context.showErrorSnackbar('Your session has expired');
                       return;
                     }
                     final name = _userNameController.text;
