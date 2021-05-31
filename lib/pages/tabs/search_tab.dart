@@ -51,8 +51,11 @@ class _SearchTabState extends State<SearchTab> {
         BlocBuilder<SearchCubit, SearchState>(
           builder: (context, state) {
             if (state is SearchInitial) {
-              return const Center(
-                child: Text('Search anything you would like'),
+              return const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text('Search anything you would like'),
+                ),
               );
             } else if (state is SearchLoading) {
               return preloader;
@@ -60,12 +63,18 @@ class _SearchTabState extends State<SearchTab> {
               final videos = state.videos;
               return _SearchResults(videos: videos);
             } else if (state is SearchEmpty) {
-              return const Center(
-                child: Text('Sorry, we couldn\'t find what you are looking for'),
+              return const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text('Sorry, we couldn\'t find what you are looking for'),
+                ),
               );
             } else if (state is SearchError) {
-              return const Center(
-                child: Text('Something went wrong'),
+              return const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text('Something went wrong'),
+                ),
               );
             }
             throw UnimplementedError('Search Tab Unimplemented State ${state.runtimeType}');

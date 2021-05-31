@@ -23,7 +23,7 @@ class NotificationsTab extends StatelessWidget {
       if (state is NotificationInitial) {
         return preloader;
       } else if (state is NotificationEmpty) {
-        return const Center(child: Text('You don\'t have any notificatins yet'));
+        return const Center(child: Text('You don\'t have any notifications yet'));
       } else if (state is NotificationLoaded) {
         final notifications = state.notifications;
         return RefreshIndicator(
