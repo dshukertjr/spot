@@ -420,10 +420,12 @@ class Repository {
   }
 
   Future<List<Video>> search(String queryString) async {
+    final query = queryString.split(' ').map((word) => "'$word'").join(' & ');
+
     final res = await _supabaseClient
         .from('videos')
         .select('id, url, image_url, thumbnail_url, gif_url, description, user_id, created_at')
-        .textSearch('description', queryString, config: 'english')
+        .textSearch('description', query, config: 'english')
         .order('created_at')
         .limit(50)
         .execute();
