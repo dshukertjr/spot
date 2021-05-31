@@ -1,4 +1,3 @@
-Bringing you smoother experience! 
+Always improving user experience!
 
-- Improved map loading performance
-- New video now show up on top of the map
+- Drastically improved video loading performance
