@@ -624,6 +624,8 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      maxLines: 4,
+                      minLines: 1,
                       controller: _commentController,
                       textCapitalization: TextCapitalization.sentences,
                       decoration: const InputDecoration(

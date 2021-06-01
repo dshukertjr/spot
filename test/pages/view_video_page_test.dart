@@ -434,11 +434,35 @@ void main() {
   });
 
   group('Mentions', () {
-    testWidgets('Can view comments', (tester) async {
+    setUpAll(() {
+      HttpOverrides.global = null;
+
+      registerFallbackValue<VideoState>(VideoPlaying(
+        videoDetail: VideoDetail(
+          id: 'id',
+          url: 'url',
+          imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+          thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+          gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+          createdAt: DateTime.now(),
+          description: 'description',
+          location: const LatLng(0, 0),
+          userId: 'userId',
+          likeCount: 1,
+          commentCount: 1,
+          haveLiked: false,
+          createdBy: Profile(id: 'id', name: 'name'),
+        ),
+        isCommentsShown: true,
+        comments: [],
+        isLoadingMentions: true,
+      ));
+    });
+    testWidgets('Mentions are being displayed properly', (tester) async {
       final repository = MockRepository();
+      when(() => repository.userId).thenReturn('myUserId');
       final mockVideoCubit = MockVideoCubit();
 
-      // TODO implement proper mock states
       whenListen(
         mockVideoCubit,
         Stream.fromIterable([
@@ -446,9 +470,9 @@ void main() {
             videoDetail: VideoDetail(
               id: 'id',
               url: 'url',
-              imageUrl: 'imageUrl',
-              thumbnailUrl: 'thumbnailUrl',
-              gifUrl: 'gifUrl',
+              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
               createdAt: DateTime.now(),
               description: 'description',
               location: const LatLng(0, 0),
@@ -458,9 +482,55 @@ void main() {
               haveLiked: false,
               createdBy: Profile(id: 'id', name: 'name'),
             ),
-          )
+            isCommentsShown: true,
+            comments: [],
+            isLoadingMentions: true,
+          ),
+          VideoPlaying(
+            videoDetail: VideoDetail(
+              id: 'id',
+              url: 'url',
+              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              createdAt: DateTime.now(),
+              description: 'description',
+              location: const LatLng(0, 0),
+              userId: 'userId',
+              likeCount: 1,
+              commentCount: 1,
+              haveLiked: false,
+              createdBy: Profile(id: 'id', name: 'name'),
+            ),
+            isCommentsShown: true,
+            comments: [],
+            isLoadingMentions: false,
+            mentionSuggestions: [
+              Profile(id: 'aaa', name: 'Tyler'),
+              Profile(id: 'bbb', name: 'Takahiro'),
+            ],
+          ),
         ]),
-        initialState: 0,
+        initialState: VideoPlaying(
+          videoDetail: VideoDetail(
+            id: 'id',
+            url: 'url',
+            imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+            thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+            gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+            createdAt: DateTime.now(),
+            description: 'description',
+            location: const LatLng(0, 0),
+            userId: 'userId',
+            likeCount: 1,
+            commentCount: 1,
+            haveLiked: false,
+            createdBy: Profile(id: 'id', name: 'name'),
+          ),
+          isCommentsShown: true,
+          comments: [],
+          isLoadingMentions: true,
+        ),
       );
 
       await tester.pumpApp(
@@ -471,23 +541,15 @@ void main() {
         repository: repository,
       );
 
-      await tester.pump();
-
-      // TODO verify that mentions would show up when there are mention parameter present in VideoPlaying state
-
       expect(find.byType(VideoScreen), findsOneWidget);
-
-      await tester.tap(find.byIcon(FeatherIcons.messageCircle));
+      expect(find.byType(CommentsOverlay), findsOneWidget);
+      expect(find.text('Tyler'), findsNothing);
+      expect(find.byWidget(preloader), findsNWidgets(2));
 
       await tester.pump();
 
-      expect(find.byType(CommentsOverlay), findsOneWidget);
-
-      // Comments are loaded and displaed
-      expect(
-          find.byWidgetPredicate((widget) =>
-              widget is RichText && widget.text.toPlainText().contains('sample comment')),
-          findsOneWidget);
+      expect(find.text('Tyler'), findsOneWidget);
+      expect(find.byWidget(preloader), findsOneWidget);
     });
   });
 }
