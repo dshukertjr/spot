@@ -23,19 +23,14 @@ jobs:
       # Get flutter dependencies.
       - run: flutter pub get
 
+      # Check for any formatting issues in the code.
+      - run: flutter format --set-exit-if-changed .
 
-      # # Check for any formatting issues in the code.
-      # - run: flutter format --set-exit-if-changed .
+      # Statically analyze the Dart code for any errors.
+      - run: flutter analyze .
 
-      # # Statically analyze the Dart code for any errors.
-      # - run: flutter analyze .
-
-      # # Run widget tests for our flutter project.
-      # - run: flutter test
-
-      # Build ios app
-      # - run: flutter build appbundle --flavor production --target lib/main_production.dart --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANNON_KEY=${{ secrets.SUPABASE_ANNON_KEY }}
-
+      # Run widget tests for our flutter project.
+      - run: flutter test
 
       - name: Download Android keystore
         id: android_keystore
@@ -53,7 +48,6 @@ jobs:
 
       - name: Build Android App Bundle
         run: flutter build appbundle --flavor production --target lib/main_production.dart --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANNON_KEY=${{ secrets.SUPABASE_ANNON_KEY }}
-
 
       - name: Setup Ruby
         uses: actions/setup-ruby@v1
