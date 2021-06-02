@@ -437,6 +437,8 @@ void main() {
     setUpAll(() {
       HttpOverrides.global = null;
 
+      registerFallbackValue<String>('');
+
       registerFallbackValue<VideoState>(VideoPlaying(
         videoDetail: VideoDetail(
           id: 'id',
@@ -462,6 +464,9 @@ void main() {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('myUserId');
       final mockVideoCubit = MockVideoCubit();
+
+      when(() => mockVideoCubit.getMentionSuggestion(any<String>()))
+          .thenAnswer((invocation) => Future.value());
 
       whenListen(
         mockVideoCubit,
@@ -550,6 +555,13 @@ void main() {
 
       expect(find.text('Tyler'), findsOneWidget);
       expect(find.byWidget(preloader), findsOneWidget);
+
+      await tester.tap(find.text('Tyler'));
+      // await tester.pump();
+
+      // expect(find.text('Tyler'), findsNothing);
+      // final value = tester.widget<TextFormField>(find.byType(TextFormField)).controller!.text;
+      // expect(value, '@Tyler ');
     });
   });
 }
