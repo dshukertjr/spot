@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - main
+      - feat/firebase
 
 jobs:
-  build:
+  release:
     runs-on: macOS-latest
 
     steps:
