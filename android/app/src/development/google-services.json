@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "405360906678",
+    "project_id": "spot-videos-dev",
+    "storage_bucket": "spot-videos-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405360906678:android:dba509310c0769f4b47117",
+        "android_client_info": {
+          "package_name": "com.example.spot.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "405360906678-7c9f4q124fsfpkcbqmrebccail96cs7i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZw_5_i8MeBiiuvUyWTxjdmnq2i3WpNUY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "405360906678-7c9f4q124fsfpkcbqmrebccail96cs7i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
