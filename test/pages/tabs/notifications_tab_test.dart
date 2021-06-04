@@ -129,7 +129,7 @@ void main() {
     testWidgets('Empty notification will show empty text', (tester) async {
       final repository = MockRepository();
 
-      when(repository.getNotifications).thenAnswer((invocation) => Future.value([]));
+      when(repository.getNotifications).thenAnswer((invocation) async => []);
 
       await tester.pumpApp(
         widget: BlocProvider<NotificationCubit>(
@@ -143,7 +143,7 @@ void main() {
 
       await tester.pump();
 
-      expect(find.text('You don\'t have any notificatins yet'), findsOneWidget);
+      expect(find.text('You don\'t have any notifications yet'), findsOneWidget);
       expect(find.byType(NotificationDot), findsNothing);
     });
   });
