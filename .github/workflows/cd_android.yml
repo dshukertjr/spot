@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feat/firebase
 
 jobs:
   release:
@@ -24,7 +25,7 @@ jobs:
       - run: flutter pub get
 
       # Check for any formatting issues in the code.
-      - run: flutter format --set-exit-if-changed .
+      - run: flutter format -l 100 --set-exit-if-changed lib test
 
       # Statically analyze the Dart code for any errors.
       - run: flutter analyze .
