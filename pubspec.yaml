@@ -1,6 +1,6 @@
 name: spot
 description: Find local video posts
-version: 1.0.12+26
+version: 1.0.12+27
 publish_to: none
 
 environment:
