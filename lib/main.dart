@@ -6,7 +6,9 @@ import 'package:bloc/bloc.dart';
 import 'package:spot/app/app.dart';
 import 'package:spot/app/app_bloc_observer.dart';
 
-void main() {
+Future<void> main() async {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
   Bloc.observer = AppBlocObserver();
   FlutterError.onError = (details) {
     log(details.exceptionAsString(), stackTrace: details.stack);
