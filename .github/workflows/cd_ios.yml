@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feat/analytics
 
 jobs:
   build:
@@ -27,8 +28,7 @@ jobs:
       # - run: flutter test
 
       # Build ios app
-      - run: flutter build ios --release --no-codesign --flavor production --target lib/main_production.dart --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANNON_KEY=${{ secrets.SUPABASE_ANNON_KEY }}
-
+      - run: flutter build ios --release --no-codesign --flavor production --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} --dart-define=SUPABASE_ANNON_KEY=${{ secrets.SUPABASE_ANNON_KEY }}
 
       - name: Release
         env:
