@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
@@ -12,10 +13,13 @@ import 'package:supabase/supabase.dart';
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
 
+class MockFirebaseAnalytics extends Mock implements FirebaseAnalytics {}
+
 void main() {
   group('repository', () {
     late SupabaseClient supabaseClient;
     late HttpServer mockServer;
+    late FirebaseAnalytics analytics;
 
     Future<void> handleRequests(HttpServer server) async {
       await for (final HttpRequest request in server) {
@@ -183,10 +187,20 @@ void main() {
     }
 
     setUp(() async {
+      registerFallbackValue<String>('');
       mockServer = await HttpServer.bind('localhost', 0);
       supabaseClient =
           SupabaseClient('http://${mockServer.address.host}:${mockServer.port}', 'supabaseKey');
       handleRequests(mockServer);
+      analytics = MockFirebaseAnalytics();
+      when(() => analytics.logEvent(name: any<String>(named: 'name')))
+          .thenAnswer((invocation) async => null);
+      when(() => analytics.logSignUp(signUpMethod: any<String>(named: 'signUpMethod')))
+          .thenAnswer((invocation) async => null);
+      when(() => analytics.logLogin(loginMethod: any<String>(named: 'loginMethod')))
+          .thenAnswer((invocation) async => null);
+      when(() => analytics.logSearch(searchTerm: any<String>(named: 'searchTerm')))
+          .thenAnswer((invocation) async => null);
     });
 
     tearDown(() async {
@@ -194,7 +208,7 @@ void main() {
     });
 
     test('signUp', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       final sessionString = await repository.signUp(email: '', password: '');
 
@@ -202,7 +216,7 @@ void main() {
     });
 
     test('signIn', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       final sessionString = await repository.signIn(email: '', password: '');
 
@@ -210,7 +224,7 @@ void main() {
     });
 
     test('getSelfProfile', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -220,7 +234,7 @@ void main() {
     });
 
     test('getVideosFromLocation', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -236,7 +250,7 @@ void main() {
     });
 
     test('getVideosInBoundingBox', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -253,7 +267,7 @@ void main() {
     });
 
     test('getVideosFromUid', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -265,7 +279,7 @@ void main() {
     });
 
     test('getProfile', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -275,7 +289,7 @@ void main() {
     });
 
     test('saveProfile', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
