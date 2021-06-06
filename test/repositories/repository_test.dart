@@ -303,5 +303,22 @@ void main() {
         ),
       );
     });
+
+    test('getZIndex', () async {
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final recentZIndex = repository.getZIndex(DateTime(2021, 4, 10));
+      expect(recentZIndex.isNegative, false);
+      expect(recentZIndex < 1000000, true);
+
+      final futureZIndex = repository.getZIndex(DateTime(2030, 4, 10));
+      expect(futureZIndex.isNegative, false);
+      expect(futureZIndex < 1000000, true);
+    });
+    test('getZIndex close ', () async {
+      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final firstZIndex = repository.getZIndex(DateTime(2021, 4, 10, 10, 0, 0)).toInt();
+      final laterZIndex = repository.getZIndex(DateTime(2021, 4, 10, 11, 0, 0)).toInt();
+      expect(firstZIndex < laterZIndex, true);
+    });
   });
 }

@@ -295,7 +295,7 @@ class MapState extends State<Map> {
           markerId: MarkerId(video.id),
           position: video.location!,
           icon: loadingMarkerImage,
-          zIndex: video.createdAt.millisecondsSinceEpoch.toDouble(),
+          zIndex: RepositoryProvider.of<Repository>(context).getZIndex(video.createdAt),
         ));
 
     setState(() {
@@ -456,7 +456,7 @@ class MapState extends State<Map> {
       markerId: MarkerId(video.id),
       position: video.location!,
       icon: BitmapDescriptor.fromBytes(markerIcon),
-      zIndex: video.createdAt.millisecondsSinceEpoch.toDouble(),
+      zIndex: RepositoryProvider.of<Repository>(context).getZIndex(video.createdAt),
     );
 
     _markers.removeWhere((targetMarker) => targetMarker.markerId == marker.markerId);

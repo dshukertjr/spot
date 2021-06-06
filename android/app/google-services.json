@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "669895901022",
+    "project_id": "spot-videos",
+    "storage_bucket": "spot-videos.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:669895901022:android:e776461d00834e86c059cf",
+        "android_client_info": {
+          "package_name": "app.spotvideo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "669895901022-gekl8a8ik43uelnm65ik1gicqanu8anl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGEorLZKpQcoT674TjNMG_GEES_nbLXdE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "669895901022-gekl8a8ik43uelnm65ik1gicqanu8anl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "669895901022-b3pqggv2v8bkljpoojsjfgf369ip7709.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.spotvideo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

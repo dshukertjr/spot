@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/services.dart';
@@ -546,5 +547,9 @@ class Repository {
 
   Future<File> getCachedFile(String url) {
     return DefaultCacheManager().getSingleFile(url);
+  }
+
+  double getZIndex(DateTime createdAt) {
+    return max((createdAt.millisecondsSinceEpoch ~/ 1000000 - 1600000), 0).toDouble();
   }
 }
