@@ -18,11 +18,14 @@ class EditProfilePage extends StatefulWidget {
 
   final bool isCreatingAccount;
 
+  static const name = 'EditProfilePage';
+
   static Route<void> route({
     required bool isCreatingAccount,
     required String uid,
   }) {
     return MaterialPageRoute(
+      settings: const RouteSettings(name: name),
       builder: (context) => BlocProvider<ProfileCubit>(
         create: (context) => ProfileCubit(
           repository: RepositoryProvider.of<Repository>(context),
