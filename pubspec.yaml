@@ -1,6 +1,6 @@
 name: spot
 description: Find local video posts
-version: 1.0.12+28
+version: 1.0.12+29
 publish_to: none
 
 environment:
@@ -29,6 +29,7 @@ dependencies:
   geocoding: ^2.0.0
   share: ^2.0.1
   firebase_core: ^1.2.1
+  firebase_analytics: ^8.1.1
 
 dev_dependencies:
   flutter_test:
