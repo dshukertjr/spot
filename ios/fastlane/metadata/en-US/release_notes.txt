@@ -1,4 +1,4 @@
 Bringing you smoother experience! 
 
-- Improved map loading performance
-- New video now show up on top of the map
+- Videos load much faster
+- Fixed map painting order bug
