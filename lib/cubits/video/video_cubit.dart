@@ -153,7 +153,7 @@ class VideoCubit extends Cubit<VideoState> {
   }
 
   Future<void> shareVideo() {
-    return _repository.shareVideo(_videoDetail!.url);
+    return _repository.shareVideo(_videoDetail!);
   }
 
   Future<void> _initializeVideo() async {

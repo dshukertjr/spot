@@ -21,9 +21,7 @@ class TabPage extends StatefulWidget {
   static const name = 'TabPage';
   static Route<void> route() {
     return MaterialPageRoute(
-      settings: const RouteSettings(
-        name: name,
-      ),
+      settings: const RouteSettings(name: name),
       builder: (_) => TabPage(),
     );
   }

@@ -143,7 +143,7 @@ void main() {
 
       await tester.pump();
 
-      expect(find.text('You don\'t have any notificatins yet'), findsOneWidget);
+      expect(find.text('You don\'t have any notifications yet'), findsOneWidget);
       expect(find.byType(NotificationDot), findsNothing);
     });
   });

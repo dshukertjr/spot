@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,17 +10,22 @@ import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';
 
 class App extends StatelessWidget {
-  const App({Key? key}) : super(key: key);
+  App({Key? key}) : super(key: key);
+
+  static const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  static const _supabaseannonKey = String.fromEnvironment('SUPABASE_ANNON_KEY');
+  final _supabaseClient = SupabaseClient(_supabaseUrl, _supabaseannonKey);
+  final _analytics = FirebaseAnalytics();
 
   @override
   Widget build(BuildContext context) {
-    const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-    const _supabaseannonKey = String.fromEnvironment('SUPABASE_ANNON_KEY');
-    final supabaseClient = SupabaseClient(_supabaseUrl, _supabaseannonKey);
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<Repository>(
-          create: (context) => Repository(supabaseClient: supabaseClient),
+          create: (context) => Repository(
+            supabaseClient: _supabaseClient,
+            analytics: _analytics,
+          ),
         ),
       ],
       child: MultiBlocProvider(
@@ -66,6 +73,9 @@ class App extends StatelessWidget {
             GlobalMaterialLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
+          navigatorObservers: [
+            FirebaseAnalyticsObserver(analytics: _analytics),
+          ],
           home: SplashPage(),
         ),
       ),

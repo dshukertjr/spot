@@ -22,9 +22,9 @@ jobs:
         run: flutter analyze lib test
 
       - name: Run tests
-        run: flutter test --no-pub --coverage --test-randomize-ordering-seed random
+        run: flutter test --no-pub --coverage
 
-      - name: Check Code Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
-        with:
-          min_coverage: 95
+      # - name: Check Code Coverage
+      #   uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
+      #   with:
+      #     min_coverage: 95
