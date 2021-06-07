@@ -643,7 +643,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                   const SizedBox(width: 8),
                   GradientButton(
                     onPressed: () {
-                      BlocProvider.of<VideoCubit>(context).comment(_commentController.text);
+                      BlocProvider.of<VideoCubit>(context).postComment(_commentController.text);
                       _commentController.clear();
                     },
                     child: const Text('Send'),

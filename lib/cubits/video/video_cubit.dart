@@ -100,6 +100,17 @@ class VideoCubit extends Cubit<VideoState> {
         isCommentsShown: _isCommentsShown,
         comments: _comments,
       ));
+      final mentions = _comments!
+          .map((comment) => getUserIdsInComment(comment.text))
+          .expand((mention) => mention)
+          .toList();
+      final profilesList = await Future.wait(mentions.map(_repository.getProfile).toList());
+      final profiles = Map.fromEntries(
+          profilesList.map((profile) => MapEntry<String, Profile>(profile!.id, profile)));
+      _comments = _comments!
+          .map((comment) => comment.copyWith(
+              text: replaceMentionsWithUserNames(profiles: profiles, comment: comment.text)))
+          .toList();
     } catch (err) {
       emit(VideoError(message: 'Error opening comments of the video.'));
     }
@@ -115,7 +126,7 @@ class VideoCubit extends Cubit<VideoState> {
     ));
   }
 
-  Future<void> comment(String text) async {
+  Future<void> postComment(String text) async {
     try {
       final userId = _repository.userId;
       final user = await _repository.getProfile(userId!);
@@ -213,6 +224,22 @@ class VideoCubit extends Cubit<VideoState> {
       return null;
     }
     return mentionedUserName;
+  }
+
+  @visibleForTesting
+  List<String> getUserIdsInComment(String comment) {
+    final regExp = RegExp(r'\b@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
+    final matches = regExp.allMatches(comment);
+    return matches.map((match) => match.group(0)!).toList();
+  }
+
+  @visibleForTesting
+  String replaceMentionsWithUserNames({
+    required Map<String, Profile> profiles,
+    required String comment,
+  }) {
+    final regExp = RegExp(r'\b@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
+    return comment.replaceAllMapped(regExp, (match) => profiles[match.group(0)!]!.name);
   }
 
   Future<void> _initializeVideo() async {
