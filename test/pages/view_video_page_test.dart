@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:bloc_test/bloc_test.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/cubits/comment/comment_cubit.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/profile.dart';
@@ -18,6 +20,8 @@ import 'package:video_player/video_player.dart';
 import '../helpers/helpers.dart';
 
 class MockVideoCubit extends MockCubit<VideoState> implements VideoCubit {}
+
+class MockCommentCubit extends MockCubit<CommentState> implements CommentCubit {}
 
 void main() {
   setUpAll(() => HttpOverrides.global = null);
@@ -408,8 +412,17 @@ void main() {
           ]));
 
       await tester.pumpApp(
-        widget: BlocProvider<VideoCubit>(
-          create: (BuildContext context) => VideoCubit(repository: repository)..initialize('aaa'),
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<VideoCubit>(
+              create: (BuildContext context) =>
+                  VideoCubit(repository: repository)..initialize('aaa'),
+            ),
+            BlocProvider<CommentCubit>(
+              create: (BuildContext context) =>
+                  CommentCubit(repository: repository, videoId: 'aaa'),
+            ),
+          ],
           child: ViewVideoPage(),
         ),
         repository: repository,
@@ -455,18 +468,20 @@ void main() {
           haveLiked: false,
           createdBy: Profile(id: 'id', name: 'name'),
         ),
-        isCommentsShown: true,
-        comments: [],
-        isLoadingMentions: true,
       ));
+      registerFallbackValue<CommentState>(CommentInitial());
     });
+
     testWidgets('Mentions are being displayed properly', (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('myUserId');
       final mockVideoCubit = MockVideoCubit();
+      final mockCommentCubit = MockCommentCubit();
 
-      when(() => mockVideoCubit.getMentionSuggestion(any<String>()))
+      when(() => mockCommentCubit.getMentionSuggestion(any<String>()))
           .thenAnswer((invocation) => Future.value());
+
+      when(mockCommentCubit.loadComments).thenAnswer((invocation) => Future.value());
 
       whenListen(
         mockVideoCubit,
@@ -487,9 +502,6 @@ void main() {
               haveLiked: false,
               createdBy: Profile(id: 'id', name: 'name'),
             ),
-            isCommentsShown: true,
-            comments: [],
-            isLoadingMentions: true,
           ),
           VideoPlaying(
             videoDetail: VideoDetail(
@@ -507,13 +519,6 @@ void main() {
               haveLiked: false,
               createdBy: Profile(id: 'id', name: 'name'),
             ),
-            isCommentsShown: true,
-            comments: [],
-            isLoadingMentions: false,
-            mentionSuggestions: [
-              Profile(id: 'aaa', name: 'Tyler'),
-              Profile(id: 'bbb', name: 'Takahiro'),
-            ],
           ),
         ]),
         initialState: VideoPlaying(
@@ -532,31 +537,47 @@ void main() {
             haveLiked: false,
             createdBy: Profile(id: 'id', name: 'name'),
           ),
-          isCommentsShown: true,
-          comments: [],
-          isLoadingMentions: true,
         ),
       );
 
+      whenListen(
+        mockCommentCubit,
+        Stream.fromIterable([
+          CommentsLoaded([], mentionSuggestions: [], isLoadingMentions: true),
+          CommentsLoaded([], mentionSuggestions: [
+            Profile(id: 'aaa', name: 'Tyler'),
+            Profile(id: 'bbb', name: 'Takahiro'),
+          ], isLoadingMentions: false),
+        ]),
+      );
+
       await tester.pumpApp(
-        widget: BlocProvider<VideoCubit>(
-          create: (BuildContext context) => mockVideoCubit,
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<VideoCubit>(create: (BuildContext context) => mockVideoCubit),
+            BlocProvider<CommentCubit>(create: (BuildContext context) => mockCommentCubit),
+          ],
           child: ViewVideoPage(),
         ),
         repository: repository,
       );
 
-      expect(find.byType(VideoScreen), findsOneWidget);
-      expect(find.byType(CommentsOverlay), findsOneWidget);
-      expect(find.text('Tyler'), findsNothing);
-      expect(find.byWidget(preloader), findsNWidgets(2));
-
+      await tester.tap(find.byIcon(FeatherIcons.messageCircle));
       await tester.pump();
+
+      // expect(find.byType(VideoScreen), findsOneWidget);
+      // expect(find.byType(CommentsOverlay), findsOneWidget);
+      // expect(find.text('Tyler'), findsNothing);
+      // expect(find.byWidget(preloader), findsNWidgets(2));
+
+      // await tester.pump();
 
       expect(find.text('Tyler'), findsOneWidget);
       expect(find.byWidget(preloader), findsOneWidget);
 
       await tester.tap(find.text('Tyler'));
+
+      // TODO make sure tapping suggestion will change the controller text
       // await tester.pump();
 
       // expect(find.text('Tyler'), findsNothing);
