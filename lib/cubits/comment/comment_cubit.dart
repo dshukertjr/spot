@@ -21,8 +21,16 @@ class CommentCubit extends Cubit<CommentState> {
 
   Future<void> loadComments() async {
     try {
+      if (_comments.isNotEmpty) {
+        return;
+      }
       _comments = await _repository.getComments(_videoId);
-      emit(CommentsLoaded(_comments));
+      if (_comments.isEmpty) {
+        emit(CommentsEmpty());
+        return;
+      } else {
+        emit(CommentsLoaded(_comments));
+      }
       final mentions = _comments
           .map((comment) => getUserIdsInComment(comment.text))
           .expand((mention) => mention)
@@ -61,6 +69,8 @@ class CommentCubit extends Cubit<CommentState> {
     }
   }
 
+  /// Called everytime comment is being edited
+  /// Checks if there are any mentions in a comment and returns suggestion
   Future<void> getMentionSuggestion(String comment) async {
     final mentionedUserName = getMentionedUserName(comment);
     if (mentionedUserName == null) {
@@ -72,6 +82,8 @@ class CommentCubit extends Cubit<CommentState> {
     emit(CommentsLoaded(_comments, mentionSuggestions: mentionSuggestions));
   }
 
+  /// Called when mention suggestion has been tapped
+  /// This method appends the selected mention at the end of the comment
   String createCommentWithMentionedProfile({
     required String commentText,
     required String profileName,
@@ -109,9 +121,9 @@ class CommentCubit extends Cubit<CommentState> {
 
   @visibleForTesting
   List<String> getUserIdsInComment(String comment) {
-    final regExp = RegExp(r'\b@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
+    final regExp = RegExp(r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
     final matches = regExp.allMatches(comment);
-    return matches.map((match) => match.group(0)!).toList();
+    return matches.map((match) => match.group(0)!.substring(1)).toList();
   }
 
   @visibleForTesting

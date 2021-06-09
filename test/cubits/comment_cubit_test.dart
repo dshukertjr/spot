@@ -145,6 +145,35 @@ void main() {
         );
         expect(replacedComment, '@another @some ');
       });
+      test('getUserIdsInComment with 0 user id', () {
+        final comment = 'some random text';
+        final userIds = commentCubit.getUserIdsInComment(comment);
+        expect(userIds, []);
+      });
+      test('getUserIdsInComment with 1 user id at the beginning', () {
+        final comment = '@b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay';
+        final userIds = commentCubit.getUserIdsInComment(comment);
+        expect(userIds, ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+      });
+      test('getUserIdsInComment with 1 user id', () {
+        final comment = 'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay';
+        final userIds = commentCubit.getUserIdsInComment(comment);
+        expect(userIds, ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+      });
+      test('getUserIdsInComment with 2 user id', () {
+        final comment =
+            'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
+        final userIds = commentCubit.getUserIdsInComment(comment);
+        expect(userIds,
+            ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2', 'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+      });
+      test('getUserIdsInComment with 2 user id with the same id', () {
+        final comment =
+            'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
+        final userIds = commentCubit.getUserIdsInComment(comment);
+        expect(userIds,
+            ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2', 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+      });
     });
   });
 }
