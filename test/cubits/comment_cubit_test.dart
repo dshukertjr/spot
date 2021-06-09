@@ -118,6 +118,33 @@ void main() {
         final mentionedUserName = commentCubit.getMentionedUserName(comment);
         expect(mentionedUserName, 'some');
       });
+      test('createCommentWithMentionedProfile where the comment only has mentions', () {
+        final commentText = '@som';
+        final profileName = 'some';
+        final replacedComment = commentCubit.createCommentWithMentionedProfile(
+          commentText: commentText,
+          profileName: profileName,
+        );
+        expect(replacedComment, '@some ');
+      });
+      test('createCommentWithMentionedProfile where the comment only has mentions', () {
+        final commentText = 'another @som';
+        final profileName = 'some';
+        final replacedComment = commentCubit.createCommentWithMentionedProfile(
+          commentText: commentText,
+          profileName: profileName,
+        );
+        expect(replacedComment, 'another @some ');
+      });
+      test('createCommentWithMentionedProfile where the comment only has mentions', () {
+        final commentText = '@another @som';
+        final profileName = 'some';
+        final replacedComment = commentCubit.createCommentWithMentionedProfile(
+          commentText: commentText,
+          profileName: profileName,
+        );
+        expect(replacedComment, '@another @some ');
+      });
     });
   });
 }

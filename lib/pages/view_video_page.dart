@@ -93,21 +93,12 @@ class VideoScreen extends StatefulWidget {
     Key? key,
     VideoPlayerController? controller,
     required VideoDetail video,
-    List<Comment>? comments,
-    List<Profile>? mentionSuggestions,
-    bool isMentionnsLoading = false,
   })  : _controller = controller,
         _video = video,
-        _comments = comments,
-        _mentionSuggestions = mentionSuggestions,
-        _isLoadingMentions = isMentionnsLoading,
         super(key: key);
 
   final VideoPlayerController? _controller;
   final VideoDetail _video;
-  final List<Comment>? _comments;
-  final List<Profile>? _mentionSuggestions;
-  final bool _isLoadingMentions;
 
   @override
   _VideoScreenState createState() => _VideoScreenState();
@@ -729,11 +720,12 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                       leading: ProfileImage(imageUrl: profile.imageUrl),
                       title: Text(profile.name),
                       onTap: () {
-                        final comment = _commentController.text;
-                        final lastSpaceIndex =
-                            comment.lastIndexOf(' ') < 0 ? 0 : comment.lastIndexOf(' ');
-                        final replacedComment =
-                            '${comment.substring(0, lastSpaceIndex)} @${profile.name} ';
+                        final commentText = _commentController.text;
+                        final replacedComment = BlocProvider.of<CommentCubit>(context)
+                            .createCommentWithMentionedProfile(
+                          commentText: commentText,
+                          profileName: profile.name,
+                        );
                         setState(() {
                           _commentController
                             ..text = replacedComment

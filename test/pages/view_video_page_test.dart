@@ -483,6 +483,11 @@ void main() {
 
       when(mockCommentCubit.loadComments).thenAnswer((invocation) => Future.value());
 
+      when(() => mockCommentCubit.createCommentWithMentionedProfile(
+            commentText: any<String>(named: 'commentText'),
+            profileName: any<String>(named: 'profileName'),
+          )).thenReturn('@Tyler ');
+
       whenListen(
         mockVideoCubit,
         Stream.fromIterable([
@@ -543,11 +548,35 @@ void main() {
       whenListen(
         mockCommentCubit,
         Stream.fromIterable([
-          CommentsLoaded([], mentionSuggestions: [], isLoadingMentions: true),
-          CommentsLoaded([], mentionSuggestions: [
-            Profile(id: 'aaa', name: 'Tyler'),
-            Profile(id: 'bbb', name: 'Takahiro'),
-          ], isLoadingMentions: false),
+          CommentsLoaded(
+            [
+              Comment(
+                id: 'id',
+                text: 'text',
+                createdAt: DateTime.now(),
+                videoId: 'videoId',
+                user: Profile(id: 'id', name: 'name'),
+              )
+            ],
+            mentionSuggestions: [],
+            isLoadingMentions: true,
+          ),
+          CommentsLoaded(
+            [
+              Comment(
+                id: 'id',
+                text: 'text',
+                createdAt: DateTime.now(),
+                videoId: 'videoId',
+                user: Profile(id: 'id', name: 'name'),
+              )
+            ],
+            mentionSuggestions: [
+              Profile(id: 'aaa', name: 'Tyler'),
+              Profile(id: 'bbb', name: 'Takahiro'),
+            ],
+            isLoadingMentions: false,
+          ),
         ]),
       );
 
@@ -565,24 +594,16 @@ void main() {
       await tester.tap(find.byIcon(FeatherIcons.messageCircle));
       await tester.pump();
 
-      // expect(find.byType(VideoScreen), findsOneWidget);
-      // expect(find.byType(CommentsOverlay), findsOneWidget);
-      // expect(find.text('Tyler'), findsNothing);
-      // expect(find.byWidget(preloader), findsNWidgets(2));
-
-      // await tester.pump();
-
+      /// suggestions are being displayed
       expect(find.text('Tyler'), findsOneWidget);
       expect(find.byWidget(preloader), findsOneWidget);
 
       await tester.tap(find.text('Tyler'));
 
-      // TODO make sure tapping suggestion will change the controller text
-      // await tester.pump();
+      await tester.pump();
 
-      // expect(find.text('Tyler'), findsNothing);
-      // final value = tester.widget<TextFormField>(find.byType(TextFormField)).controller!.text;
-      // expect(value, '@Tyler ');
+      final value = tester.widget<TextFormField>(find.byType(TextFormField)).controller!.text;
+      expect(value, '@Tyler ');
     });
   });
 }

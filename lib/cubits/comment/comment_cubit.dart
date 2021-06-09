@@ -72,6 +72,17 @@ class CommentCubit extends Cubit<CommentState> {
     emit(CommentsLoaded(_comments, mentionSuggestions: mentionSuggestions));
   }
 
+  String createCommentWithMentionedProfile({
+    required String commentText,
+    required String profileName,
+  }) {
+    final lastSpaceIndex = commentText.lastIndexOf(' ') < 0 ? 0 : commentText.lastIndexOf(' ');
+    if (lastSpaceIndex == 0) {
+      return '@$profileName ';
+    }
+    return '${commentText.substring(0, lastSpaceIndex)} @$profileName ';
+  }
+
   /// Replaces mentioned user names with users' id in comment text
   @visibleForTesting
   String replaceMentionsInAComment({required String comment, required List<Profile> mentions}) {
