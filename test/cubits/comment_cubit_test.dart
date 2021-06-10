@@ -174,6 +174,45 @@ void main() {
         expect(userIds,
             ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2', 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
       });
+      test('replaceMentionsWithUserNames with two profiles', () {
+        final comment =
+            'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
+        final profiles = <String, Profile>{
+          'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2': Profile(
+            id: 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
+            name: 'Tyler',
+          ),
+          'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2': Profile(
+            id: 'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
+            name: 'Sam',
+          ),
+        };
+        final updatedComment =
+            commentCubit.replaceMentionsWithUserNames(comment: comment, profiles: profiles);
+        expect(updatedComment, 'something random @Tyler yay @Sam');
+      });
+      test('replaceMentionsWithUserNames with two userIds of the same user', () {
+        final comment =
+            'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
+        final profiles = <String, Profile>{
+          'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2': Profile(
+            id: 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
+            name: 'Tyler',
+          ),
+        };
+        final updatedComment =
+            commentCubit.replaceMentionsWithUserNames(comment: comment, profiles: profiles);
+        expect(updatedComment, 'something random @Tyler yay @Tyler');
+      });
+      test(
+          'replaceMentionsWithUserNames where the profile was not found should not change the comment',
+          () {
+        final comment = 'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay';
+        final profiles = <String, Profile>{};
+        final updatedComment =
+            commentCubit.replaceMentionsWithUserNames(comment: comment, profiles: profiles);
+        expect(updatedComment, 'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay');
+      });
     });
   });
 }

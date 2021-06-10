@@ -131,7 +131,10 @@ class CommentCubit extends Cubit<CommentState> {
     required Map<String, Profile> profiles,
     required String comment,
   }) {
-    final regExp = RegExp(r'\b@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
-    return comment.replaceAllMapped(regExp, (match) => profiles[match.group(0)!]!.name);
+    final regExp = RegExp(r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
+    return comment.replaceAllMapped(
+        regExp,
+        (match) =>
+            '@${profiles[match.group(0)!.substring(1)]?.name ?? match.group(0)!.substring(1)}');
   }
 }
