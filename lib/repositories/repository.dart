@@ -351,7 +351,7 @@ class Repository {
     if (mentions.isEmpty) {
       return;
     }
-    final commentId = res.data![0].id;
+    final commentId = res.data![0]['id'];
     final mentionRes = await _supabaseClient
         .from('mentions')
         .insert(mentions
@@ -544,8 +544,12 @@ class Repository {
     if (_mentionSuggestionCache[queryString] != null) {
       return _mentionSuggestionCache[queryString]!;
     }
-    final res =
-        await _supabaseClient.from('users').select().like('name', '%$queryString%').execute();
+    final res = await _supabaseClient
+        .from('users')
+        .select()
+        .like('name', '%$queryString%')
+        .limit(2)
+        .execute();
     final error = res.error;
     if (error != null) {
       throw PlatformException(code: 'Error finding mentionend users', message: error.message);

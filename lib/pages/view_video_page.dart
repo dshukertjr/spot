@@ -690,7 +690,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
         height: 120,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: Color(0x33000000),
+            color: Color(0xff000000),
           ),
           child: preloader,
         ),
@@ -701,7 +701,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
           height: 120,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: Color(0x33000000),
+              color: Color(0xff000000),
             ),
             child: Center(
               child: Text('No matching user found'),
@@ -709,10 +709,12 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
           ),
         );
       } else {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: DecoratedBox(
-            decoration: const BoxDecoration(color: Color(0x33000000)),
+        return DecoratedBox(
+          decoration: const BoxDecoration(
+            color: Color(0xff000000),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Column(
               children: mentionSuggestions
                   .map<Widget>(
