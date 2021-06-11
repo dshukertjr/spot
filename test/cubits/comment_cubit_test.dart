@@ -38,10 +38,6 @@ void main() {
         ),
       );
       commentCubit.loadComments();
-
-      // commentCubit.stream.listen(expectAsync1<void, CommentState>((state) {
-      //   expect(state is CommentsLoaded, true);
-      // }));
     });
   });
 

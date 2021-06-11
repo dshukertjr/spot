@@ -45,6 +45,10 @@ class Repository {
   final _commentsStreamController = BehaviorSubject<List<Comment>>();
   Stream<List<Comment>> get commentsStream => _commentsStreamController.stream;
 
+  List<AppNotification> _notifications = [];
+  final _notificationsStreamController = BehaviorSubject<List<AppNotification>>();
+  Stream<List<AppNotification>> get notificationsStream => _notificationsStreamController.stream;
+
   final _mentionSuggestionCache = <String, List<Profile>>{};
 
   String? get userId => _supabaseClient.auth.currentUser?.id;
@@ -376,7 +380,7 @@ class Repository {
     }
   }
 
-  Future<List<AppNotification>> getNotifications() async {
+  Future<void> getNotifications() async {
     final uid = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient
         .from('notifications')
@@ -389,7 +393,7 @@ class Repository {
     final error = res.error;
     if (error != null) {
       throw PlatformException(
-        code: error.code ?? 'Unlike Video',
+        code: error.code ?? 'getNotifications',
         message: error.message,
       );
     }
@@ -399,8 +403,9 @@ class Repository {
     if (timestampOfLastSeenNotification != null) {
       createdAtOfLastSeenNotification = DateTime.parse(timestampOfLastSeenNotification);
     }
-    return AppNotification.fromData(data,
+    _notifications = AppNotification.fromData(data,
         createdAtOfLastSeenNotification: createdAtOfLastSeenNotification);
+    _notificationsStreamController.sink.add(_notifications);
   }
 
   Future<void> block(String blockedUserId) async {

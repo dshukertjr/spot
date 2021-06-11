@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/models/notification.dart';
@@ -12,19 +14,23 @@ class NotificationCubit extends Cubit<NotificationState> {
 
   final Repository _repository;
   List<AppNotification> _notifications = <AppNotification>[];
+  StreamSubscription<List<AppNotification>>? _notificationListener;
 
   Future<void> loadNotifications() async {
     try {
-      _notifications = await _repository.getNotifications();
-      if (_notifications.isEmpty) {
-        emit(NotificationEmpty());
-      } else {
-        final hasNewNotification =
-            _notifications.where((notification) => notification.isNew).isNotEmpty;
+      await _repository.getNotifications();
+      _notificationListener = _repository.notificationsStream.listen((notifications) {
+        _notifications = notifications;
+        if (_notifications.isEmpty) {
+          emit(NotificationEmpty());
+        } else {
+          final hasNewNotification =
+              _notifications.where((notification) => notification.isNew).isNotEmpty;
 
-        emit(NotificationLoaded(
-            notifications: _notifications, hasNewNotification: hasNewNotification));
-      }
+          emit(NotificationLoaded(
+              notifications: _notifications, hasNewNotification: hasNewNotification));
+        }
+      });
     } catch (err) {
       emit(NotificationInitial(errorMessage: 'Error loading notifications'));
     }
@@ -35,5 +41,11 @@ class NotificationCubit extends Cubit<NotificationState> {
       emit(NotificationLoaded(notifications: _notifications, hasNewNotification: false));
       return _repository.updateTimestampOfLastSeenNotification(_notifications.first.createdAt);
     }
+  }
+
+  @override
+  Future<void> close() {
+    _notificationListener?.cancel();
+    return super.close();
   }
 }
