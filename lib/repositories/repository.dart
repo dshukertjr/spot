@@ -40,6 +40,11 @@ class Repository {
   final _profileStreamController = BehaviorSubject<Map<String, Profile>>();
   Stream<Map<String, Profile>> get profileStream => _profileStreamController.stream;
 
+  @visibleForTesting
+  List<Comment> comments = [];
+  final _commentsStreamController = BehaviorSubject<List<Comment>>();
+  Stream<List<Comment>> get commentsStream => _commentsStreamController.stream;
+
   final _mentionSuggestionCache = <String, List<Profile>>{};
 
   String? get userId => _supabaseClient.auth.currentUser?.id;
@@ -313,7 +318,7 @@ class Repository {
     }
   }
 
-  Future<List<Comment>> getComments(String videoId) async {
+  Future<void> getComments(String videoId) async {
     final res = await _supabaseClient
         .from('video_comments')
         .select()
@@ -328,7 +333,8 @@ class Repository {
         message: error.message,
       );
     }
-    return Comment.commentsFromData(List.from(data));
+    comments = Comment.commentsFromData(List.from(data));
+    _commentsStreamController.sink.add(comments);
   }
 
   Future<void> comment({

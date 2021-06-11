@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/cubits/comment/comment_cubit.dart';
+import 'package:spot/models/comment.dart';
 import 'package:spot/models/profile.dart';
 
 import '../helpers/pump_app.dart';
@@ -8,10 +9,40 @@ import '../helpers/pump_app.dart';
 void main() {
   group('Basic', () {
     final repository = MockRepository();
-    setUp(() {
-      when(() => repository.getComments('')).thenAnswer((invocation) => Future.value([]));
+    final commentCubit = CommentCubit(repository: repository, videoId: 'abc');
+    test('CommentCubit Emits CommentsLoaded', () {
+      when(() => repository.getComments('abc')).thenAnswer((invocation) => Future.value());
+      when(() => repository.commentsStream).thenAnswer((invocation) => Stream.fromIterable([
+            [],
+            [
+              Comment(
+                id: 'id',
+                text: 'This is a sample comment',
+                createdAt: DateTime.now(),
+                videoId: 'aaa',
+                user: Profile(
+                  id: 'abc',
+                  name: 'Tyler',
+                ),
+              )
+            ],
+          ]));
+
+      expectLater(
+        commentCubit.stream,
+        emitsInOrder(
+          [
+            isA<CommentsEmpty>(),
+            isA<CommentsLoaded>(),
+          ],
+        ),
+      );
+      commentCubit.loadComments();
+
+      // commentCubit.stream.listen(expectAsync1<void, CommentState>((state) {
+      //   expect(state is CommentsLoaded, true);
+      // }));
     });
-    testWidgets('comment cubit ...', (tester) async {});
   });
 
   group('mentions', () {

@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:bloc_test/bloc_test.dart';
@@ -401,7 +400,9 @@ void main() {
           .thenAnswer(
               (_) => Future.value(VideoPlayerController.file(File('test_resources/video.mp4'))));
 
-      when(() => repository.getComments('aaa')).thenAnswer((_) => Future.value([
+      when(() => repository.getComments('aaa')).thenAnswer((_) => Future.value());
+
+      when(() => repository.commentsStream).thenAnswer((invocation) => Stream.value([
             Comment(
               id: 'id',
               text: 'sample comment',
@@ -420,7 +421,7 @@ void main() {
             ),
             BlocProvider<CommentCubit>(
               create: (BuildContext context) =>
-                  CommentCubit(repository: repository, videoId: 'aaa'),
+                  CommentCubit(repository: repository, videoId: 'aaa')..loadComments(),
             ),
           ],
           child: ViewVideoPage(),
@@ -437,6 +438,8 @@ void main() {
       await tester.pump();
 
       expect(find.byType(CommentsOverlay), findsOneWidget);
+
+      await tester.pump();
 
       // Comments are loaded and displaed
       expect(

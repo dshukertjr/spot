@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:spot/models/comment.dart';
@@ -15,34 +17,49 @@ class CommentCubit extends Cubit<CommentState> {
         super(CommentInitial());
 
   final Repository _repository;
+  final String _videoId;
 
   List<Comment> _comments = [];
-  final String _videoId;
+
+  @visibleForTesting
+  StreamSubscription<List<Comment>>? commentsListener;
+
+  @override
+  Future<void> close() {
+    commentsListener?.cancel();
+    return super.close();
+  }
 
   Future<void> loadComments() async {
     try {
       if (_comments.isNotEmpty) {
         return;
       }
-      _comments = await _repository.getComments(_videoId);
-      if (_comments.isEmpty) {
-        emit(CommentsEmpty());
-        return;
-      } else {
+      await _repository.getComments(_videoId);
+      commentsListener = _repository.commentsStream.listen((comments) async {
+        _comments = comments;
+        if (_comments.isEmpty) {
+          emit(CommentsEmpty());
+          return;
+        } else {
+          emit(CommentsLoaded(_comments));
+        }
+        final mentions = _comments
+            .map((comment) => getUserIdsInComment(comment.text))
+            .expand((mention) => mention)
+            .toList();
+        if (mentions.isEmpty) {
+          return;
+        }
+        final profilesList = await Future.wait(mentions.map(_repository.getProfile).toList());
+        final profiles = Map.fromEntries(
+            profilesList.map((profile) => MapEntry<String, Profile>(profile!.id, profile)));
+        _comments = _comments
+            .map((comment) => comment.copyWith(
+                text: replaceMentionsWithUserNames(profiles: profiles, comment: comment.text)))
+            .toList();
         emit(CommentsLoaded(_comments));
-      }
-      final mentions = _comments
-          .map((comment) => getUserIdsInComment(comment.text))
-          .expand((mention) => mention)
-          .toList();
-      final profilesList = await Future.wait(mentions.map(_repository.getProfile).toList());
-      final profiles = Map.fromEntries(
-          profilesList.map((profile) => MapEntry<String, Profile>(profile!.id, profile)));
-      _comments = _comments
-          .map((comment) => comment.copyWith(
-              text: replaceMentionsWithUserNames(profiles: profiles, comment: comment.text)))
-          .toList();
-      emit(CommentsLoaded(_comments));
+      });
     } catch (err) {
       emit(CommentError(message: 'Error opening comments of the video.'));
     }
