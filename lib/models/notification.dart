@@ -76,4 +76,28 @@ class AppNotification {
       },
     ).toList();
   }
+
+  AppNotification copyWith({
+    NotificationType? type,
+    String? commentText,
+    String? targetVideoId,
+    String? targetVideoThumbnail,
+    String? actionUid,
+    String? actionUserName,
+    String? actionUserImageUrl,
+    DateTime? createdAt,
+    bool? isNew,
+  }) {
+    return AppNotification(
+      type: type ?? this.type,
+      commentText: commentText ?? this.commentText,
+      targetVideoId: targetVideoId ?? this.targetVideoId,
+      targetVideoThumbnail: targetVideoThumbnail ?? this.targetVideoThumbnail,
+      actionUid: actionUid ?? this.actionUid,
+      actionUserName: actionUserName ?? this.actionUserName,
+      actionUserImageUrl: actionUserImageUrl ?? this.actionUserImageUrl,
+      createdAt: createdAt ?? this.createdAt,
+      isNew: isNew ?? this.isNew,
+    );
+  }
 }

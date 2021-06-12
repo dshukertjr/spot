@@ -406,6 +406,8 @@ class Repository {
     _notifications = AppNotification.fromData(data,
         createdAtOfLastSeenNotification: createdAtOfLastSeenNotification);
     _notificationsStreamController.sink.add(_notifications);
+
+    //TODO finnd mentions in a comment and
   }
 
   Future<void> block(String blockedUserId) async {
@@ -592,6 +594,7 @@ class Repository {
   }
 
   /// Replaces mentioned user names with users' id in comment text
+  /// Called right before saving a new comment to the database
   String replaceMentionsInAComment({required String comment, required List<Profile> mentions}) {
     var mentionReplacedText = comment;
     for (final mention in mentions) {
@@ -601,6 +604,7 @@ class Repository {
   }
 
   /// Extracts the username to be searched within the database
+  /// Called when a user is typing up a comment
   String? getMentionedUserName(String comment) {
     final mention = comment.split(' ').last;
     if (mention.isEmpty || mention[0] != '@') {
@@ -613,6 +617,7 @@ class Repository {
     return mentionedUserName;
   }
 
+  /// Returns list of userIds that are present in a comment
   List<String> getUserIdsInComment(String comment) {
     final regExp = RegExp(r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
     final matches = regExp.allMatches(comment);
@@ -620,14 +625,14 @@ class Repository {
   }
 
   /// Replaces user ids found in comments with user names
-  String replaceMentionsWithUserNames({
-    required Map<String, Profile> profiles,
-    required String comment,
-  }) {
+  Future<String> replaceMentionsWithUserNames(
+    String comment,
+  ) async {
+    await Future.wait(getUserIdsInComment(comment).map(getProfile).toList());
     final regExp = RegExp(r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
     return comment.replaceAllMapped(
         regExp,
         (match) =>
-            '@${profiles[match.group(0)!.substring(1)]?.name ?? match.group(0)!.substring(1)}');
+            '@${profilesCache[match.group(0)!.substring(1)]?.name ?? match.group(0)!.substring(1)}');
   }
 }

@@ -19,7 +19,7 @@ class NotificationCubit extends Cubit<NotificationState> {
   Future<void> loadNotifications() async {
     try {
       await _repository.getNotifications();
-      _notificationListener = _repository.notificationsStream.listen((notifications) {
+      _notificationListener = _repository.notificationsStream.listen((notifications) async {
         _notifications = notifications;
         if (_notifications.isEmpty) {
           emit(NotificationEmpty());
@@ -27,6 +27,11 @@ class NotificationCubit extends Cubit<NotificationState> {
           final hasNewNotification =
               _notifications.where((notification) => notification.isNew).isNotEmpty;
 
+          emit(NotificationLoaded(
+              notifications: _notifications, hasNewNotification: hasNewNotification));
+          for (var notification in _notifications) {
+            notification = await replaceCommentTextWithMentionedUserName(notification);
+          }
           emit(NotificationLoaded(
               notifications: _notifications, hasNewNotification: hasNewNotification));
         }
@@ -41,6 +46,16 @@ class NotificationCubit extends Cubit<NotificationState> {
       emit(NotificationLoaded(notifications: _notifications, hasNewNotification: false));
       return _repository.updateTimestampOfLastSeenNotification(_notifications.first.createdAt);
     }
+  }
+
+  @visibleForTesting
+  Future<AppNotification> replaceCommentTextWithMentionedUserName(
+      AppNotification notification) async {
+    if (notification.type != NotificationType.comment) {
+      return notification;
+    }
+    final commentText = await _repository.replaceMentionsWithUserNames(notification.commentText!);
+    return notification.copyWith(commentText: commentText);
   }
 
   @override

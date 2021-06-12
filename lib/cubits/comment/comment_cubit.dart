@@ -51,14 +51,10 @@ class CommentCubit extends Cubit<CommentState> {
         if (mentions.isEmpty) {
           return;
         }
-        final profilesList = await Future.wait(mentions.map(_repository.getProfile).toList());
-        final profiles = Map.fromEntries(
-            profilesList.map((profile) => MapEntry<String, Profile>(profile!.id, profile)));
-        _comments = _comments
-            .map((comment) => comment.copyWith(
-                text: _repository.replaceMentionsWithUserNames(
-                    profiles: profiles, comment: comment.text)))
-            .toList();
+        for (var comment in _comments) {
+          final commentText = await _repository.replaceMentionsWithUserNames(comment.text);
+          comment = comment.copyWith(text: commentText);
+        }
         emit(CommentsLoaded(_comments));
       });
     } catch (err) {

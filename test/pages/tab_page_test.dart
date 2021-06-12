@@ -157,7 +157,8 @@ void main() {
               targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
               actionUid: 'aaa',
               actionUserName: 'Tyler',
-              commentText: 'hey',
+              commentText:
+                  'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
               isNew: false,
             ),
           ]));
@@ -175,6 +176,9 @@ void main() {
           .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
       when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
       when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+      when(() => repository.replaceMentionsWithUserNames(
+              'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2'))
+          .thenAnswer((invocation) async => 'something random @Tyler yay @Sam');
 
       final tabPage = TabPage();
       await tester.pumpApp(

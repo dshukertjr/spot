@@ -8,8 +8,6 @@ import 'package:spot/models/profile.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';
 
-import '../helpers/helpers.dart';
-
 // ignore_for_file: unawaited_futures
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
@@ -558,44 +556,75 @@ void main() {
       expect(userIds,
           ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2', 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
     });
-    test('replaceMentionsWithUserNames with two profiles', () {
+  });
+
+  group('replaceMentionsWithUserNames', () {
+    late SupabaseClient supabaseClient;
+    late HttpServer mockServer;
+
+    Future<void> handleRequests(HttpServer server) async {
+      await for (final HttpRequest request in server) {
+        final url = request.uri.toString();
+        if (url == '/rest/v1/users?select=%2A&id=eq.b35bac1a-8d4b-4361-99cc-a1d274d1c4d2') {
+          final jsonString = jsonEncode([
+            {
+              'id': 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
+              'name': 'Tyler',
+              'description': 'Hi',
+            },
+          ]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
+        } else if (url == '/rest/v1/users?select=%2A&id=eq.aaabac1a-8d4b-4361-99cc-a1d274d1c4d2') {
+          final jsonString = jsonEncode([
+            {
+              'id': 'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
+              'name': 'Sam',
+              'description': 'Hi',
+            },
+          ]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
+        } else {
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..close();
+        }
+      }
+    }
+
+    setUp(() async {
+      mockServer = await HttpServer.bind('localhost', 0);
+      supabaseClient =
+          SupabaseClient('http://${mockServer.address.host}:${mockServer.port}', 'supabaseKey');
+      handleRequests(mockServer);
+    });
+
+    tearDown(() async {
+      await mockServer.close();
+    });
+
+    test('replaceMentionsWithUserNames with two profiles', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
       final comment =
           'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
-      final profiles = <String, Profile>{
-        'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2': Profile(
-          id: 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
-          name: 'Tyler',
-        ),
-        'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2': Profile(
-          id: 'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
-          name: 'Sam',
-        ),
-      };
-      final updatedComment =
-          repository.replaceMentionsWithUserNames(comment: comment, profiles: profiles);
+
+      final updatedComment = await repository.replaceMentionsWithUserNames(comment);
       expect(updatedComment, 'something random @Tyler yay @Sam');
     });
-    test('replaceMentionsWithUserNames with two userIds of the same user', () {
+    test('replaceMentionsWithUserNames with two userIds of the same user', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
       final comment =
           'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
-      final profiles = <String, Profile>{
-        'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2': Profile(
-          id: 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
-          name: 'Tyler',
-        ),
-      };
-      final updatedComment =
-          repository.replaceMentionsWithUserNames(comment: comment, profiles: profiles);
+
+      final updatedComment = await repository.replaceMentionsWithUserNames(comment);
       expect(updatedComment, 'something random @Tyler yay @Tyler');
-    });
-    test(
-        'replaceMentionsWithUserNames where the profile was not found should not change the comment',
-        () {
-      final comment = 'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay';
-      final profiles = <String, Profile>{};
-      final updatedComment =
-          repository.replaceMentionsWithUserNames(comment: comment, profiles: profiles);
-      expect(updatedComment, 'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay');
     });
   });
 }

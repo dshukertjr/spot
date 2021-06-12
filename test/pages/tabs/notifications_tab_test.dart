@@ -50,6 +50,8 @@ void main() {
               isNew: false,
             ),
           ]));
+      when(() => repository.replaceMentionsWithUserNames(any<String>()))
+          .thenAnswer((invocation) async => '');
 
       await tester.pumpApp(
         widget: BlocProvider<NotificationCubit>(
@@ -112,6 +114,8 @@ void main() {
               isNew: false,
             ),
           ]));
+      when(() => repository.replaceMentionsWithUserNames(any<String>()))
+          .thenAnswer((invocation) async => '');
 
       await tester.pumpApp(
         widget: BlocProvider<NotificationCubit>(

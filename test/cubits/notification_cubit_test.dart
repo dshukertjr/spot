@@ -37,6 +37,7 @@ Future<void> main() async {
       },
       expect: () => [
         isA<NotificationLoaded>(),
+        isA<NotificationLoaded>(),
       ],
     );
     blocTest<NotificationCubit, NotificationState>(
@@ -59,7 +60,7 @@ Future<void> main() async {
 
   group('NotificationCubit', () {
     final repository = MockRepository();
-    final commentCubit = NotificationCubit(repository: repository);
+    final notificationCubit = NotificationCubit(repository: repository);
     test('Can load notifications', () {
       when(repository.getNotifications).thenAnswer((invocation) => Future.value());
       when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.fromIterable([
@@ -94,16 +95,107 @@ Future<void> main() async {
             ]
           ]));
 
+      when(() => repository.replaceMentionsWithUserNames(any<String>()))
+          .thenAnswer((invocation) async => '');
+
       expectLater(
-        commentCubit.stream,
+        notificationCubit.stream,
         emitsInOrder(
           [
             isA<NotificationEmpty>(),
             isA<NotificationLoaded>(),
+            isA<NotificationLoaded>(),
           ],
         ),
       );
-      commentCubit.loadNotifications();
+      notificationCubit.loadNotifications();
+    });
+    test('Can load notifications with mentions', () {
+      when(repository.getNotifications).thenAnswer((invocation) => Future.value());
+      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.fromIterable([
+            [],
+            [
+              AppNotification(
+                type: NotificationType.like,
+                createdAt: DateTime.now(),
+                targetVideoId: '',
+                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
+                actionUid: 'aaa',
+                actionUserName: 'Tyler',
+                isNew: true,
+              ),
+              AppNotification(
+                type: NotificationType.follow,
+                createdAt: DateTime.now(),
+                actionUid: 'aaa',
+                actionUserName: 'Tyler',
+                isNew: false,
+              ),
+              AppNotification(
+                type: NotificationType.comment,
+                createdAt: DateTime.now(),
+                targetVideoId: '',
+                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
+                actionUid: 'aaa',
+                actionUserName: 'Tyler',
+                commentText:
+                    'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
+                isNew: false,
+              ),
+            ],
+            [
+              AppNotification(
+                type: NotificationType.like,
+                createdAt: DateTime.now(),
+                targetVideoId: '',
+                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
+                actionUid: 'aaa',
+                actionUserName: 'Tyler',
+                isNew: true,
+              ),
+              AppNotification(
+                type: NotificationType.follow,
+                createdAt: DateTime.now(),
+                actionUid: 'aaa',
+                actionUserName: 'Tyler',
+                isNew: false,
+              ),
+              AppNotification(
+                type: NotificationType.comment,
+                createdAt: DateTime.now(),
+                targetVideoId: '',
+                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
+                actionUid: 'aaa',
+                actionUserName: 'Tyler',
+                commentText: 'something random @Tyler yay @Sam',
+                isNew: false,
+              ),
+            ],
+          ]));
+
+      when(() => repository.replaceMentionsWithUserNames(any<String>()))
+          .thenAnswer((invocation) async => 'something random @Tyler yay @Sam');
+
+      expectLater(
+        notificationCubit.stream,
+        emitsInOrder(
+          [
+            isA<NotificationEmpty>(),
+            isA<NotificationLoaded>(),
+            isA<NotificationLoaded>(),
+          ],
+        ),
+      );
+      var count = 0;
+      notificationCubit.stream.listen(
+        (state) {
+          if (count == 2 && state is NotificationLoaded) {
+            expect(state.notifications.last.commentText, 'something random @Tyler yay @Sam');
+          }
+          count++;
+        },
+      );
+      notificationCubit.loadNotifications();
     });
   });
 }
