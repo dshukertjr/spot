@@ -131,35 +131,36 @@ void main() {
     testWidgets('Notification dots are shown properly', (tester) async {
       final repository = MockRepository();
       when(repository.getNotifications).thenAnswer(
-        (_) => Future.value([
-          AppNotification(
-            type: NotificationType.like,
-            createdAt: DateTime.now(),
-            targetVideoId: '',
-            targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-            actionUid: 'aaa',
-            actionUserName: 'Tyler',
-            isNew: true,
-          ),
-          AppNotification(
-            type: NotificationType.follow,
-            createdAt: DateTime.now(),
-            actionUid: 'aaa',
-            actionUserName: 'Tyler',
-            isNew: false,
-          ),
-          AppNotification(
-            type: NotificationType.comment,
-            createdAt: DateTime.now(),
-            targetVideoId: '',
-            targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-            actionUid: 'aaa',
-            actionUserName: 'Tyler',
-            commentText: 'hey',
-            isNew: false,
-          ),
-        ]),
+        (_) => Future.value(),
       );
+      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.value([
+            AppNotification(
+              type: NotificationType.like,
+              createdAt: DateTime.now(),
+              targetVideoId: '',
+              targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
+              actionUid: 'aaa',
+              actionUserName: 'Tyler',
+              isNew: true,
+            ),
+            AppNotification(
+              type: NotificationType.follow,
+              createdAt: DateTime.now(),
+              actionUid: 'aaa',
+              actionUserName: 'Tyler',
+              isNew: false,
+            ),
+            AppNotification(
+              type: NotificationType.comment,
+              createdAt: DateTime.now(),
+              targetVideoId: '',
+              targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
+              actionUid: 'aaa',
+              actionUserName: 'Tyler',
+              commentText: 'hey',
+              isNew: false,
+            ),
+          ]));
       when(() => repository.updateTimestampOfLastSeenNotification(any()))
           .thenAnswer((_) => Future.value());
       when(repository.determinePosition).thenAnswer((_) => Future.value(const LatLng(0, 0)));
@@ -245,19 +246,18 @@ void main() {
         'Users who don\'t have timestampOfLastSeenNotification and have notifications will see a dot',
         (tester) async {
       final repository = MockRepository();
-      when(repository.getNotifications).thenAnswer(
-        (_) => Future.value([
-          AppNotification(
-            type: NotificationType.like,
-            createdAt: DateTime.now(),
-            targetVideoId: '',
-            targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-            actionUid: 'aaa',
-            actionUserName: 'Tyler',
-            isNew: true,
-          ),
-        ]),
-      );
+      when(repository.getNotifications).thenAnswer((_) => Future.value());
+      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.value([
+            AppNotification(
+              type: NotificationType.like,
+              createdAt: DateTime.now(),
+              targetVideoId: '',
+              targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
+              actionUid: 'aaa',
+              actionUserName: 'Tyler',
+              isNew: true,
+            ),
+          ]));
       when(() => repository.updateTimestampOfLastSeenNotification(any()))
           .thenAnswer((_) => Future.value());
       when(repository.determinePosition).thenAnswer((_) => Future.value(const LatLng(0, 0)));

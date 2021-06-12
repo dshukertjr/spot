@@ -44,6 +44,8 @@ Future<void> main() async {
       build: () {
         final repository = MockRepository();
         when(repository.getNotifications).thenAnswer((_) => Future.value([]));
+        when(() => repository.notificationsStream)
+            .thenAnswer((invocation) => Stream.fromIterable([[]]));
         return NotificationCubit(repository: repository);
       },
       act: (cubit) async {

@@ -590,4 +590,44 @@ class Repository {
         .toList();
     return mentionedProfiles;
   }
+
+  /// Replaces mentioned user names with users' id in comment text
+  String replaceMentionsInAComment({required String comment, required List<Profile> mentions}) {
+    var mentionReplacedText = comment;
+    for (final mention in mentions) {
+      mentionReplacedText = mentionReplacedText.replaceAll('@${mention.name}', '@${mention.id}');
+    }
+    return mentionReplacedText;
+  }
+
+  /// Extracts the username to be searched within the database
+  String? getMentionedUserName(String comment) {
+    final mention = comment.split(' ').last;
+    if (mention.isEmpty || mention[0] != '@') {
+      return null;
+    }
+    final mentionedUserName = mention.substring(1);
+    if (mentionedUserName.isEmpty) {
+      return null;
+    }
+    return mentionedUserName;
+  }
+
+  List<String> getUserIdsInComment(String comment) {
+    final regExp = RegExp(r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
+    final matches = regExp.allMatches(comment);
+    return matches.map((match) => match.group(0)!.substring(1)).toList();
+  }
+
+  /// Replaces user ids found in comments with user names
+  String replaceMentionsWithUserNames({
+    required Map<String, Profile> profiles,
+    required String comment,
+  }) {
+    final regExp = RegExp(r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
+    return comment.replaceAllMapped(
+        regExp,
+        (match) =>
+            '@${profiles[match.group(0)!.substring(1)]?.name ?? match.group(0)!.substring(1)}');
+  }
 }

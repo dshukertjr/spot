@@ -412,6 +412,8 @@ void main() {
             ),
           ]));
 
+      when(() => repository.getUserIdsInComment(any<String>())).thenAnswer((invocation) => []);
+
       await tester.pumpApp(
         widget: MultiBlocProvider(
           providers: [
