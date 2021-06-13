@@ -22,9 +22,9 @@ class ConfirmRecordingPage extends StatelessWidget {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
       builder: (context) => BlocProvider<ConfirmVideoCubit>(
-        create: (context) =>
-            ConfirmVideoCubit(repository: RepositoryProvider.of<Repository>(context))
-              ..initialize(videoFile: File(videoFile.path)),
+        create: (context) => ConfirmVideoCubit(
+            repository: RepositoryProvider.of<Repository>(context))
+          ..initialize(videoFile: File(videoFile.path)),
         child: ConfirmRecordingPage(),
       ),
     );
@@ -112,7 +112,8 @@ class _VideoConfirmationPageState extends State<VideoConfirmationPage> {
         if (!_showDescriptionDialog) _startOverButton(context),
         if (!_showDescriptionDialog) _looksGoodButton(context),
         if (_showDescriptionDialog) _descriptionDialog(),
-        if (_showStartOverConfirmationDialog) _startOverConfirmationDialog(context),
+        if (_showStartOverConfirmationDialog)
+          _startOverConfirmationDialog(context),
       ],
     );
   }

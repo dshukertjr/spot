@@ -48,14 +48,16 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
 
       final tempDir = await getTemporaryDirectory();
       final videoTempPath = '${tempDir.path}/temp.mp4';
-      _compressedVideo = await _compressVideo(videoPath: videoPath, tempPath: videoTempPath);
+      _compressedVideo =
+          await _compressVideo(videoPath: videoPath, tempPath: videoTempPath);
 
       final videoImageTempPath = '${tempDir.path}/tempImage.jpg';
-      _videoImage = await _getVideoImage(videoPath: videoPath, tempPath: videoImageTempPath);
+      _videoImage = await _getVideoImage(
+          videoPath: videoPath, tempPath: videoImageTempPath);
 
       final thubmnailTempPath = '${tempDir.path}/tempThumb.jpg';
-      _thumbnail =
-          await _getVideoThumbnail(videoPath: _videoImage.path, tempPath: thubmnailTempPath);
+      _thumbnail = await _getVideoThumbnail(
+          videoPath: _videoImage.path, tempPath: thubmnailTempPath);
 
       final gifTempPath = '${tempDir.path}/temp.gif';
       _gif = await _getGif(videoPath: videoPath, tempPath: gifTempPath);
@@ -67,7 +69,8 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   }
 
   Future<void> post({required String description}) async {
-    emit(ConfirmVideoTranscoding(videoPlayerController: _videoPlayerController));
+    emit(
+        ConfirmVideoTranscoding(videoPlayerController: _videoPlayerController));
 
     /// wait until video processing is complete
     await Future.doWhile(() async {
@@ -84,22 +87,23 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       final now = DateTime.now();
       final videoPath =
           '$userId/${now.millisecondsSinceEpoch}.${_compressedVideo.path.split('.').last}';
-      final videoUrl =
-          await _repository.uploadFile(bucket: 'videos', file: _compressedVideo, path: videoPath);
+      final videoUrl = await _repository.uploadFile(
+          bucket: 'videos', file: _compressedVideo, path: videoPath);
 
       final videoImagePath =
           '$userId/${now.millisecondsSinceEpoch}.${_videoImage.path.split('.').last}';
-      final videoImageUrl =
-          await _repository.uploadFile(bucket: 'videos', file: _videoImage, path: videoImagePath);
+      final videoImageUrl = await _repository.uploadFile(
+          bucket: 'videos', file: _videoImage, path: videoImagePath);
 
       final videoThumbPath =
           '$userId/thumb-${now.millisecondsSinceEpoch}.${_thumbnail.path.split('.').last}';
-      final videoThumbUrl =
-          await _repository.uploadFile(bucket: 'videos', file: _thumbnail, path: videoThumbPath);
+      final videoThumbUrl = await _repository.uploadFile(
+          bucket: 'videos', file: _thumbnail, path: videoThumbPath);
 
-      final videoGifPath = '$userId/${now.millisecondsSinceEpoch}.${_gif.path.split('.').last}';
-      final videoGifUrl =
-          await _repository.uploadFile(bucket: 'videos', file: _gif, path: videoGifPath);
+      final videoGifPath =
+          '$userId/${now.millisecondsSinceEpoch}.${_gif.path.split('.').last}';
+      final videoGifUrl = await _repository.uploadFile(
+          bucket: 'videos', file: _gif, path: videoGifPath);
 
       final creatingVideo = Video.creation(
         videoUrl: videoUrl,
@@ -141,7 +145,8 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     required String videoPath,
     required String tempPath,
   }) async {
-    final command = '-y -i $videoPath -vframes 1 -filter:v scale="-2:720" $tempPath';
+    final command =
+        '-y -i $videoPath -vframes 1 -filter:v scale="-2:720" $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(
@@ -156,7 +161,8 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     required String videoPath,
     required String tempPath,
   }) async {
-    final command = '-y -i $videoPath -vf "scale=200:-2, crop=200:200:exact=1" $tempPath';
+    final command =
+        '-y -i $videoPath -vf "scale=200:-2, crop=200:200:exact=1" $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(

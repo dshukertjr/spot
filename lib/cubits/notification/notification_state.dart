@@ -8,7 +8,8 @@ abstract class NotificationState {
 }
 
 class NotificationInitial extends NotificationState {
-  NotificationInitial({String? errorMessage}) : super(errorMessage: errorMessage);
+  NotificationInitial({String? errorMessage})
+      : super(errorMessage: errorMessage);
 }
 
 class NotificationEmpty extends NotificationState {
@@ -17,7 +18,9 @@ class NotificationEmpty extends NotificationState {
 
 class NotificationLoaded extends NotificationState {
   NotificationLoaded(
-      {required this.notifications, required this.hasNewNotification, String? errorMessage})
+      {required this.notifications,
+      required this.hasNewNotification,
+      String? errorMessage})
       : super(errorMessage: errorMessage);
 
   final List<AppNotification> notifications;

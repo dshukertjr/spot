@@ -33,7 +33,8 @@ class UserProfile extends StatelessWidget {
             child: const _Profile(),
           ),
           BlocProvider<VideosCubit>(
-            create: (context) => VideosCubit(repository: RepositoryProvider.of<Repository>(context))
+            create: (context) => VideosCubit(
+                repository: RepositoryProvider.of<Repository>(context))
               ..loadFromUid(_userId),
             child: const _UserPosts(),
           ),
@@ -77,8 +78,10 @@ class _UserPosts extends StatelessWidget {
                         return Center(
                           child: CircularProgressIndicator(
                             value: loadingProgress.cumulativeBytesLoaded /
-                                (loadingProgress.expectedTotalBytes ?? 10000000),
-                            valueColor: const AlwaysStoppedAnimation<Color>(appRed),
+                                (loadingProgress.expectedTotalBytes ??
+                                    10000000),
+                            valueColor:
+                                const AlwaysStoppedAnimation<Color>(appRed),
                           ),
                         );
                       },
@@ -139,8 +142,8 @@ class _Profile extends StatelessWidget {
                     if (userId == profile.id)
                       OutlinedButton.icon(
                         onPressed: () {
-                          Navigator.of(context)
-                              .push(EditProfilePage.route(isCreatingAccount: false, uid: userId!));
+                          Navigator.of(context).push(EditProfilePage.route(
+                              isCreatingAccount: false, uid: userId!));
                         },
                         icon: const Icon(
                           FeatherIcons.edit2,
@@ -159,7 +162,8 @@ class _Profile extends StatelessWidget {
           child: Text('Error occured while loading profile'),
         );
       }
-      throw UnimplementedError('Unimplemented state in _Profile of user_profile.dart');
+      throw UnimplementedError(
+          'Unimplemented state in _Profile of user_profile.dart');
     });
   }
 }

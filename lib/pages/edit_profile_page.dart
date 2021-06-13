@@ -66,7 +66,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         builder: (context, state) {
           if (state is ProfileLoading) {
             return preloader;
-          } else if (state is ProfileLoaded || state is ProfileNotFound || state is ProfileError) {
+          } else if (state is ProfileLoaded ||
+              state is ProfileNotFound ||
+              state is ProfileError) {
             return _form(context);
           }
           return preloader;
@@ -79,7 +81,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Form(
       key: _formKey,
       child: ListView(
-        padding: const EdgeInsets.all(19).copyWith(top: 19 + MediaQuery.of(context).padding.top),
+        padding: const EdgeInsets.all(19)
+            .copyWith(top: 19 + MediaQuery.of(context).padding.top),
         children: [
           Row(
             children: [
@@ -154,7 +157,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     return;
                   }
                   try {
-                    final user = RepositoryProvider.of<Repository>(context).userId;
+                    final user =
+                        RepositoryProvider.of<Repository>(context).userId;
                     if (user == null) {
                       context.showErrorSnackbar('Your session has expired');
                       return;
@@ -168,12 +172,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       imageFile: _selectedImageFile,
                     );
                     if (widget.isCreatingAccount) {
-                      await Navigator.of(context).pushReplacement(SplashPage.route());
+                      await Navigator.of(context)
+                          .pushReplacement(SplashPage.route());
                     } else {
                       Navigator.of(context).pop();
                     }
                   } catch (err) {
-                    context.showErrorSnackbar('Error occured while saving profile');
+                    context.showErrorSnackbar(
+                        'Error occured while saving profile');
                   }
                 },
                 child: const Text('Save'),

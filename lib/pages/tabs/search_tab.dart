@@ -11,7 +11,8 @@ import '../view_video_page.dart';
 class SearchTab extends StatefulWidget {
   static Widget create() {
     return BlocProvider<SearchCubit>(
-      create: (context) => SearchCubit(repository: RepositoryProvider.of<Repository>(context)),
+      create: (context) =>
+          SearchCubit(repository: RepositoryProvider.of<Repository>(context)),
       child: SearchTab(),
     );
   }
@@ -66,7 +67,8 @@ class _SearchTabState extends State<SearchTab> {
               return const Padding(
                 padding: EdgeInsets.all(16.0),
                 child: Center(
-                  child: Text('Sorry, we couldn\'t find what you are looking for'),
+                  child:
+                      Text('Sorry, we couldn\'t find what you are looking for'),
                 ),
               );
             } else if (state is SearchError) {
@@ -77,7 +79,8 @@ class _SearchTabState extends State<SearchTab> {
                 ),
               );
             }
-            throw UnimplementedError('Search Tab Unimplemented State ${state.runtimeType}');
+            throw UnimplementedError(
+                'Search Tab Unimplemented State ${state.runtimeType}');
           },
         ),
       ],

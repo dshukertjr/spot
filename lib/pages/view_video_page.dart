@@ -38,12 +38,14 @@ class ViewVideoPage extends StatelessWidget {
       builder: (context) => MultiBlocProvider(
         providers: [
           BlocProvider<VideoCubit>(
-            create: (context) => VideoCubit(repository: RepositoryProvider.of<Repository>(context))
+            create: (context) => VideoCubit(
+                repository: RepositoryProvider.of<Repository>(context))
               ..initialize(videoId),
           ),
           BlocProvider<CommentCubit>(
             create: (context) => CommentCubit(
-                repository: RepositoryProvider.of<Repository>(context), videoId: videoId),
+                repository: RepositoryProvider.of<Repository>(context),
+                videoId: videoId),
           ),
         ],
         child: ViewVideoPage(),
@@ -163,7 +165,8 @@ class _VideoScreenState extends State<VideoScreen> {
                         _isCommentsShown = true;
                       });
                       await widget._controller?.pause();
-                      await BlocProvider.of<CommentCubit>(context).loadComments();
+                      await BlocProvider.of<CommentCubit>(context)
+                          .loadComments();
                     },
                   ),
                   Text(widget._video.commentCount.toString()),
@@ -212,7 +215,8 @@ class _VideoScreenState extends State<VideoScreen> {
                           break;
                       }
                     },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<VideoMenu>>[
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<VideoMenu>>[
                       const PopupMenuItem<VideoMenu>(
                         value: VideoMenu.block,
                         child: Text('Block this user'),
@@ -388,7 +392,8 @@ class __DeletingDialogContentState extends State<_DeletingDialogContent> {
                         setState(() {
                           _loading = false;
                         });
-                        context.showErrorSnackbar('Error occured while blocking the user.');
+                        context.showErrorSnackbar(
+                            'Error occured while blocking the user.');
                       }
                     },
                     child: const Text('Delete Video'),
@@ -457,7 +462,8 @@ class __BlockingDialogContentState extends State<_BlockingDialogContent> {
                         setState(() {
                           _loading = false;
                         });
-                        context.showErrorSnackbar('Error occured while blocking the user.');
+                        context.showErrorSnackbar(
+                            'Error occured while blocking the user.');
                       }
                     },
                     child: const Text('Block User'),
@@ -482,7 +488,8 @@ class _ReportingDialogContent extends StatefulWidget {
   final String _videoId;
 
   @override
-  __ReportingDialogContentState createState() => __ReportingDialogContentState();
+  __ReportingDialogContentState createState() =>
+      __ReportingDialogContentState();
 }
 
 class __ReportingDialogContentState extends State<_ReportingDialogContent> {
@@ -500,7 +507,8 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Could you please tell us why you would like to report this video?'),
+              const Text(
+                  'Could you please tell us why you would like to report this video?'),
               const SizedBox(height: 12),
               TextFormField(
                 maxLines: null,
@@ -538,7 +546,8 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
                         setState(() {
                           _loading = false;
                         });
-                        context.showErrorSnackbar('Error occured while reporting the video');
+                        context.showErrorSnackbar(
+                            'Error occured while reporting the video');
                       }
                     },
                     child: const Text('Report'),
@@ -626,7 +635,8 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                   } else if (state is CommentError) {
                     return const Center(child: Text('Error loading comments'));
                   }
-                  throw UnimplementedError('Unknown state ${state.toString()} at CommentsOverlay');
+                  throw UnimplementedError(
+                      'Unknown state ${state.toString()} at CommentsOverlay');
                 },
               ),
             ),
@@ -642,7 +652,8 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                       controller: _commentController,
                       textCapitalization: TextCapitalization.sentences,
                       decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                         border: InputBorder.none,
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -656,7 +667,8 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                   const SizedBox(width: 8),
                   GradientButton(
                     onPressed: () {
-                      BlocProvider.of<CommentCubit>(context).postComment(_commentController.text);
+                      BlocProvider.of<CommentCubit>(context)
+                          .postComment(_commentController.text);
                       _commentController.clear();
                     },
                     child: const Text('Send'),
@@ -726,8 +738,9 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                       title: Text(profile.name),
                       onTap: () {
                         final commentText = _commentController.text;
-                        final replacedComment = BlocProvider.of<CommentCubit>(context)
-                            .createCommentWithMentionedProfile(
+                        final replacedComment =
+                            BlocProvider.of<CommentCubit>(context)
+                                .createCommentWithMentionedProfile(
                           commentText: commentText,
                           profileName: profile.name,
                         );
@@ -735,7 +748,8 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                           _commentController
                             ..text = replacedComment
                             ..selection = TextSelection.fromPosition(
-                                TextPosition(offset: _commentController.text.length));
+                                TextPosition(
+                                    offset: _commentController.text.length));
                         });
                       },
                     ),
@@ -762,7 +776,8 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
               ProfileImage(
                 imageUrl: comment.user.imageUrl,
                 onPressed: () {
-                  Navigator.of(context).push(ProfilePage.route(comment.user.id));
+                  Navigator.of(context)
+                      .push(ProfilePage.route(comment.user.id));
                 },
               ),
               const SizedBox(width: 12),
@@ -796,6 +811,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
 
   /// Get mentioned userID everytime comment is updated
   Future<void> _getMentions() {
-    return BlocProvider.of<CommentCubit>(context).getMentionSuggestion(_commentController.text);
+    return BlocProvider.of<CommentCubit>(context)
+        .getMentionSuggestion(_commentController.text);
   }
 }

@@ -19,16 +19,19 @@ class NotificationsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safeAreaPadding = MediaQuery.of(context).padding;
-    return BlocBuilder<NotificationCubit, NotificationState>(builder: (context, state) {
+    return BlocBuilder<NotificationCubit, NotificationState>(
+        builder: (context, state) {
       if (state is NotificationInitial) {
         return preloader;
       } else if (state is NotificationEmpty) {
-        return const Center(child: Text('You don\'t have any notifications yet'));
+        return const Center(
+            child: Text('You don\'t have any notifications yet'));
       } else if (state is NotificationLoaded) {
         final notifications = state.notifications;
         return RefreshIndicator(
           onRefresh: () {
-            return BlocProvider.of<NotificationCubit>(context).loadNotifications();
+            return BlocProvider.of<NotificationCubit>(context)
+                .loadNotifications();
           },
           child: ListView.builder(
             padding: EdgeInsets.only(
@@ -64,13 +67,16 @@ class _NotificationCell extends StatelessWidget {
       onTap: () {
         switch (_notification.type) {
           case NotificationType.like:
-            Navigator.of(context).push(ViewVideoPage.route(_notification.targetVideoId!));
+            Navigator.of(context)
+                .push(ViewVideoPage.route(_notification.targetVideoId!));
             break;
           case NotificationType.comment:
-            Navigator.of(context).push(ViewVideoPage.route(_notification.targetVideoId!));
+            Navigator.of(context)
+                .push(ViewVideoPage.route(_notification.targetVideoId!));
             break;
           case NotificationType.follow:
-            Navigator.of(context).push(ProfilePage.route(_notification.actionUid!));
+            Navigator.of(context)
+                .push(ProfilePage.route(_notification.actionUid!));
             break;
           default:
         }
@@ -82,7 +88,8 @@ class _NotificationCell extends StatelessWidget {
             ProfileImage(
               imageUrl: _notification.actionUserImageUrl,
               onPressed: () {
-                Navigator.of(context).push(ProfilePage.route(_notification.actionUid!));
+                Navigator.of(context)
+                    .push(ProfilePage.route(_notification.actionUid!));
               },
             ),
             const SizedBox(width: 16),

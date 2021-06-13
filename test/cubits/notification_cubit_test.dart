@@ -10,7 +10,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   test('Initial State', () {
     final repository = MockRepository();
-    expect(NotificationCubit(repository: repository).state is NotificationInitial, true);
+    expect(
+        NotificationCubit(repository: repository).state is NotificationInitial,
+        true);
   });
 
   group('NotificationCubit initialize()', () {
@@ -19,17 +21,18 @@ Future<void> main() async {
       build: () {
         final repository = MockRepository();
         when(repository.getNotifications).thenAnswer((_) => Future.value());
-        when(() => repository.notificationsStream).thenAnswer((_) => Stream.value([
-              AppNotification(
-                type: NotificationType.like,
-                createdAt: DateTime.now(),
-                isNew: true,
-                targetVideoId: 'aaa',
-                targetVideoThumbnail: '',
-                actionUid: 'abc',
-                actionUserName: '',
-              ),
-            ]));
+        when(() => repository.notificationsStream)
+            .thenAnswer((_) => Stream.value([
+                  AppNotification(
+                    type: NotificationType.like,
+                    createdAt: DateTime.now(),
+                    isNew: true,
+                    targetVideoId: 'aaa',
+                    targetVideoThumbnail: '',
+                    actionUid: 'abc',
+                    actionUserName: '',
+                  ),
+                ]));
         return NotificationCubit(repository: repository);
       },
       act: (cubit) async {
@@ -61,38 +64,42 @@ Future<void> main() async {
     final repository = MockRepository();
     final notificationCubit = NotificationCubit(repository: repository);
     test('Can load notifications', () {
-      when(repository.getNotifications).thenAnswer((invocation) => Future.value());
-      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.fromIterable([
-            [],
-            [
-              AppNotification(
-                type: NotificationType.like,
-                createdAt: DateTime.now(),
-                targetVideoId: '',
-                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-                actionUid: 'aaa',
-                actionUserName: 'Tyler',
-                isNew: true,
-              ),
-              AppNotification(
-                type: NotificationType.follow,
-                createdAt: DateTime.now(),
-                actionUid: 'aaa',
-                actionUserName: 'Tyler',
-                isNew: false,
-              ),
-              AppNotification(
-                type: NotificationType.comment,
-                createdAt: DateTime.now(),
-                targetVideoId: '',
-                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-                actionUid: 'aaa',
-                actionUserName: 'Tyler',
-                commentText: 'hey',
-                isNew: false,
-              ),
-            ]
-          ]));
+      when(repository.getNotifications)
+          .thenAnswer((invocation) => Future.value());
+      when(() => repository.notificationsStream)
+          .thenAnswer((invocation) => Stream.fromIterable([
+                [],
+                [
+                  AppNotification(
+                    type: NotificationType.like,
+                    createdAt: DateTime.now(),
+                    targetVideoId: '',
+                    targetVideoThumbnail:
+                        'https://dshukertjr.dev/images/profile.jpg',
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    isNew: true,
+                  ),
+                  AppNotification(
+                    type: NotificationType.follow,
+                    createdAt: DateTime.now(),
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    isNew: false,
+                  ),
+                  AppNotification(
+                    type: NotificationType.comment,
+                    createdAt: DateTime.now(),
+                    targetVideoId: '',
+                    targetVideoThumbnail:
+                        'https://dshukertjr.dev/images/profile.jpg',
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    commentText: 'hey',
+                    isNew: false,
+                  ),
+                ]
+              ]));
 
       when(() => repository.replaceMentionsWithUserNames(any<String>()))
           .thenAnswer((invocation) async => '');
@@ -109,67 +116,73 @@ Future<void> main() async {
       notificationCubit.loadNotifications();
     });
     test('Can load notifications with mentions', () {
-      when(repository.getNotifications).thenAnswer((invocation) => Future.value());
-      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.fromIterable([
-            [],
-            [
-              AppNotification(
-                type: NotificationType.like,
-                createdAt: DateTime.now(),
-                targetVideoId: '',
-                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-                actionUid: 'aaa',
-                actionUserName: 'Tyler',
-                isNew: true,
-              ),
-              AppNotification(
-                type: NotificationType.follow,
-                createdAt: DateTime.now(),
-                actionUid: 'aaa',
-                actionUserName: 'Tyler',
-                isNew: false,
-              ),
-              AppNotification(
-                type: NotificationType.comment,
-                createdAt: DateTime.now(),
-                targetVideoId: '',
-                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-                actionUid: 'aaa',
-                actionUserName: 'Tyler',
-                commentText:
-                    'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
-                isNew: false,
-              ),
-            ],
-            [
-              AppNotification(
-                type: NotificationType.like,
-                createdAt: DateTime.now(),
-                targetVideoId: '',
-                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-                actionUid: 'aaa',
-                actionUserName: 'Tyler',
-                isNew: true,
-              ),
-              AppNotification(
-                type: NotificationType.follow,
-                createdAt: DateTime.now(),
-                actionUid: 'aaa',
-                actionUserName: 'Tyler',
-                isNew: false,
-              ),
-              AppNotification(
-                type: NotificationType.comment,
-                createdAt: DateTime.now(),
-                targetVideoId: '',
-                targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-                actionUid: 'aaa',
-                actionUserName: 'Tyler',
-                commentText: 'something random @Tyler yay @Sam',
-                isNew: false,
-              ),
-            ],
-          ]));
+      when(repository.getNotifications)
+          .thenAnswer((invocation) => Future.value());
+      when(() => repository.notificationsStream)
+          .thenAnswer((invocation) => Stream.fromIterable([
+                [],
+                [
+                  AppNotification(
+                    type: NotificationType.like,
+                    createdAt: DateTime.now(),
+                    targetVideoId: '',
+                    targetVideoThumbnail:
+                        'https://dshukertjr.dev/images/profile.jpg',
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    isNew: true,
+                  ),
+                  AppNotification(
+                    type: NotificationType.follow,
+                    createdAt: DateTime.now(),
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    isNew: false,
+                  ),
+                  AppNotification(
+                    type: NotificationType.comment,
+                    createdAt: DateTime.now(),
+                    targetVideoId: '',
+                    targetVideoThumbnail:
+                        'https://dshukertjr.dev/images/profile.jpg',
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    commentText:
+                        'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
+                    isNew: false,
+                  ),
+                ],
+                [
+                  AppNotification(
+                    type: NotificationType.like,
+                    createdAt: DateTime.now(),
+                    targetVideoId: '',
+                    targetVideoThumbnail:
+                        'https://dshukertjr.dev/images/profile.jpg',
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    isNew: true,
+                  ),
+                  AppNotification(
+                    type: NotificationType.follow,
+                    createdAt: DateTime.now(),
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    isNew: false,
+                  ),
+                  AppNotification(
+                    type: NotificationType.comment,
+                    createdAt: DateTime.now(),
+                    targetVideoId: '',
+                    targetVideoThumbnail:
+                        'https://dshukertjr.dev/images/profile.jpg',
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    commentText: 'something random @Tyler yay @Sam',
+                    isNew: false,
+                  ),
+                ],
+              ]));
 
       when(() => repository.replaceMentionsWithUserNames(any<String>()))
           .thenAnswer((invocation) async => 'something random @Tyler yay @Sam');
@@ -188,7 +201,8 @@ Future<void> main() async {
       notificationCubit.stream.listen(
         (state) {
           if (count == 2 && state is NotificationLoaded) {
-            expect(state.notifications.last.commentText, 'something random @Tyler yay @Sam');
+            expect(state.notifications.last.commentText,
+                'something random @Tyler yay @Sam');
           }
           count++;
         },

@@ -31,8 +31,8 @@ void main() {
         final repository = MockRepository();
         when(() => repository.getProfile('aaa'))
             .thenAnswer((_) => Future.value(Profile(id: 'aaa', name: '')));
-        when(() => repository.profileStream)
-            .thenAnswer((_) => Stream.value({'aaa': Profile(id: 'id', name: 'name')}));
+        when(() => repository.profileStream).thenAnswer(
+            (_) => Stream.value({'aaa': Profile(id: 'id', name: 'name')}));
         return ProfileCubit(repository: repository);
       },
       act: (cubit) async {
@@ -46,9 +46,10 @@ void main() {
       'Will emit profile not found when the target profile is missing',
       build: () {
         final repository = MockRepository();
-        when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value());
-        when(() => repository.profileStream)
-            .thenAnswer((_) => Stream.value({'bbb': Profile(id: 'id', name: 'name')}));
+        when(() => repository.getProfile('aaa'))
+            .thenAnswer((_) => Future.value());
+        when(() => repository.profileStream).thenAnswer(
+            (_) => Stream.value({'bbb': Profile(id: 'id', name: 'name')}));
         return ProfileCubit(repository: repository);
       },
       act: (cubit) async {
@@ -62,7 +63,8 @@ void main() {
       'Emits error when profile not found',
       build: () {
         final repository = MockRepository();
-        when(() => repository.getProfile('aaa')).thenThrow(PlatformException(code: ''));
+        when(() => repository.getProfile('aaa'))
+            .thenThrow(PlatformException(code: ''));
         return ProfileCubit(repository: repository);
       },
       act: (cubit) async {

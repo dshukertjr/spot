@@ -7,7 +7,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   test('Initial State', () {
     final repository = MockRepository();
-    expect(ConfirmVideoCubit(repository: repository).state is ConfirmVideoInitial, true);
+    expect(
+        ConfirmVideoCubit(repository: repository).state is ConfirmVideoInitial,
+        true);
   });
 
   // group('ConfirmVideoCubit initialize()', () {

@@ -183,10 +183,13 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (currentDialogPage == DialogPage.termsOfService) ..._termsOfService(),
-                        if (currentDialogPage == DialogPage.loginOrSignup) ..._loginOrSignup(),
+                        if (currentDialogPage == DialogPage.termsOfService)
+                          ..._termsOfService(),
+                        if (currentDialogPage == DialogPage.loginOrSignup)
+                          ..._loginOrSignup(),
                         if (currentDialogPage == DialogPage.login) ..._login(),
-                        if (currentDialogPage == DialogPage.signUp) ..._signUp(),
+                        if (currentDialogPage == DialogPage.signUp)
+                          ..._signUp(),
                       ],
                     ),
             ),
@@ -214,7 +217,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   Future<void> _checkTermsOfServiceAgreement() async {
-    final agreed = await RepositoryProvider.of<Repository>(context).hasAgreedToTermsOfService;
+    final agreed = await RepositoryProvider.of<Repository>(context)
+        .hasAgreedToTermsOfService;
     if (!agreed) {
       setState(() {
         currentDialogPage = DialogPage.termsOfService;
@@ -248,7 +252,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           setState(() {
             currentDialogPage = DialogPage.loginOrSignup;
           });
-          await RepositoryProvider.of<Repository>(context).agreedToTermsOfService();
+          await RepositoryProvider.of<Repository>(context)
+              .agreedToTermsOfService();
         },
         child: const Center(child: Text('Agree')),
       ),
@@ -340,10 +345,13 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final persistSessionString = await RepositoryProvider.of<Repository>(context)
-                .signIn(email: _emailController.text, password: _passwordController.text);
+            final persistSessionString =
+                await RepositoryProvider.of<Repository>(context).signIn(
+                    email: _emailController.text,
+                    password: _passwordController.text);
             // Store current session
-            await RepositoryProvider.of<Repository>(context).setSessionString(persistSessionString);
+            await RepositoryProvider.of<Repository>(context)
+                .setSessionString(persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } on PlatformException catch (err) {
@@ -417,11 +425,14 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final persistSessionString = await RepositoryProvider.of<Repository>(context)
-                .signUp(email: _emailController.text, password: _passwordController.text);
+            final persistSessionString =
+                await RepositoryProvider.of<Repository>(context).signUp(
+                    email: _emailController.text,
+                    password: _passwordController.text);
 
             // Store current session
-            await RepositoryProvider.of<Repository>(context).setSessionString(persistSessionString);
+            await RepositoryProvider.of<Repository>(context)
+                .setSessionString(persistSessionString);
 
             await Navigator.of(context).pushReplacement(SplashPage.route());
           } on PlatformException catch (err) {
@@ -465,7 +476,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 }
 
 class _LoginButton extends StatelessWidget {
-  const _LoginButton({Key? key, required void Function() onPressed, required String label})
+  const _LoginButton(
+      {Key? key, required void Function() onPressed, required String label})
       : _onPressed = onPressed,
         _label = label,
         super(key: key);

@@ -33,17 +33,20 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _restoreSession() async {
     try {
-      final hasSession = await RepositoryProvider.of<Repository>(context).hasSession();
+      final hasSession =
+          await RepositoryProvider.of<Repository>(context).hasSession();
       if (!hasSession) {
         return;
       }
 
-      final jsonStr = await RepositoryProvider.of<Repository>(context).getSessionString();
+      final jsonStr =
+          await RepositoryProvider.of<Repository>(context).getSessionString();
       if (jsonStr == null) {
         await RepositoryProvider.of<Repository>(context).deleteSession();
         return;
       }
-      final session = await RepositoryProvider.of<Repository>(context).recoverSession(jsonStr);
+      final session = await RepositoryProvider.of<Repository>(context)
+          .recoverSession(jsonStr);
 
       if (session == null) {
         await RepositoryProvider.of<Repository>(context).deleteSession();
@@ -68,7 +71,8 @@ class _SplashPageState extends State<SplashPage> {
       return;
     }
     try {
-      final profile = await RepositoryProvider.of<Repository>(context).getSelfProfile();
+      final profile =
+          await RepositoryProvider.of<Repository>(context).getSelfProfile();
       if (profile == null) {
         _redirectToEditProfilePage(userId);
         return;

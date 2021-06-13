@@ -89,7 +89,8 @@ class MapState extends State<Map> {
 
   var _loading = false;
 
-  final TextEditingController _citySearchQueryController = TextEditingController();
+  final TextEditingController _citySearchQueryController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +116,8 @@ class MapState extends State<Map> {
             // Finds the center of the map and load videos around that location
             final mapController = await controller.future;
             final bounds = await mapController.getVisibleRegion();
-            await BlocProvider.of<VideosCubit>(context).loadVideosWithinBoundingBox(bounds);
+            await BlocProvider.of<VideosCubit>(context)
+                .loadVideosWithinBoundingBox(bounds);
             _loading = false;
           },
           onMapCreated: (GoogleMapController mapController) {
@@ -131,14 +133,16 @@ class MapState extends State<Map> {
         Positioned(
           top: 10 + MediaQuery.of(context).padding.top,
           left: 36,
-          right: 36 + (Theme.of(context).platform == TargetPlatform.android ? 36 : 0),
+          right: 36 +
+              (Theme.of(context).platform == TargetPlatform.android ? 36 : 0),
           child: _searchBar(context),
         ),
         if (widget._isLoading)
           Align(
             alignment: Alignment.topRight,
             child: Padding(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 12, right: 12),
+              padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 12, right: 12),
               child: const SizedBox(
                 width: 30,
                 height: 30,
@@ -158,8 +162,8 @@ class MapState extends State<Map> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 18),
         decoration: BoxDecoration(
-          color: const Color(0xFF000000)
-              .withOpacity(_citySearchQueryController.text.isEmpty ? 0.15 : 0.5),
+          color: const Color(0xFF000000).withOpacity(
+              _citySearchQueryController.text.isEmpty ? 0.15 : 0.5),
           borderRadius: const BorderRadius.all(Radius.circular(50)),
         ),
         child: Row(
@@ -181,14 +185,16 @@ class MapState extends State<Map> {
                   if (!currentFocus.hasPrimaryFocus) {
                     currentFocus.unfocus();
                   }
-                  final location = await RepositoryProvider.of<Repository>(context)
-                      .searchLocation(_citySearchQueryController.text);
+                  final location =
+                      await RepositoryProvider.of<Repository>(context)
+                          .searchLocation(_citySearchQueryController.text);
                   if (location == null) {
                     context.showSnackbar('Could not find the location');
                     return;
                   }
                   final mapController = await controller.future;
-                  await mapController.moveCamera(CameraUpdate.newLatLng(location));
+                  await mapController
+                      .moveCamera(CameraUpdate.newLatLng(location));
                 },
               ),
             ),
@@ -246,10 +252,12 @@ class MapState extends State<Map> {
     final mapController = await controller.future;
     if (_markers.length == 1) {
       // If there is only 1 marker, move camera to centre that marker
-      return mapController.moveCamera(CameraUpdate.newLatLng(_markers.first.position));
+      return mapController
+          .moveCamera(CameraUpdate.newLatLng(_markers.first.position));
     }
-    final cordinatesList = List<LatLng>.from(_markers.map((marker) => marker.position))
-      ..sort((a, b) => b.latitude.compareTo(a.latitude));
+    final cordinatesList =
+        List<LatLng>.from(_markers.map((marker) => marker.position))
+          ..sort((a, b) => b.latitude.compareTo(a.latitude));
     final northernLatitude = cordinatesList.first.latitude;
     cordinatesList.sort((a, b) => a.latitude.compareTo(b.latitude));
     final southernLatitude = cordinatesList.first.latitude;
@@ -261,7 +269,8 @@ class MapState extends State<Map> {
       northeast: LatLng(northernLatitude, easternLongitude),
       southwest: LatLng(southernLatitude, westernLongitude),
     );
-    return mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 40));
+    return mapController
+        .animateCamera(CameraUpdate.newLatLngBounds(bounds, 40));
   }
 
   Future<void> _createMarkers({
@@ -269,7 +278,8 @@ class MapState extends State<Map> {
     required BuildContext context,
   }) async {
     /// Only create markers for videos that the marker does not exist yet.
-    final markerIds = _markers.toList().map((marker) => marker.markerId.value).toList();
+    final markerIds =
+        _markers.toList().map((marker) => marker.markerId.value).toList();
     final newVideos = videos.where((video) => !markerIds.contains(video.id));
 
     if (videos.length < _markers.length) {
@@ -277,7 +287,8 @@ class MapState extends State<Map> {
       final videoIds = videos.map((video) => video.id).toList();
 
       setState(() {
-        _markers.removeWhere((marker) => !videoIds.contains(marker.markerId.value));
+        _markers
+            .removeWhere((marker) => !videoIds.contains(marker.markerId.value));
       });
       return;
     }
@@ -295,7 +306,8 @@ class MapState extends State<Map> {
           markerId: MarkerId(video.id),
           position: video.location!,
           icon: loadingMarkerImage,
-          zIndex: RepositoryProvider.of<Repository>(context).getZIndex(video.createdAt),
+          zIndex: RepositoryProvider.of<Repository>(context)
+              .getZIndex(video.createdAt),
         ));
 
     setState(() {
@@ -351,21 +363,26 @@ class MapState extends State<Map> {
 
     canvas
       ..drawCircle(centerOffset, markerSize / 2, paint)
-      ..drawCircle(centerOffset, imageSize / 2, paint..blendMode = BlendMode.srcOut)
+      ..drawCircle(
+          centerOffset, imageSize / 2, paint..blendMode = BlendMode.srcOut)
       ..restore();
 
-    final span =
-        const TextSpan(style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 36), text: 'Loading');
+    final span = const TextSpan(
+        style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 36),
+        text: 'Loading');
     final textPainter = TextPainter(
       text: span,
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
     )..layout();
     textPainter.paint(
-        canvas, centerOffset.translate(-textPainter.width / 2, -textPainter.height / 2));
+        canvas,
+        centerOffset.translate(
+            -textPainter.width / 2, -textPainter.height / 2));
 
-    final img =
-        await pictureRecorder.endRecording().toImage(markerSize.toInt(), markerSize.toInt());
+    final img = await pictureRecorder
+        .endRecording()
+        .toImage(markerSize.toInt(), markerSize.toInt());
 
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
     if (data == null) {
@@ -411,8 +428,8 @@ class MapState extends State<Map> {
     }
 
     // start adding images
-    final imageFile =
-        await RepositoryProvider.of<Repository>(context).getCachedFile(video.thumbnailUrl);
+    final imageFile = await RepositoryProvider.of<Repository>(context)
+        .getCachedFile(video.thumbnailUrl);
 
     final imageBytes = await imageFile.readAsBytes();
     final imageCodec = await ui.instantiateImageCodec(
@@ -425,20 +442,24 @@ class MapState extends State<Map> {
       format: ui.ImageByteFormat.png,
     );
     if (byteData == null) {
-      throw PlatformException(code: 'byteData null', message: 'byteData is null');
+      throw PlatformException(
+          code: 'byteData null', message: 'byteData is null');
     }
     final resizedMarkerImageBytes = byteData.buffer.asUint8List();
-    final image = await _loadImage(Uint8List.view(resizedMarkerImageBytes.buffer));
+    final image =
+        await _loadImage(Uint8List.view(resizedMarkerImageBytes.buffer));
 
     canvas
       ..drawCircle(centerOffset, markerSize / 2, paint)
       ..saveLayer(boundingRect, paint)
       ..drawCircle(centerOffset, imageSize / 2, paint)
-      ..drawImage(image, Offset(imagePadding, imagePadding), paint..blendMode = BlendMode.srcIn)
+      ..drawImage(image, Offset(imagePadding, imagePadding),
+          paint..blendMode = BlendMode.srcIn)
       ..restore();
 
-    final img =
-        await pictureRecorder.endRecording().toImage(markerSize.toInt(), markerSize.toInt());
+    final img = await pictureRecorder
+        .endRecording()
+        .toImage(markerSize.toInt(), markerSize.toInt());
 
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
     if (data == null) {
@@ -456,10 +477,12 @@ class MapState extends State<Map> {
       markerId: MarkerId(video.id),
       position: video.location!,
       icon: BitmapDescriptor.fromBytes(markerIcon),
-      zIndex: RepositoryProvider.of<Repository>(context).getZIndex(video.createdAt),
+      zIndex:
+          RepositoryProvider.of<Repository>(context).getZIndex(video.createdAt),
     );
 
-    _markers.removeWhere((targetMarker) => targetMarker.markerId == marker.markerId);
+    _markers.removeWhere(
+        (targetMarker) => targetMarker.markerId == marker.markerId);
     setState(() {
       _markers.add(marker);
     });

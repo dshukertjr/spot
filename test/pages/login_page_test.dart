@@ -15,7 +15,8 @@ void main() {
       final repository = MockRepository();
       final loginPage = LoginPage();
 
-      when(() => repository.hasAgreedToTermsOfService).thenAnswer((_) => Future.value(true));
+      when(() => repository.hasAgreedToTermsOfService)
+          .thenAnswer((_) => Future.value(true));
 
       await tester.pumpApp(
         widget: loginPage,
@@ -25,17 +26,24 @@ void main() {
       await tester.pumpAndSettle();
 
       // Initial dialogPage is loginOrSignup
-      expect(tester.state<LoginPageState>(find.byWidget(loginPage)).currentDialogPage,
+      expect(
+          tester
+              .state<LoginPageState>(find.byWidget(loginPage))
+              .currentDialogPage,
           DialogPage.loginOrSignup);
 
       expect(find.text('Would you like to...'), findsOneWidget);
     });
 
-    testWidgets('Agreeing to terms of service takes to loginorsignup dialog', (tester) async {
+    testWidgets('Agreeing to terms of service takes to loginorsignup dialog',
+        (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value(null));
-      when(() => repository.hasAgreedToTermsOfService).thenAnswer((_) => Future.value(false));
-      when(repository.agreedToTermsOfService).thenAnswer((_) => Future.value(null));
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(null));
+      when(() => repository.hasAgreedToTermsOfService)
+          .thenAnswer((_) => Future.value(false));
+      when(repository.agreedToTermsOfService)
+          .thenAnswer((_) => Future.value(null));
 
       final loginPage = LoginPage();
 
@@ -58,10 +66,13 @@ void main() {
       expect(find.text('Agree'), findsNothing);
     });
 
-    testWidgets('Can go back and forth the signIn login dialog', (tester) async {
+    testWidgets('Can go back and forth the signIn login dialog',
+        (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value(null));
-      when(() => repository.hasAgreedToTermsOfService).thenAnswer((_) => Future.value(true));
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(null));
+      when(() => repository.hasAgreedToTermsOfService)
+          .thenAnswer((_) => Future.value(true));
 
       final loginPage = LoginPage();
 
@@ -73,7 +84,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // loginOrSignup dialog
-      expect(tester.state<LoginPageState>(find.byWidget(loginPage)).currentDialogPage,
+      expect(
+          tester
+              .state<LoginPageState>(find.byWidget(loginPage))
+              .currentDialogPage,
           DialogPage.loginOrSignup);
 
       // Open login dialog
@@ -81,14 +95,20 @@ void main() {
       await tester.pumpAndSettle();
 
       // Login dialog
-      expect(tester.state<LoginPageState>(find.byWidget(loginPage)).currentDialogPage,
+      expect(
+          tester
+              .state<LoginPageState>(find.byWidget(loginPage))
+              .currentDialogPage,
           DialogPage.login);
 
       // press back button
       await tester.tap(find.byIcon(FeatherIcons.chevronLeft));
       await tester.pumpAndSettle();
 
-      expect(tester.state<LoginPageState>(find.byWidget(loginPage)).currentDialogPage,
+      expect(
+          tester
+              .state<LoginPageState>(find.byWidget(loginPage))
+              .currentDialogPage,
           DialogPage.loginOrSignup);
 
       // Open sign up dialog
@@ -96,21 +116,33 @@ void main() {
       await tester.pumpAndSettle();
 
       // Login dialog
-      expect(tester.state<LoginPageState>(find.byWidget(loginPage)).currentDialogPage,
+      expect(
+          tester
+              .state<LoginPageState>(find.byWidget(loginPage))
+              .currentDialogPage,
           DialogPage.signUp);
     });
 
-    testWidgets('Login success will navigate to splash screen and EditProfilePage', (tester) async {
+    testWidgets(
+        'Login success will navigate to splash screen and EditProfilePage',
+        (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value(null));
-      when(() => repository.hasAgreedToTermsOfService).thenAnswer((_) => Future.value(true));
-      when(() => repository.signIn(email: 'sample@spotvideo.app', password: 'securepassword'))
-          .thenAnswer((_) => Future.value(''));
-      when(() => repository.setSessionString('')).thenAnswer((invocation) => Future.value());
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(null));
+      when(() => repository.hasAgreedToTermsOfService)
+          .thenAnswer((_) => Future.value(true));
+      when(() => repository.signIn(
+          email: 'sample@spotvideo.app',
+          password: 'securepassword')).thenAnswer((_) => Future.value(''));
+      when(() => repository.setSessionString(''))
+          .thenAnswer((invocation) => Future.value());
       when(() => repository.userId).thenReturn('aaa');
-      when(repository.getSelfProfile).thenAnswer((invocation) => Future.value(null));
-      when(() => repository.profileStream).thenAnswer((invocation) => Stream.value({}));
-      when(repository.hasSession).thenAnswer((invocation) => Future.value(false));
+      when(repository.getSelfProfile)
+          .thenAnswer((invocation) => Future.value(null));
+      when(() => repository.profileStream)
+          .thenAnswer((invocation) => Stream.value({}));
+      when(repository.hasSession)
+          .thenAnswer((invocation) => Future.value(false));
 
       final loginPage = LoginPage();
 
@@ -128,9 +160,11 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-          find.widgetWithIcon(TextFormField, FeatherIcons.mail), 'sample@spotvideo.app');
+          find.widgetWithIcon(TextFormField, FeatherIcons.mail),
+          'sample@spotvideo.app');
       await tester.enterText(
-          find.widgetWithIcon(TextFormField, FeatherIcons.lock), 'securepassword');
+          find.widgetWithIcon(TextFormField, FeatherIcons.lock),
+          'securepassword');
 
       await tester.tap(find.widgetWithText(GradientButton, 'Sign in'));
       await tester.pumpAndSettle();
@@ -138,18 +172,26 @@ void main() {
       expect(find.byType(EditProfilePage), findsOneWidget);
     });
 
-    testWidgets('Register success will navigate to splash screen and EditProfilePage',
+    testWidgets(
+        'Register success will navigate to splash screen and EditProfilePage',
         (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value(null));
-      when(() => repository.hasAgreedToTermsOfService).thenAnswer((_) => Future.value(true));
-      when(() => repository.signUp(email: 'sample@spotvideo.app', password: 'securepassword'))
-          .thenAnswer((_) => Future.value(''));
-      when(() => repository.setSessionString('')).thenAnswer((invocation) => Future.value());
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(null));
+      when(() => repository.hasAgreedToTermsOfService)
+          .thenAnswer((_) => Future.value(true));
+      when(() => repository.signUp(
+          email: 'sample@spotvideo.app',
+          password: 'securepassword')).thenAnswer((_) => Future.value(''));
+      when(() => repository.setSessionString(''))
+          .thenAnswer((invocation) => Future.value());
       when(() => repository.userId).thenReturn('aaa');
-      when(repository.getSelfProfile).thenAnswer((invocation) => Future.value(null));
-      when(() => repository.profileStream).thenAnswer((invocation) => Stream.value({}));
-      when(repository.hasSession).thenAnswer((invocation) => Future.value(false));
+      when(repository.getSelfProfile)
+          .thenAnswer((invocation) => Future.value(null));
+      when(() => repository.profileStream)
+          .thenAnswer((invocation) => Stream.value({}));
+      when(repository.hasSession)
+          .thenAnswer((invocation) => Future.value(false));
 
       final loginPage = LoginPage();
 
@@ -167,9 +209,11 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-          find.widgetWithIcon(TextFormField, FeatherIcons.mail), 'sample@spotvideo.app');
+          find.widgetWithIcon(TextFormField, FeatherIcons.mail),
+          'sample@spotvideo.app');
       await tester.enterText(
-          find.widgetWithIcon(TextFormField, FeatherIcons.lock), 'securepassword');
+          find.widgetWithIcon(TextFormField, FeatherIcons.lock),
+          'securepassword');
 
       await tester.tap(find.widgetWithText(GradientButton, 'Sign Up'));
       await tester.pumpAndSettle();
@@ -179,15 +223,22 @@ void main() {
 
     testWidgets('Login fail will show error message', (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value(null));
-      when(() => repository.hasAgreedToTermsOfService).thenAnswer((_) => Future.value(true));
-      when(() => repository.signIn(email: 'sample@spotvideo.app', password: 'securepassword'))
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(null));
+      when(() => repository.hasAgreedToTermsOfService)
+          .thenAnswer((_) => Future.value(true));
+      when(() => repository.signIn(
+              email: 'sample@spotvideo.app', password: 'securepassword'))
           .thenThrow(PlatformException(code: '', message: 'Login Error'));
-      when(() => repository.setSessionString('')).thenAnswer((invocation) => Future.value());
+      when(() => repository.setSessionString(''))
+          .thenAnswer((invocation) => Future.value());
       when(() => repository.userId).thenReturn('aaa');
-      when(repository.getSelfProfile).thenAnswer((invocation) => Future.value(null));
-      when(() => repository.profileStream).thenAnswer((invocation) => Stream.value({}));
-      when(repository.hasSession).thenAnswer((invocation) => Future.value(false));
+      when(repository.getSelfProfile)
+          .thenAnswer((invocation) => Future.value(null));
+      when(() => repository.profileStream)
+          .thenAnswer((invocation) => Stream.value({}));
+      when(repository.hasSession)
+          .thenAnswer((invocation) => Future.value(false));
 
       final loginPage = LoginPage();
 
@@ -205,9 +256,11 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-          find.widgetWithIcon(TextFormField, FeatherIcons.mail), 'sample@spotvideo.app');
+          find.widgetWithIcon(TextFormField, FeatherIcons.mail),
+          'sample@spotvideo.app');
       await tester.enterText(
-          find.widgetWithIcon(TextFormField, FeatherIcons.lock), 'securepassword');
+          find.widgetWithIcon(TextFormField, FeatherIcons.lock),
+          'securepassword');
 
       await tester.tap(find.widgetWithText(GradientButton, 'Sign in'));
 

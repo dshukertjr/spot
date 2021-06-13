@@ -65,7 +65,8 @@ Future<void> main() async {
       'has search results',
       build: () {
         final repository = MockRepository();
-        when(() => repository.search('')).thenThrow(PlatformException(code: ''));
+        when(() => repository.search(''))
+            .thenThrow(PlatformException(code: ''));
         return SearchCubit(repository: repository);
       },
       act: (cubit) async {

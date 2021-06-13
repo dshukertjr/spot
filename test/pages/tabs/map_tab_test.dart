@@ -24,19 +24,20 @@ void main() {
 
       when(repository.determinePosition)
           .thenAnswer((invocation) => Future.value(const LatLng(0, 0)));
-      when(() => repository.mapVideosStream).thenAnswer((invocation) => Stream.value([
-            Video(
-              id: 'id',
-              url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now(),
-              description: 'description',
-              userId: 'userId',
-              location: const LatLng(0, 0),
-            )
-          ]));
+      when(() => repository.mapVideosStream)
+          .thenAnswer((invocation) => Stream.value([
+                Video(
+                  id: 'id',
+                  url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now(),
+                  description: 'description',
+                  userId: 'userId',
+                  location: const LatLng(0, 0),
+                )
+              ]));
 
       when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
           .thenAnswer((invocation) => Future.value());
@@ -60,24 +61,26 @@ void main() {
 
       when(repository.determinePosition)
           .thenAnswer((invocation) => Future.value(const LatLng(0, 0)));
-      when(() => repository.mapVideosStream).thenAnswer((invocation) => Stream.value([
-            Video(
-              id: 'id',
-              url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now(),
-              description: 'description',
-              userId: 'userId',
-              location: const LatLng(0, 0),
-            )
-          ]));
+      when(() => repository.mapVideosStream)
+          .thenAnswer((invocation) => Stream.value([
+                Video(
+                  id: 'id',
+                  url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now(),
+                  description: 'description',
+                  userId: 'userId',
+                  location: const LatLng(0, 0),
+                )
+              ]));
 
       when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
           .thenAnswer((invocation) => Future.value());
 
-      when(() => repository.searchLocation('Tokyo')).thenAnswer((_) async => const LatLng(45, 45));
+      when(() => repository.searchLocation('Tokyo'))
+          .thenAnswer((_) async => const LatLng(45, 45));
 
       await tester.pumpApp(
         widget: AppScaffold(body: MapTab.create()),

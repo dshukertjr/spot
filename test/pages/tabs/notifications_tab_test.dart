@@ -21,8 +21,10 @@ void main() {
     testWidgets('Renders NotificationsTab correctly', (tester) async {
       final repository = MockRepository();
 
-      when(repository.getNotifications).thenAnswer((invocation) => Future.value());
-      when(() => repository.notificationsStream).thenAnswer((_) => Stream.value([
+      when(repository.getNotifications)
+          .thenAnswer((invocation) => Future.value());
+      when(() => repository.notificationsStream).thenAnswer((_) =>
+          Stream.value([
             AppNotification(
               type: NotificationType.like,
               createdAt: DateTime.now(),
@@ -55,7 +57,8 @@ void main() {
 
       await tester.pumpApp(
         widget: BlocProvider<NotificationCubit>(
-          create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+          create: (context) =>
+              NotificationCubit(repository: repository)..loadNotifications(),
           child: AppScaffold(body: NotificationsTab.create()),
         ),
         repository: repository,
@@ -70,23 +73,28 @@ void main() {
       expect(find.byType(ListView), findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
-              widget is RichText && widget.text.toPlainText().contains('liked your video')),
+              widget is RichText &&
+              widget.text.toPlainText().contains('liked your video')),
           findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
-              widget is RichText && widget.text.toPlainText().contains('liked your video')),
+              widget is RichText &&
+              widget.text.toPlainText().contains('liked your video')),
           findsOneWidget);
       expect(
           find.byWidgetPredicate((widget) =>
-              widget is RichText && widget.text.toPlainText().contains('started following you')),
+              widget is RichText &&
+              widget.text.toPlainText().contains('started following you')),
           findsOneWidget);
     });
 
     testWidgets('Takes care of new notification properly', (tester) async {
       final repository = MockRepository();
 
-      when(repository.getNotifications).thenAnswer((invocation) => Future.value());
-      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.value([
+      when(repository.getNotifications)
+          .thenAnswer((invocation) => Future.value());
+      when(() => repository.notificationsStream).thenAnswer((invocation) =>
+          Stream.value([
             AppNotification(
               type: NotificationType.like,
               createdAt: DateTime.now(),
@@ -119,7 +127,8 @@ void main() {
 
       await tester.pumpApp(
         widget: BlocProvider<NotificationCubit>(
-          create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+          create: (context) =>
+              NotificationCubit(repository: repository)..loadNotifications(),
           child: AppScaffold(body: NotificationsTab.create()),
         ),
         repository: repository,
@@ -135,12 +144,15 @@ void main() {
     testWidgets('Empty notification will show empty text', (tester) async {
       final repository = MockRepository();
 
-      when(repository.getNotifications).thenAnswer((invocation) => Future.value());
-      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.value([]));
+      when(repository.getNotifications)
+          .thenAnswer((invocation) => Future.value());
+      when(() => repository.notificationsStream)
+          .thenAnswer((invocation) => Stream.value([]));
 
       await tester.pumpApp(
         widget: BlocProvider<NotificationCubit>(
-          create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+          create: (context) =>
+              NotificationCubit(repository: repository)..loadNotifications(),
           child: AppScaffold(body: NotificationsTab.create()),
         ),
         repository: repository,
@@ -150,7 +162,8 @@ void main() {
 
       await tester.pump();
 
-      expect(find.text('You don\'t have any notifications yet'), findsOneWidget);
+      expect(
+          find.text('You don\'t have any notifications yet'), findsOneWidget);
       expect(find.byType(NotificationDot), findsNothing);
     });
   });

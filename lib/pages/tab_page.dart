@@ -84,7 +84,8 @@ class TabPageState extends State<TabPage> {
                   tabIndex: 1,
                 ),
                 const RecordButton(),
-                BlocBuilder<NotificationCubit, NotificationState>(builder: (context, state) {
+                BlocBuilder<NotificationCubit, NotificationState>(
+                    builder: (context, state) {
                   var hasNewNotifications = false;
                   if (state is NotificationLoaded && state.hasNewNotification) {
                     hasNewNotifications = true;
@@ -208,7 +209,8 @@ class RecordButton extends StatelessWidget {
               child: InkWell(
                 onTap: () async {
                   final hasLocationPermission =
-                      await RepositoryProvider.of<Repository>(context).hasLocationPermission();
+                      await RepositoryProvider.of<Repository>(context)
+                          .hasLocationPermission();
                   if (hasLocationPermission) {
                     await Navigator.of(context).push(RecordPage.route());
                   } else {
@@ -228,7 +230,8 @@ class RecordButton extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              const Text('Please grant location permission to post a video. '),
+                              const Text(
+                                  'Please grant location permission to post a video. '),
                               const SizedBox(height: 12),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
@@ -243,11 +246,12 @@ class RecordButton extends StatelessWidget {
                                   const SizedBox(width: 12),
                                   GradientButton(
                                     onPressed: () async {
-                                      final couldOpen =
-                                          await RepositoryProvider.of<Repository>(context)
-                                              .openLocationSettingsPage();
+                                      final couldOpen = await RepositoryProvider
+                                              .of<Repository>(context)
+                                          .openLocationSettingsPage();
                                       if (!couldOpen) {
-                                        context.showErrorSnackbar('Failed to open settings page. ');
+                                        context.showErrorSnackbar(
+                                            'Failed to open settings page. ');
                                       }
                                       Navigator.of(context).pop();
                                     },

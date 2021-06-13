@@ -36,7 +36,8 @@ class VideoCubit extends Cubit<VideoState> {
       _videoId = videoId;
       await _repository.getVideoDetailStream(videoId);
 
-      _videoStreamSubscription = _repository.videoDetailStream.listen((videoDetail) {
+      _videoStreamSubscription =
+          _repository.videoDetailStream.listen((videoDetail) {
         if (videoDetail != null) {
           _videoDetail = videoDetail;
           _initializeVideo();
@@ -100,7 +101,8 @@ class VideoCubit extends Cubit<VideoState> {
   Future<void> _initializeVideo() async {
     try {
       if (_videoPlayerController == null) {
-        _videoPlayerController = await _repository.getVideoPlayerController(_videoDetail!.url);
+        _videoPlayerController =
+            await _repository.getVideoPlayerController(_videoDetail!.url);
         await _videoPlayerController!.initialize();
         await _videoPlayerController!.play();
 

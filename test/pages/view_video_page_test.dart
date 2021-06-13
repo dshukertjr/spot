@@ -20,7 +20,8 @@ import '../helpers/helpers.dart';
 
 class MockVideoCubit extends MockCubit<VideoState> implements VideoCubit {}
 
-class MockCommentCubit extends MockCubit<CommentState> implements CommentCubit {}
+class MockCommentCubit extends MockCubit<CommentState> implements CommentCubit {
+}
 
 void main() {
   setUpAll(() => HttpOverrides.global = null);
@@ -28,23 +29,24 @@ void main() {
     testWidgets('Renders ViewVideoPage', (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('myUserId');
-      when(() => repository.getVideoDetailStream('aaa')).thenAnswer((_) => Future.value(
-            VideoDetail(
-              id: 'aaa',
-              url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-              description: 'description',
-              location: const LatLng(0, 0),
-              userId: 'otherUser',
-              likeCount: 0,
-              commentCount: 0,
-              haveLiked: false,
-              createdBy: Profile(id: 'aaa', name: 'name'),
-            ),
-          ));
+      when(() => repository.getVideoDetailStream('aaa'))
+          .thenAnswer((_) => Future.value(
+                VideoDetail(
+                  id: 'aaa',
+                  url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+                  description: 'description',
+                  location: const LatLng(0, 0),
+                  userId: 'otherUser',
+                  likeCount: 0,
+                  commentCount: 0,
+                  haveLiked: false,
+                  createdBy: Profile(id: 'aaa', name: 'name'),
+                ),
+              ));
 
       when(() => repository.videoDetailStream).thenAnswer(
         (_) => Stream.value(
@@ -66,13 +68,15 @@ void main() {
         ),
       );
 
-      when(() => repository.getVideoPlayerController('https://www.w3schools.com/html/mov_bbb.mp4'))
-          .thenAnswer(
-              (_) => Future.value(VideoPlayerController.file(File('test_resources/video.mp4'))));
+      when(() => repository.getVideoPlayerController(
+              'https://www.w3schools.com/html/mov_bbb.mp4'))
+          .thenAnswer((_) => Future.value(
+              VideoPlayerController.file(File('test_resources/video.mp4'))));
 
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
-          create: (BuildContext context) => VideoCubit(repository: repository)..initialize('aaa'),
+          create: (BuildContext context) =>
+              VideoCubit(repository: repository)..initialize('aaa'),
           child: ViewVideoPage(),
         ),
         repository: repository,
@@ -85,26 +89,28 @@ void main() {
       expect(find.byType(VideoScreen), findsOneWidget);
     });
 
-    testWidgets('Does not show delete button when the video is by someone else', (tester) async {
+    testWidgets('Does not show delete button when the video is by someone else',
+        (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('myUserId');
-      when(() => repository.getVideoDetailStream('aaa')).thenAnswer((_) => Future.value(
-            VideoDetail(
-              id: 'aaa',
-              url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-              description: 'description',
-              location: const LatLng(0, 0),
-              userId: 'otherUser',
-              likeCount: 0,
-              commentCount: 0,
-              haveLiked: false,
-              createdBy: Profile(id: 'aaa', name: 'name'),
-            ),
-          ));
+      when(() => repository.getVideoDetailStream('aaa'))
+          .thenAnswer((_) => Future.value(
+                VideoDetail(
+                  id: 'aaa',
+                  url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+                  description: 'description',
+                  location: const LatLng(0, 0),
+                  userId: 'otherUser',
+                  likeCount: 0,
+                  commentCount: 0,
+                  haveLiked: false,
+                  createdBy: Profile(id: 'aaa', name: 'name'),
+                ),
+              ));
 
       when(() => repository.videoDetailStream).thenAnswer(
         (_) => Stream.value(
@@ -126,13 +132,15 @@ void main() {
         ),
       );
 
-      when(() => repository.getVideoPlayerController('https://www.w3schools.com/html/mov_bbb.mp4'))
-          .thenAnswer(
-              (_) => Future.value(VideoPlayerController.file(File('test_resources/video.mp4'))));
+      when(() => repository.getVideoPlayerController(
+              'https://www.w3schools.com/html/mov_bbb.mp4'))
+          .thenAnswer((_) => Future.value(
+              VideoPlayerController.file(File('test_resources/video.mp4'))));
 
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
-          create: (BuildContext context) => VideoCubit(repository: repository)..initialize('aaa'),
+          create: (BuildContext context) =>
+              VideoCubit(repository: repository)..initialize('aaa'),
           child: ViewVideoPage(),
         ),
         repository: repository,
@@ -142,33 +150,37 @@ void main() {
 
       expect(find.byType(VideoScreen), findsOneWidget);
 
-      await tester.tap(find.byWidgetPredicate((widget) => widget is PopupMenuButton<VideoMenu>));
+      await tester.tap(find
+          .byWidgetPredicate((widget) => widget is PopupMenuButton<VideoMenu>));
 
       await tester.pump();
 
       expect(find.text('Delete this video'), findsNothing);
     });
 
-    testWidgets('Delete video button gets rendered when the video belongs to you', (tester) async {
+    testWidgets(
+        'Delete video button gets rendered when the video belongs to you',
+        (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('myUserId');
-      when(() => repository.getVideoDetailStream('aaa')).thenAnswer((_) => Future.value(
-            VideoDetail(
-              id: 'aaa',
-              url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-              description: 'description',
-              location: const LatLng(0, 0),
-              userId: 'myUserId',
-              likeCount: 0,
-              commentCount: 0,
-              haveLiked: false,
-              createdBy: Profile(id: 'myUserId', name: 'name'),
-            ),
-          ));
+      when(() => repository.getVideoDetailStream('aaa'))
+          .thenAnswer((_) => Future.value(
+                VideoDetail(
+                  id: 'aaa',
+                  url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+                  description: 'description',
+                  location: const LatLng(0, 0),
+                  userId: 'myUserId',
+                  likeCount: 0,
+                  commentCount: 0,
+                  haveLiked: false,
+                  createdBy: Profile(id: 'myUserId', name: 'name'),
+                ),
+              ));
 
       when(() => repository.videoDetailStream).thenAnswer(
         (_) => Stream.value(
@@ -190,13 +202,15 @@ void main() {
         ),
       );
 
-      when(() => repository.getVideoPlayerController('https://www.w3schools.com/html/mov_bbb.mp4'))
-          .thenAnswer(
-              (_) => Future.value(VideoPlayerController.file(File('test_resources/video.mp4'))));
+      when(() => repository.getVideoPlayerController(
+              'https://www.w3schools.com/html/mov_bbb.mp4'))
+          .thenAnswer((_) => Future.value(
+              VideoPlayerController.file(File('test_resources/video.mp4'))));
 
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
-          create: (BuildContext context) => VideoCubit(repository: repository)..initialize('aaa'),
+          create: (BuildContext context) =>
+              VideoCubit(repository: repository)..initialize('aaa'),
           child: ViewVideoPage(),
         ),
         repository: repository,
@@ -206,7 +220,8 @@ void main() {
 
       expect(find.byType(VideoScreen), findsOneWidget);
 
-      await tester.tap(find.byWidgetPredicate((widget) => widget is PopupMenuButton<VideoMenu>));
+      await tester.tap(find
+          .byWidgetPredicate((widget) => widget is PopupMenuButton<VideoMenu>));
 
       await tester.pump();
 
@@ -216,23 +231,24 @@ void main() {
     testWidgets('like() is called when haveLiked is false', (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('myUserId');
-      when(() => repository.getVideoDetailStream('aaa')).thenAnswer((_) => Future.value(
-            VideoDetail(
-              id: 'aaa',
-              url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-              description: 'description',
-              location: const LatLng(0, 0),
-              userId: 'otherUser',
-              likeCount: 0,
-              commentCount: 0,
-              haveLiked: false,
-              createdBy: Profile(id: 'otherUser', name: 'name'),
-            ),
-          ));
+      when(() => repository.getVideoDetailStream('aaa'))
+          .thenAnswer((_) => Future.value(
+                VideoDetail(
+                  id: 'aaa',
+                  url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+                  description: 'description',
+                  location: const LatLng(0, 0),
+                  userId: 'otherUser',
+                  likeCount: 0,
+                  commentCount: 0,
+                  haveLiked: false,
+                  createdBy: Profile(id: 'otherUser', name: 'name'),
+                ),
+              ));
 
       when(() => repository.videoDetailStream).thenAnswer(
         (_) => Stream.fromIterable([
@@ -254,16 +270,20 @@ void main() {
         ]),
       );
 
-      when(() => repository.getVideoPlayerController('https://www.w3schools.com/html/mov_bbb.mp4'))
-          .thenAnswer(
-              (_) => Future.value(VideoPlayerController.file(File('test_resources/video.mp4'))));
+      when(() => repository.getVideoPlayerController(
+              'https://www.w3schools.com/html/mov_bbb.mp4'))
+          .thenAnswer((_) => Future.value(
+              VideoPlayerController.file(File('test_resources/video.mp4'))));
 
-      when(() => repository.like('aaa')).thenAnswer((invocation) => Future.value());
-      when(() => repository.unlike('aaa')).thenAnswer((invocation) => Future.value());
+      when(() => repository.like('aaa'))
+          .thenAnswer((invocation) => Future.value());
+      when(() => repository.unlike('aaa'))
+          .thenAnswer((invocation) => Future.value());
 
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
-          create: (BuildContext context) => VideoCubit(repository: repository)..initialize('aaa'),
+          create: (BuildContext context) =>
+              VideoCubit(repository: repository)..initialize('aaa'),
           child: ViewVideoPage(),
         ),
         repository: repository,
@@ -287,23 +307,24 @@ void main() {
     testWidgets('unlike() is called when haveLiked is true', (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('myUserId');
-      when(() => repository.getVideoDetailStream('aaa')).thenAnswer((_) => Future.value(
-            VideoDetail(
-              id: 'aaa',
-              url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-              description: 'description',
-              location: const LatLng(0, 0),
-              userId: 'otherUser',
-              likeCount: 0,
-              commentCount: 0,
-              haveLiked: true,
-              createdBy: Profile(id: 'otherUser', name: 'name'),
-            ),
-          ));
+      when(() => repository.getVideoDetailStream('aaa'))
+          .thenAnswer((_) => Future.value(
+                VideoDetail(
+                  id: 'aaa',
+                  url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+                  description: 'description',
+                  location: const LatLng(0, 0),
+                  userId: 'otherUser',
+                  likeCount: 0,
+                  commentCount: 0,
+                  haveLiked: true,
+                  createdBy: Profile(id: 'otherUser', name: 'name'),
+                ),
+              ));
 
       when(() => repository.videoDetailStream).thenAnswer(
         (_) => Stream.fromIterable([
@@ -325,16 +346,20 @@ void main() {
         ]),
       );
 
-      when(() => repository.getVideoPlayerController('https://www.w3schools.com/html/mov_bbb.mp4'))
-          .thenAnswer(
-              (_) => Future.value(VideoPlayerController.file(File('test_resources/video.mp4'))));
+      when(() => repository.getVideoPlayerController(
+              'https://www.w3schools.com/html/mov_bbb.mp4'))
+          .thenAnswer((_) => Future.value(
+              VideoPlayerController.file(File('test_resources/video.mp4'))));
 
-      when(() => repository.like('aaa')).thenAnswer((invocation) => Future.value());
-      when(() => repository.unlike('aaa')).thenAnswer((invocation) => Future.value());
+      when(() => repository.like('aaa'))
+          .thenAnswer((invocation) => Future.value());
+      when(() => repository.unlike('aaa'))
+          .thenAnswer((invocation) => Future.value());
 
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
-          create: (BuildContext context) => VideoCubit(repository: repository)..initialize('aaa'),
+          create: (BuildContext context) =>
+              VideoCubit(repository: repository)..initialize('aaa'),
           child: ViewVideoPage(),
         ),
         repository: repository,
@@ -358,23 +383,24 @@ void main() {
     testWidgets('Can view comments', (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('myUserId');
-      when(() => repository.getVideoDetailStream('aaa')).thenAnswer((_) => Future.value(
-            VideoDetail(
-              id: 'aaa',
-              url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now().subtract(const Duration(hours: 1)),
-              description: 'description',
-              location: const LatLng(0, 0),
-              userId: 'otherUser',
-              likeCount: 0,
-              commentCount: 0,
-              haveLiked: false,
-              createdBy: Profile(id: 'aaa', name: 'name'),
-            ),
-          ));
+      when(() => repository.getVideoDetailStream('aaa'))
+          .thenAnswer((_) => Future.value(
+                VideoDetail(
+                  id: 'aaa',
+                  url: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+                  description: 'description',
+                  location: const LatLng(0, 0),
+                  userId: 'otherUser',
+                  likeCount: 0,
+                  commentCount: 0,
+                  haveLiked: false,
+                  createdBy: Profile(id: 'aaa', name: 'name'),
+                ),
+              ));
 
       when(() => repository.videoDetailStream).thenAnswer(
         (_) => Stream.value(
@@ -396,23 +422,27 @@ void main() {
         ),
       );
 
-      when(() => repository.getVideoPlayerController('https://www.w3schools.com/html/mov_bbb.mp4'))
-          .thenAnswer(
-              (_) => Future.value(VideoPlayerController.file(File('test_resources/video.mp4'))));
+      when(() => repository.getVideoPlayerController(
+              'https://www.w3schools.com/html/mov_bbb.mp4'))
+          .thenAnswer((_) => Future.value(
+              VideoPlayerController.file(File('test_resources/video.mp4'))));
 
-      when(() => repository.getComments('aaa')).thenAnswer((_) => Future.value());
+      when(() => repository.getComments('aaa'))
+          .thenAnswer((_) => Future.value());
 
-      when(() => repository.commentsStream).thenAnswer((invocation) => Stream.value([
-            Comment(
-              id: 'id',
-              text: 'sample comment',
-              createdAt: DateTime.now(),
-              videoId: 'aaa',
-              user: Profile(id: 'id', name: 'name'),
-            ),
-          ]));
+      when(() => repository.commentsStream)
+          .thenAnswer((invocation) => Stream.value([
+                Comment(
+                  id: 'id',
+                  text: 'sample comment',
+                  createdAt: DateTime.now(),
+                  videoId: 'aaa',
+                  user: Profile(id: 'id', name: 'name'),
+                ),
+              ]));
 
-      when(() => repository.getUserIdsInComment(any<String>())).thenAnswer((invocation) => []);
+      when(() => repository.getUserIdsInComment(any<String>()))
+          .thenAnswer((invocation) => []);
 
       await tester.pumpApp(
         widget: MultiBlocProvider(
@@ -423,7 +453,8 @@ void main() {
             ),
             BlocProvider<CommentCubit>(
               create: (BuildContext context) =>
-                  CommentCubit(repository: repository, videoId: 'aaa')..loadComments(),
+                  CommentCubit(repository: repository, videoId: 'aaa')
+                    ..loadComments(),
             ),
           ],
           child: ViewVideoPage(),
@@ -446,7 +477,8 @@ void main() {
       // Comments are loaded and displaed
       expect(
           find.byWidgetPredicate((widget) =>
-              widget is RichText && widget.text.toPlainText().contains('sample comment')),
+              widget is RichText &&
+              widget.text.toPlainText().contains('sample comment')),
           findsOneWidget);
     });
   });
@@ -486,7 +518,8 @@ void main() {
       when(() => mockCommentCubit.getMentionSuggestion(any<String>()))
           .thenAnswer((invocation) => Future.value());
 
-      when(mockCommentCubit.loadComments).thenAnswer((invocation) => Future.value());
+      when(mockCommentCubit.loadComments)
+          .thenAnswer((invocation) => Future.value());
 
       when(() => mockCommentCubit.createCommentWithMentionedProfile(
             commentText: any<String>(named: 'commentText'),
@@ -588,8 +621,10 @@ void main() {
       await tester.pumpApp(
         widget: MultiBlocProvider(
           providers: [
-            BlocProvider<VideoCubit>(create: (BuildContext context) => mockVideoCubit),
-            BlocProvider<CommentCubit>(create: (BuildContext context) => mockCommentCubit),
+            BlocProvider<VideoCubit>(
+                create: (BuildContext context) => mockVideoCubit),
+            BlocProvider<CommentCubit>(
+                create: (BuildContext context) => mockCommentCubit),
           ],
           child: ViewVideoPage(),
         ),
@@ -607,7 +642,10 @@ void main() {
 
       await tester.pump();
 
-      final value = tester.widget<TextFormField>(find.byType(TextFormField)).controller!.text;
+      final value = tester
+          .widget<TextFormField>(find.byType(TextFormField))
+          .controller!
+          .text;
       expect(value, '@Tyler ');
     });
   });

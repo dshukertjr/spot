@@ -14,7 +14,8 @@ void main() {
     testWidgets('Renders ConfirmRecordingPage', (tester) async {
       final repository = MockRepository();
 
-      when(() => repository.hasAgreedToTermsOfService).thenAnswer((_) => Future.value(true));
+      when(() => repository.hasAgreedToTermsOfService)
+          .thenAnswer((_) => Future.value(true));
 
       await tester.pumpApp(
         widget: BlocProvider<ConfirmVideoCubit>(

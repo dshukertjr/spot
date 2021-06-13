@@ -138,7 +138,8 @@ class _RecordPreviewState extends State<RecordPreview> {
       child: SizedBox(
         height: 70,
         child: Center(
-          child: _RecordingCompleteButton(isPastMimimumDuration: _isPastMimimumDuration),
+          child: _RecordingCompleteButton(
+              isPastMimimumDuration: _isPastMimimumDuration),
         ),
       ),
     );
@@ -256,7 +257,8 @@ class _RecordingCompleteButton extends StatefulWidget {
   final bool _isPastMimimumDuration;
 
   @override
-  __RecordingCompleteButtonState createState() => __RecordingCompleteButtonState();
+  __RecordingCompleteButtonState createState() =>
+      __RecordingCompleteButtonState();
 }
 
 class __RecordingCompleteButtonState extends State<_RecordingCompleteButton>
@@ -359,7 +361,8 @@ class _RecordingGaugeIndicator extends StatefulWidget {
   final void Function() _onPastMinimumDuration;
 
   @override
-  __RecordingGaugeIndicatorState createState() => __RecordingGaugeIndicatorState();
+  __RecordingGaugeIndicatorState createState() =>
+      __RecordingGaugeIndicatorState();
 }
 
 class __RecordingGaugeIndicatorState extends State<_RecordingGaugeIndicator>
@@ -479,7 +482,8 @@ class __RecordButtonTargetState extends State<_RecordButtonTarget>
         milliseconds: 300,
       ),
     );
-    _curve = CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
+    _curve =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
     super.initState();
   }
 

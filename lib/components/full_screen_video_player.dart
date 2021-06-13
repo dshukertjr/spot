@@ -40,7 +40,8 @@ class _FullScreenVideoPlayerState extends State<FullScreenVideoPlayer> {
                 child: SizedBox(
                   height: 1,
                   child: AspectRatio(
-                    aspectRatio: widget._videoPlayerController.value.aspectRatio,
+                    aspectRatio:
+                        widget._videoPlayerController.value.aspectRatio,
                     child: VideoPlayer(widget._videoPlayerController),
                   ),
                 ),
@@ -83,5 +84,6 @@ class _FullScreenVideoPlayerState extends State<FullScreenVideoPlayer> {
   }
 
   bool get isVideoAtEnd =>
-      widget._videoPlayerController.value.duration == widget._videoPlayerController.value.position;
+      widget._videoPlayerController.value.duration ==
+      widget._videoPlayerController.value.position;
 }

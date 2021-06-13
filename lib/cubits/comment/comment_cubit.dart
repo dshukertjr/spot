@@ -64,9 +64,10 @@ class CommentCubit extends Cubit<CommentState> {
       _comments.insert(0, comment);
       emit(CommentsLoaded(_comments));
       final mentions = _repository.getMentionedProfiles(comment.text);
-      final mentionReplacedText =
-          _repository.replaceMentionsInAComment(comment: text, mentions: mentions);
-      await _repository.comment(text: mentionReplacedText, videoId: _videoId, mentions: mentions);
+      final mentionReplacedText = _repository.replaceMentionsInAComment(
+          comment: text, mentions: mentions);
+      await _repository.comment(
+          text: mentionReplacedText, videoId: _videoId, mentions: mentions);
     } catch (err) {
       emit(CommentError(message: 'Error commenting.'));
     }
@@ -78,7 +79,8 @@ class CommentCubit extends Cubit<CommentState> {
     required String commentText,
     required String profileName,
   }) {
-    final lastSpaceIndex = commentText.lastIndexOf(' ') < 0 ? 0 : commentText.lastIndexOf(' ');
+    final lastSpaceIndex =
+        commentText.lastIndexOf(' ') < 0 ? 0 : commentText.lastIndexOf(' ');
     if (lastSpaceIndex == 0) {
       return '@$profileName ';
     }

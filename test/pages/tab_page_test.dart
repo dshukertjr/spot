@@ -69,7 +69,8 @@ void main() {
         ),
         repository: repository,
       );
-      await tester.tap(find.ancestor(of: find.text('Home'), matching: find.byType(InkResponse)));
+      await tester.tap(find.ancestor(
+          of: find.text('Home'), matching: find.byType(InkResponse)));
       expect(tabPage.createState().currentIndex, 0);
     });
     testWidgets('Tapping Search goes to tab index 1', (tester) async {
@@ -85,8 +86,10 @@ void main() {
         ),
         repository: repository,
       );
-      await tester.tap(find.ancestor(of: find.text('Search'), matching: find.byType(InkResponse)));
-      expect(tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 1);
+      await tester.tap(find.ancestor(
+          of: find.text('Search'), matching: find.byType(InkResponse)));
+      expect(
+          tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 1);
     });
     testWidgets('Tapping Notifications goes to tab index 2', (tester) async {
       final repository = MockRepository();
@@ -101,9 +104,10 @@ void main() {
         ),
         repository: repository,
       );
-      await tester
-          .tap(find.ancestor(of: find.text('Notifications'), matching: find.byType(InkResponse)));
-      expect(tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 2);
+      await tester.tap(find.ancestor(
+          of: find.text('Notifications'), matching: find.byType(InkResponse)));
+      expect(
+          tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 2);
     });
 
     testWidgets('Tapping Profile goes to tab index 3', (tester) async {
@@ -119,8 +123,10 @@ void main() {
         ),
         repository: repository,
       );
-      await tester.tap(find.ancestor(of: find.text('Profile'), matching: find.byType(InkResponse)));
-      expect(tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 3);
+      await tester.tap(find.ancestor(
+          of: find.text('Profile'), matching: find.byType(InkResponse)));
+      expect(
+          tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 3);
     });
   });
 
@@ -133,7 +139,8 @@ void main() {
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value(),
       );
-      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.value([
+      when(() => repository.notificationsStream).thenAnswer((invocation) =>
+          Stream.value([
             AppNotification(
               type: NotificationType.like,
               createdAt: DateTime.now(),
@@ -164,18 +171,22 @@ void main() {
           ]));
       when(() => repository.updateTimestampOfLastSeenNotification(any()))
           .thenAnswer((_) => Future.value());
-      when(repository.determinePosition).thenAnswer((_) => Future.value(const LatLng(0, 0)));
+      when(repository.determinePosition)
+          .thenAnswer((_) => Future.value(const LatLng(0, 0)));
       when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.getVideosInBoundingBox(
-              LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
+      when(() => repository.getVideosInBoundingBox(LatLngBounds(
+              southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([]));
+      when(() => repository.mapVideosStream)
+          .thenAnswer((_) => Stream.value([]));
       when(() => repository.userId).thenReturn('aaa');
       when(() => repository.getProfile('aaa'))
           .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
-      when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
-      when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+      when((() => repository.profileStream))
+          .thenAnswer((_) => Stream.value({}));
+      when(() => repository.getVideosFromUid('aaa'))
+          .thenAnswer((_) => Future.value([]));
       when(() => repository.replaceMentionsWithUserNames(
               'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2'))
           .thenAnswer((invocation) async => 'something random @Tyler yay @Sam');
@@ -185,7 +196,8 @@ void main() {
         widget: MultiBlocProvider(
           providers: [
             BlocProvider<NotificationCubit>(
-              create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+              create: (context) => NotificationCubit(repository: repository)
+                ..loadNotifications(),
             ),
           ],
           child: tabPage,
@@ -197,38 +209,45 @@ void main() {
 
       // Finds the one dot in notification tab and bottom tab bar
       expect(find.byType(NotificationDot), findsNWidgets(2));
-      await tester
-          .tap(find.ancestor(of: find.text('Notifications'), matching: find.byType(InkResponse)));
+      await tester.tap(find.ancestor(
+          of: find.text('Notifications'), matching: find.byType(InkResponse)));
       await tester.pump();
       expect(find.byType(NotificationDot), findsNWidgets(1));
     });
 
-    testWidgets('Users without notifications should not see any Notification Dot', (tester) async {
+    testWidgets(
+        'Users without notifications should not see any Notification Dot',
+        (tester) async {
       final repository = MockRepository();
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([]),
       );
       when(() => repository.updateTimestampOfLastSeenNotification(any()))
           .thenAnswer((_) => Future.value());
-      when(repository.determinePosition).thenAnswer((_) => Future.value(const LatLng(0, 0)));
+      when(repository.determinePosition)
+          .thenAnswer((_) => Future.value(const LatLng(0, 0)));
       when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.getVideosInBoundingBox(
-              LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
+      when(() => repository.getVideosInBoundingBox(LatLngBounds(
+              southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([]));
+      when(() => repository.mapVideosStream)
+          .thenAnswer((_) => Stream.value([]));
       when(() => repository.userId).thenReturn('aaa');
       when(() => repository.getProfile('aaa'))
           .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
-      when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
-      when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+      when((() => repository.profileStream))
+          .thenAnswer((_) => Stream.value({}));
+      when(() => repository.getVideosFromUid('aaa'))
+          .thenAnswer((_) => Future.value([]));
 
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
           providers: [
             BlocProvider<NotificationCubit>(
-              create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+              create: (context) => NotificationCubit(repository: repository)
+                ..loadNotifications(),
             ),
           ],
           child: tabPage,
@@ -240,8 +259,8 @@ void main() {
 
       // Finds the one dot in notification tab and bottom tab bar
       expect(find.byType(NotificationDot), findsNothing);
-      await tester
-          .tap(find.ancestor(of: find.text('Notifications'), matching: find.byType(InkResponse)));
+      await tester.tap(find.ancestor(
+          of: find.text('Notifications'), matching: find.byType(InkResponse)));
       await tester.pump();
       expect(find.byType(NotificationDot), findsNothing);
     });
@@ -251,38 +270,45 @@ void main() {
         (tester) async {
       final repository = MockRepository();
       when(repository.getNotifications).thenAnswer((_) => Future.value());
-      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.value([
-            AppNotification(
-              type: NotificationType.like,
-              createdAt: DateTime.now(),
-              targetVideoId: '',
-              targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-              actionUid: 'aaa',
-              actionUserName: 'Tyler',
-              isNew: true,
-            ),
-          ]));
+      when(() => repository.notificationsStream)
+          .thenAnswer((invocation) => Stream.value([
+                AppNotification(
+                  type: NotificationType.like,
+                  createdAt: DateTime.now(),
+                  targetVideoId: '',
+                  targetVideoThumbnail:
+                      'https://dshukertjr.dev/images/profile.jpg',
+                  actionUid: 'aaa',
+                  actionUserName: 'Tyler',
+                  isNew: true,
+                ),
+              ]));
       when(() => repository.updateTimestampOfLastSeenNotification(any()))
           .thenAnswer((_) => Future.value());
-      when(repository.determinePosition).thenAnswer((_) => Future.value(const LatLng(0, 0)));
+      when(repository.determinePosition)
+          .thenAnswer((_) => Future.value(const LatLng(0, 0)));
       when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.getVideosInBoundingBox(
-              LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
+      when(() => repository.getVideosInBoundingBox(LatLngBounds(
+              southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([]));
+      when(() => repository.mapVideosStream)
+          .thenAnswer((_) => Stream.value([]));
       when(() => repository.userId).thenReturn('aaa');
       when(() => repository.getProfile('aaa'))
           .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
-      when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
-      when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+      when((() => repository.profileStream))
+          .thenAnswer((_) => Stream.value({}));
+      when(() => repository.getVideosFromUid('aaa'))
+          .thenAnswer((_) => Future.value([]));
 
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
           providers: [
             BlocProvider<NotificationCubit>(
-              create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+              create: (context) => NotificationCubit(repository: repository)
+                ..loadNotifications(),
             ),
           ],
           child: tabPage,
@@ -294,8 +320,8 @@ void main() {
 
       // Finds the one dot in notification tab and bottom tab bar
       expect(find.byType(NotificationDot), findsNWidgets(2));
-      await tester
-          .tap(find.ancestor(of: find.text('Notifications'), matching: find.byType(InkResponse)));
+      await tester.tap(find.ancestor(
+          of: find.text('Notifications'), matching: find.byType(InkResponse)));
       await tester.pump();
       expect(find.byType(NotificationDot), findsOneWidget);
     });
@@ -305,33 +331,40 @@ void main() {
     setUpAll(() {
       registerFallbackValue<DateTime>(DateTime.parse('2021-05-20T00:00:00.00'));
     });
-    testWidgets('Users with location permission will be able to go to record page', (tester) async {
+    testWidgets(
+        'Users with location permission will be able to go to record page',
+        (tester) async {
       final repository = MockRepository();
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([]),
       );
       when(() => repository.updateTimestampOfLastSeenNotification(any()))
           .thenAnswer((_) => Future.value());
-      when(repository.determinePosition).thenAnswer((_) async => const LatLng(0, 0));
+      when(repository.determinePosition)
+          .thenAnswer((_) async => const LatLng(0, 0));
       when(repository.hasLocationPermission).thenAnswer((_) async => true);
       when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.getVideosInBoundingBox(
-              LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
+      when(() => repository.getVideosInBoundingBox(LatLngBounds(
+              southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([]));
+      when(() => repository.mapVideosStream)
+          .thenAnswer((_) => Stream.value([]));
       when(() => repository.userId).thenReturn('aaa');
       when(() => repository.getProfile('aaa'))
           .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
-      when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
-      when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+      when((() => repository.profileStream))
+          .thenAnswer((_) => Stream.value({}));
+      when(() => repository.getVideosFromUid('aaa'))
+          .thenAnswer((_) => Future.value([]));
 
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
           providers: [
             BlocProvider<NotificationCubit>(
-              create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+              create: (context) => NotificationCubit(repository: repository)
+                ..loadNotifications(),
             ),
           ],
           child: tabPage,
@@ -341,8 +374,8 @@ void main() {
 
       await tester.pump();
 
-      await tester
-          .tap(find.descendant(of: find.byType(RecordButton), matching: find.byType(InkWell)));
+      await tester.tap(find.descendant(
+          of: find.byType(RecordButton), matching: find.byType(InkWell)));
 
       await tester.pump();
 
@@ -350,33 +383,39 @@ void main() {
       expect(find.byType(FrostedDialog), findsNothing);
     });
 
-    testWidgets('Users without location permission will see a dialog', (tester) async {
+    testWidgets('Users without location permission will see a dialog',
+        (tester) async {
       final repository = MockRepository();
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([]),
       );
       when(() => repository.updateTimestampOfLastSeenNotification(any()))
           .thenAnswer((_) => Future.value());
-      when(repository.determinePosition).thenAnswer((_) async => const LatLng(0, 0));
+      when(repository.determinePosition)
+          .thenAnswer((_) async => const LatLng(0, 0));
       when(repository.hasLocationPermission).thenAnswer((_) async => false);
       when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.getVideosInBoundingBox(
-              LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
+      when(() => repository.getVideosInBoundingBox(LatLngBounds(
+              southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
           .thenAnswer((_) => Future.value([]));
-      when(() => repository.mapVideosStream).thenAnswer((_) => Stream.value([]));
+      when(() => repository.mapVideosStream)
+          .thenAnswer((_) => Stream.value([]));
       when(() => repository.userId).thenReturn('aaa');
       when(() => repository.getProfile('aaa'))
           .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
-      when((() => repository.profileStream)).thenAnswer((_) => Stream.value({}));
-      when(() => repository.getVideosFromUid('aaa')).thenAnswer((_) => Future.value([]));
+      when((() => repository.profileStream))
+          .thenAnswer((_) => Stream.value({}));
+      when(() => repository.getVideosFromUid('aaa'))
+          .thenAnswer((_) => Future.value([]));
 
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
           providers: [
             BlocProvider<NotificationCubit>(
-              create: (context) => NotificationCubit(repository: repository)..loadNotifications(),
+              create: (context) => NotificationCubit(repository: repository)
+                ..loadNotifications(),
             ),
           ],
           child: tabPage,

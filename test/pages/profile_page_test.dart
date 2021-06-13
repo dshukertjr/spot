@@ -11,7 +11,8 @@ void main() {
   group('ProfilePage', () {
     testWidgets('Renders ProfileNotFound correctly', (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value(null));
+      when(() => repository.getProfile('aaa'))
+          .thenAnswer((_) => Future.value(null));
 
       when(() => repository.getVideosFromUid('aaa')).thenAnswer(
         (invocation) => Future.value([]),
@@ -32,8 +33,8 @@ void main() {
 
     testWidgets('Renders your own profile correctly', (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa')).thenAnswer(
-          (_) => Future.value(Profile(id: 'aaa', name: 'name', description: 'description')));
+      when(() => repository.getProfile('aaa')).thenAnswer((_) => Future.value(
+          Profile(id: 'aaa', name: 'name', description: 'description')));
 
       when(() => repository.getVideosFromUid('aaa')).thenAnswer(
         (invocation) => Future.value([]),
@@ -60,8 +61,8 @@ void main() {
 
     testWidgets('Renders someone else\'s profile correctly', (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('bbb')).thenAnswer(
-          (_) => Future.value(Profile(id: 'bbb', name: 'name', description: 'description')));
+      when(() => repository.getProfile('bbb')).thenAnswer((_) => Future.value(
+          Profile(id: 'bbb', name: 'name', description: 'description')));
 
       when(() => repository.getVideosFromUid('aaa')).thenAnswer(
         (invocation) => Future.value([]),
