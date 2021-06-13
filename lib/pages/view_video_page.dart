@@ -30,8 +30,11 @@ enum VideoMenu {
 }
 
 class ViewVideoPage extends StatelessWidget {
+  static const name = 'ViewVideoPage';
+
   static Route<void> route(String videoId) {
     return MaterialPageRoute(
+      settings: const RouteSettings(name: name),
       builder: (context) => MultiBlocProvider(
         providers: [
           BlocProvider<VideoCubit>(

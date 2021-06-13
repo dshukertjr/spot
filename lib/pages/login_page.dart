@@ -23,8 +23,12 @@ enum DialogPage {
 }
 
 class LoginPage extends StatefulWidget {
+  static const name = 'LoginPage';
   static Route<void> route() {
-    return MaterialPageRoute(builder: (context) => LoginPage());
+    return MaterialPageRoute(
+      settings: const RouteSettings(name: name),
+      builder: (context) => LoginPage(),
+    );
   }
 
   @override

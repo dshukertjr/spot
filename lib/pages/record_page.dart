@@ -10,8 +10,11 @@ import '../components/app_scaffold.dart';
 import '../cubits/record/record_cubit.dart';
 
 class RecordPage extends StatelessWidget {
+  static const name = 'RecordPage';
+
   static Route<void> route() {
     return MaterialPageRoute(
+      settings: const RouteSettings(name: name),
       builder: (_) => BlocProvider<RecordCubit>(
         create: (_) => RecordCubit()..initialize(),
         child: RecordPage(),

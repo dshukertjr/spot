@@ -1,3 +1,5 @@
-Always improving user experience!
+You can mention other users within a comment!
 
+- Can mention other users by typing @ followed by the user name
 - Drastically improved video loading performance
+- Fixed map painting order bug

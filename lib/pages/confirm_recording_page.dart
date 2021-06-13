@@ -17,8 +17,10 @@ import 'package:video_player/video_player.dart';
 import '../components/app_scaffold.dart';
 
 class ConfirmRecordingPage extends StatelessWidget {
+  static const name = 'ConfirmRecordingPage';
   static Route<void> route({required XFile videoFile}) {
     return MaterialPageRoute(
+      settings: const RouteSettings(name: name),
       builder: (context) => BlocProvider<ConfirmVideoCubit>(
         create: (context) =>
             ConfirmVideoCubit(repository: RepositoryProvider.of<Repository>(context))

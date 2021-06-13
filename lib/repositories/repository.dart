@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -18,9 +20,14 @@ import 'package:video_player/video_player.dart';
 import 'package:geocoding/geocoding.dart';
 
 class Repository {
-  Repository({required SupabaseClient supabaseClient}) : _supabaseClient = supabaseClient;
+  Repository({
+    required SupabaseClient supabaseClient,
+    required FirebaseAnalytics analytics,
+  })  : _supabaseClient = supabaseClient,
+        _analytics = analytics;
 
   final SupabaseClient _supabaseClient;
+  final FirebaseAnalytics _analytics;
   static const _localStorage = FlutterSecureStorage();
   static const _persistantSessionKey = 'supabase_session';
   static const _termsOfServiceAgreementKey = 'agreed';
@@ -85,8 +92,9 @@ class Repository {
     final res = await _supabaseClient.auth.signUp(email, password);
     final error = res.error;
     if (error != null) {
-      throw PlatformException(code: 'login error', message: error.message);
+      throw PlatformException(code: 'signup error', message: error.message);
     }
+    await _analytics.logSignUp(signUpMethod: 'email');
     return res.data!.persistSessionString;
   }
 
@@ -100,6 +108,7 @@ class Repository {
     if (error != null) {
       throw PlatformException(code: 'login error', message: error.message);
     }
+    await _analytics.logLogin(loginMethod: 'email');
     return res.data!.persistSessionString;
   }
 
@@ -257,6 +266,7 @@ class Repository {
     final createdVideo = creatingVideo.updateId(id: data[0]['id'] as String);
     _mapVideos.add(createdVideo);
     _mapVideosStreamConntroller.sink.add(_mapVideos);
+    await _analytics.logEvent(name: 'post_video');
   }
 
   Future<void> getVideoDetailStream(String videoId) async {
@@ -279,6 +289,9 @@ class Repository {
     }
     _videoDetails[videoId] = VideoDetail.fromData(Map.from(List.from(data).first));
     _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
+    await _analytics.logEvent(name: 'view_video', parameters: {
+      'video_id': videoId,
+    });
   }
 
   Future<void> like(String videoId) async {
@@ -298,6 +311,9 @@ class Repository {
         message: error.message,
       );
     }
+    await _analytics.logEvent(name: 'like_video', parameters: {
+      'video_id': videoId,
+    });
   }
 
   Future<void> unlike(String videoId) async {
@@ -320,6 +336,9 @@ class Repository {
         message: error.message,
       );
     }
+    await _analytics.logEvent(name: 'unlike_video', parameters: {
+      'video_id': videoId,
+    });
   }
 
   Future<void> getComments(String videoId) async {
@@ -347,6 +366,9 @@ class Repository {
 
     comments = await Future.wait(comments.map(replaceCommentText));
     _commentsStreamController.sink.add(comments);
+    await _analytics.logEvent(name: 'view_comments', parameters: {
+      'video_id': videoId,
+    });
   }
 
   Future<void> comment({
@@ -387,6 +409,9 @@ class Repository {
         message: mentionError.message,
       );
     }
+    await _analytics.logEvent(name: 'post_comment', parameters: {
+      'video_id': videoId,
+    });
   }
 
   Future<void> getNotifications() async {
@@ -447,6 +472,9 @@ class Repository {
     }
     _mapVideos.removeWhere((value) => value.userId == blockedUserId);
     _mapVideosStreamConntroller.sink.add(_mapVideos);
+    await _analytics.logEvent(name: 'block_user', parameters: {
+      'user_id': blockedUserId,
+    });
   }
 
   Future<void> report({
@@ -466,6 +494,9 @@ class Repository {
         message: error.message,
       );
     }
+    await _analytics.logEvent(name: 'report_video', parameters: {
+      'video_id': videoId,
+    });
   }
 
   Future<void> delete({required String videoId}) async {
@@ -479,13 +510,18 @@ class Repository {
     }
     _mapVideos.removeWhere((video) => video.id == videoId);
     _mapVideosStreamConntroller.sink.add(_mapVideos);
+    await _analytics.logEvent(name: 'delete_video', parameters: {
+      'video_id': videoId,
+    });
   }
 
   Future<List<Video>> search(String queryString) async {
+    final query = queryString.split(' ').map((word) => "'$word'").join(' & ');
+
     final res = await _supabaseClient
         .from('videos')
         .select('id, url, image_url, thumbnail_url, gif_url, description, user_id, created_at')
-        .textSearch('description', queryString, config: 'english')
+        .textSearch('description', query, config: 'english')
         .order('created_at')
         .limit(50)
         .execute();
@@ -497,12 +533,12 @@ class Repository {
       );
     }
     final data = res.data as List;
+    await _analytics.logSearch(searchTerm: queryString);
     return Video.videosFromData(data);
   }
 
   Future<VideoPlayerController> getVideoPlayerController(String url) async {
-    final file = await DefaultCacheManager().getSingleFile(url);
-    return VideoPlayerController.file(file);
+    return VideoPlayerController.network(url);
   }
 
   Future<bool> hasLocationPermission() async {
@@ -555,18 +591,20 @@ class Repository {
         return null;
       }
       final location = locations.first;
+      await _analytics.logEvent(name: 'search_location', parameters: {'search_term': searchQuery});
       return LatLng(location.latitude, location.longitude);
     } catch (e) {
       return null;
     }
   }
 
-  Future<void> shareVideo(String videoUrl) async {
-    final file = await DefaultCacheManager().getSingleFile(videoUrl);
+  Future<void> shareVideo(VideoDetail videoDetail) async {
+    final file = await DefaultCacheManager().getSingleFile(videoDetail.id);
     await Share.shareFiles(
       [file.path],
       text: 'Check out this video on Spot https://spot9752f.page.link/IA',
     );
+    await _analytics.logEvent(name: 'share_video', parameters: {'video_id': videoDetail.id});
   }
 
   Future<File> getCachedFile(String url) {
@@ -658,5 +696,7 @@ class Repository {
       return '@${name ?? match.group(0)!.substring(1)}';
     });
     return replacedComment;
+  double getZIndex(DateTime createdAt) {
+    return max((createdAt.millisecondsSinceEpoch ~/ 1000000 - 1600000), 0).toDouble();
   }
 }
