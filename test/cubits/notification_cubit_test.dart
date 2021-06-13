@@ -37,7 +37,6 @@ Future<void> main() async {
       },
       expect: () => [
         isA<NotificationLoaded>(),
-        isA<NotificationLoaded>(),
       ],
     );
     blocTest<NotificationCubit, NotificationState>(
@@ -103,7 +102,6 @@ Future<void> main() async {
         emitsInOrder(
           [
             isA<NotificationEmpty>(),
-            isA<NotificationLoaded>(),
             isA<NotificationLoaded>(),
           ],
         ),

@@ -29,11 +29,6 @@ class NotificationCubit extends Cubit<NotificationState> {
 
           emit(NotificationLoaded(
               notifications: _notifications, hasNewNotification: hasNewNotification));
-          for (var notification in _notifications) {
-            notification = await replaceCommentTextWithMentionedUserName(notification);
-          }
-          emit(NotificationLoaded(
-              notifications: _notifications, hasNewNotification: hasNewNotification));
         }
       });
     } catch (err) {
@@ -46,16 +41,6 @@ class NotificationCubit extends Cubit<NotificationState> {
       emit(NotificationLoaded(notifications: _notifications, hasNewNotification: false));
       return _repository.updateTimestampOfLastSeenNotification(_notifications.first.createdAt);
     }
-  }
-
-  @visibleForTesting
-  Future<AppNotification> replaceCommentTextWithMentionedUserName(
-      AppNotification notification) async {
-    if (notification.commentText == null) {
-      return notification;
-    }
-    final commentText = await _repository.replaceMentionsWithUserNames(notification.commentText!);
-    return notification.copyWith(commentText: commentText);
   }
 
   @override

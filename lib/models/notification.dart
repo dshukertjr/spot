@@ -15,7 +15,7 @@ extension NotificationTypeCreate on NotificationType {
         return NotificationType.like;
       case 'comment':
         return NotificationType.comment;
-      case '':
+      case 'mentioned':
         return NotificationType.mentioned;
       case 'follow':
         return NotificationType.follow;
@@ -39,6 +39,7 @@ class AppNotification {
   }) : assert(
           (type == NotificationType.like && targetVideoId != null) ||
               (type == NotificationType.comment && commentText != null) ||
+              (type == NotificationType.mentioned && commentText != null) ||
               type == NotificationType.follow ||
               type == NotificationType.other,
         );

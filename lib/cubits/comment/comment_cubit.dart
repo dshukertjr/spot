@@ -44,18 +44,6 @@ class CommentCubit extends Cubit<CommentState> {
         } else {
           emit(CommentsLoaded(_comments));
         }
-        final mentions = _comments
-            .map((comment) => _repository.getUserIdsInComment(comment.text))
-            .expand((mention) => mention)
-            .toList();
-        if (mentions.isEmpty) {
-          return;
-        }
-        for (var comment in _comments) {
-          final commentText = await _repository.replaceMentionsWithUserNames(comment.text);
-          comment = comment.copyWith(text: commentText);
-        }
-        emit(CommentsLoaded(_comments));
       });
     } catch (err) {
       emit(CommentError(message: 'Error opening comments of the video.'));
@@ -99,7 +87,6 @@ class CommentCubit extends Cubit<CommentState> {
 
   /// Called everytime comment is being edited
   /// Checks if there are any mentions in a comment and returns suggestion
-  @visibleForTesting
   Future<void> getMentionSuggestion(String comment) async {
     final mentionedUserName = _repository.getMentionedUserName(comment);
     if (mentionedUserName == null) {

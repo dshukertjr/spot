@@ -339,6 +339,14 @@ class Repository {
     }
     comments = Comment.commentsFromData(List.from(data));
     _commentsStreamController.sink.add(comments);
+
+    Future<Comment> replaceCommentText(Comment comment) async {
+      final commentText = await replaceMentionsWithUserNames(comment.text);
+      return comment.copyWith(text: commentText);
+    }
+
+    comments = await Future.wait(comments.map(replaceCommentText));
+    _commentsStreamController.sink.add(comments);
   }
 
   Future<void> comment({
@@ -365,6 +373,7 @@ class Repository {
     final mentionRes = await _supabaseClient
         .from('mentions')
         .insert(mentions
+            .where((mentionedProfile) => mentionedProfile.id != _videoDetails[videoId]?.userId)
             .map((profile) => {
                   'comment_id': commentId,
                   'user_id': profile.id,
@@ -407,7 +416,18 @@ class Repository {
         createdAtOfLastSeenNotification: createdAtOfLastSeenNotification);
     _notificationsStreamController.sink.add(_notifications);
 
-    //TODO finnd mentions in a comment and
+    Future<AppNotification> replaceCommentTextWithMentionedUserName(
+      AppNotification notification,
+    ) async {
+      if (notification.commentText == null) {
+        return notification;
+      }
+      final commentText = await replaceMentionsWithUserNames(notification.commentText!);
+      return notification.copyWith(commentText: commentText);
+    }
+
+    _notifications = await Future.wait(_notifications.map(replaceCommentTextWithMentionedUserName));
+    _notificationsStreamController.sink.add(_notifications);
   }
 
   Future<void> block(String blockedUserId) async {
@@ -630,9 +650,13 @@ class Repository {
   ) async {
     await Future.wait(getUserIdsInComment(comment).map(getProfile).toList());
     final regExp = RegExp(r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
-    return comment.replaceAllMapped(
-        regExp,
-        (match) =>
-            '@${profilesCache[match.group(0)!.substring(1)]?.name ?? match.group(0)!.substring(1)}');
+    final replacedComment = comment.replaceAllMapped(regExp, (match) {
+      final key = match.group(0)!.substring(1);
+      final name = profilesCache[key]?.name;
+
+      /// Return the original id if no profile was found with the id
+      return '@${name ?? match.group(0)!.substring(1)}';
+    });
+    return replacedComment;
   }
 }

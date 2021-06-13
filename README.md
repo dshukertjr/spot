@@ -274,6 +274,21 @@ as
     join videos on videos.id = comments.video_id
     union all
     select
+        'mentioned' as type,
+        mentions.user_id as receiver_user_id,
+        comments.text as comment_text,
+        videos.id as video_id,
+        videos.thumbnail_url as video_thumbnail_url,
+        comments.user_id as action_user_id,
+        users.name as action_user_name,
+        users.image_url as action_user_image_url,
+        comments.created_at
+    from comments
+    join mentions on comments.id = mentions.comment_id
+    join users on comments.user_id = users.id
+    join videos on videos.id = comments.video_id
+    union all
+    select
         'follow' as type,
         follow.followed_user_id as receiver_user_id,
         null as commennt_text,

@@ -690,7 +690,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
         height: 120,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: Color(0xff000000),
+            color: Color(0x99000000),
           ),
           child: preloader,
         ),
@@ -701,7 +701,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
           height: 120,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: Color(0xff000000),
+              color: Color(0x99000000),
             ),
             child: Center(
               child: Text('No matching user found'),
@@ -711,7 +711,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
       } else {
         return DecoratedBox(
           decoration: const BoxDecoration(
-            color: Color(0xff000000),
+            color: Color(0x99000000),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
