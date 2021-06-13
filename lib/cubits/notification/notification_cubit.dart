@@ -51,7 +51,7 @@ class NotificationCubit extends Cubit<NotificationState> {
   @visibleForTesting
   Future<AppNotification> replaceCommentTextWithMentionedUserName(
       AppNotification notification) async {
-    if (notification.type != NotificationType.comment) {
+    if (notification.commentText == null) {
       return notification;
     }
     final commentText = await _repository.replaceMentionsWithUserNames(notification.commentText!);

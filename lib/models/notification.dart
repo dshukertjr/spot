@@ -4,6 +4,7 @@ enum NotificationType {
   like,
   comment,
   follow,
+  mentioned,
   other,
 }
 
@@ -14,6 +15,8 @@ extension NotificationTypeCreate on NotificationType {
         return NotificationType.like;
       case 'comment':
         return NotificationType.comment;
+      case '':
+        return NotificationType.mentioned;
       case 'follow':
         return NotificationType.follow;
       default:
