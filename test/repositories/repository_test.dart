@@ -16,10 +16,26 @@ class MockSupabaseClient extends Mock implements SupabaseClient {}
 class MockFirebaseAnalytics extends Mock implements FirebaseAnalytics {}
 
 void main() {
+  final analytics = MockFirebaseAnalytics();
+
+  setUp(() {
+    registerFallbackValue<String>('');
+    when(() => analytics.logEvent(name: any<String>(named: 'name')))
+        .thenAnswer((invocation) async => null);
+    when(() => analytics.logSignUp(
+            signUpMethod: any<String>(named: 'signUpMethod')))
+        .thenAnswer((invocation) async => null);
+    when(() =>
+            analytics.logLogin(loginMethod: any<String>(named: 'loginMethod')))
+        .thenAnswer((invocation) async => null);
+    when(() =>
+            analytics.logSearch(searchTerm: any<String>(named: 'searchTerm')))
+        .thenAnswer((invocation) async => null);
+  });
+
   group('repository', () {
     late SupabaseClient supabaseClient;
     late HttpServer mockServer;
-    late FirebaseAnalytics analytics;
 
     Future<void> handleRequests(HttpServer server) async {
       await for (final HttpRequest request in server) {
@@ -189,18 +205,10 @@ void main() {
     setUp(() async {
       registerFallbackValue<String>('');
       mockServer = await HttpServer.bind('localhost', 0);
-      supabaseClient =
-          SupabaseClient('http://${mockServer.address.host}:${mockServer.port}', 'supabaseKey');
+      supabaseClient = SupabaseClient(
+          'http://${mockServer.address.host}:${mockServer.port}',
+          'supabaseKey');
       handleRequests(mockServer);
-      analytics = MockFirebaseAnalytics();
-      when(() => analytics.logEvent(name: any<String>(named: 'name')))
-          .thenAnswer((invocation) async => null);
-      when(() => analytics.logSignUp(signUpMethod: any<String>(named: 'signUpMethod')))
-          .thenAnswer((invocation) async => null);
-      when(() => analytics.logLogin(loginMethod: any<String>(named: 'loginMethod')))
-          .thenAnswer((invocation) async => null);
-      when(() => analytics.logSearch(searchTerm: any<String>(named: 'searchTerm')))
-          .thenAnswer((invocation) async => null);
     });
 
     tearDown(() async {
@@ -208,7 +216,8 @@ void main() {
     });
 
     test('signUp', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       final sessionString = await repository.signUp(email: '', password: '');
 
@@ -216,7 +225,8 @@ void main() {
     });
 
     test('signIn', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       final sessionString = await repository.signIn(email: '', password: '');
 
@@ -224,7 +234,8 @@ void main() {
     });
 
     test('getSelfProfile', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -234,7 +245,8 @@ void main() {
     });
 
     test('getVideosFromLocation', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -250,12 +262,13 @@ void main() {
     });
 
     test('getVideosInBoundingBox', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
-      await repository.getVideosInBoundingBox(
-          LatLngBounds(southwest: const LatLng(0, 0), northeast: const LatLng(45, 45)));
+      await repository.getVideosInBoundingBox(LatLngBounds(
+          southwest: const LatLng(0, 0), northeast: const LatLng(45, 45)));
 
       repository.mapVideosStream.listen(
         expectAsync1(
@@ -267,7 +280,8 @@ void main() {
     });
 
     test('getVideosFromUid', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -279,7 +293,8 @@ void main() {
     });
 
     test('getProfile', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -289,7 +304,8 @@ void main() {
     });
 
     test('saveProfile', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
@@ -304,10 +320,10 @@ void main() {
       );
     });
 
-
     group('Mentions', () {
       test('getMentionedProfiles on a comment with email address', () {
-        final repository = Repository(supabaseClient: supabaseClient);
+        final repository =
+            Repository(supabaseClient: supabaseClient, analytics: analytics);
         final comment = 'Email me at sample@example.com';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -324,7 +340,8 @@ void main() {
         expect(profiles.length, 0);
       });
       test('getMentionedProfiles on a comment with no mentions', () {
-        final repository = Repository(supabaseClient: supabaseClient);
+        final repository =
+            Repository(supabaseClient: supabaseClient, analytics: analytics);
         final comment = 'What do you think?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -341,7 +358,8 @@ void main() {
         expect(profiles.length, 0);
       });
       test('getMentionedProfiles at the beginning of sentence', () {
-        final repository = Repository(supabaseClient: supabaseClient);
+        final repository =
+            Repository(supabaseClient: supabaseClient, analytics: analytics);
         final comment = '@John What do you think?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -359,7 +377,8 @@ void main() {
         expect(profiles.first.id, 'aaa');
       });
       test('getMentionedProfiles in a sentence', () {
-        final repository = Repository(supabaseClient: supabaseClient);
+        final repository =
+            Repository(supabaseClient: supabaseClient, analytics: analytics);
         final comment = 'Hey @John ! How are you?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -377,7 +396,8 @@ void main() {
         expect(profiles.first.id, 'aaa');
       });
       test('getMentionedProfiles with one matching username', () {
-        final repository = Repository(supabaseClient: supabaseClient);
+        final repository =
+            Repository(supabaseClient: supabaseClient, analytics: analytics);
         final comment = 'What do you think @John?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -396,7 +416,8 @@ void main() {
         expect(profiles.first.id, 'aaa');
       });
       test('getMentionedProfiles with two matching username', () {
-        final repository = Repository(supabaseClient: supabaseClient);
+        final repository =
+            Repository(supabaseClient: supabaseClient, analytics: analytics);
         final comment = 'What do you think @John, @Mary?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -415,8 +436,10 @@ void main() {
         expect(profiles.first.id, 'aaa');
         expect(profiles[1].id, 'bbb');
       });
-      test('getMentionedProfiles with space in the username would not work', () {
-        final repository = Repository(supabaseClient: supabaseClient);
+      test('getMentionedProfiles with space in the username would not work',
+          () {
+        final repository =
+            Repository(supabaseClient: supabaseClient, analytics: analytics);
         final comment = 'What do you think @John Tyter?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -438,7 +461,8 @@ void main() {
 
   group('replaceMentionsInAComment', () {
     final supabaseClient = SupabaseClient('', 'supabaseKey');
-    final repository = Repository(supabaseClient: supabaseClient);
+    final repository =
+        Repository(supabaseClient: supabaseClient, analytics: analytics);
     test('without mention', () {
       final comment = '@test';
       final replacedComment = repository.replaceMentionsInAComment(
@@ -516,7 +540,8 @@ void main() {
 
   group('getMentionedUserName', () {
     final supabaseClient = SupabaseClient('', 'supabaseKey');
-    final repository = Repository(supabaseClient: supabaseClient);
+    final repository =
+        Repository(supabaseClient: supabaseClient, analytics: analytics);
     test('username is the only thing within the comment', () {
       final comment = '@test';
       final mentionedUserName = repository.getMentionedUserName(comment);
@@ -553,7 +578,8 @@ void main() {
       expect(userIds, ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
     });
     test('getUserIdsInComment with 1 user id', () {
-      final comment = 'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay';
+      final comment =
+          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay';
       final userIds = repository.getUserIdsInComment(comment);
       expect(userIds, ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
     });
@@ -561,15 +587,19 @@ void main() {
       final comment =
           'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
       final userIds = repository.getUserIdsInComment(comment);
-      expect(userIds,
-          ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2', 'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+      expect(userIds, [
+        'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
+        'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2'
+      ]);
     });
     test('getUserIdsInComment with 2 user id with the same id', () {
       final comment =
           'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
       final userIds = repository.getUserIdsInComment(comment);
-      expect(userIds,
-          ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2', 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+      expect(userIds, [
+        'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
+        'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2'
+      ]);
     });
   });
 
@@ -580,7 +610,8 @@ void main() {
     Future<void> handleRequests(HttpServer server) async {
       await for (final HttpRequest request in server) {
         final url = request.uri.toString();
-        if (url == '/rest/v1/users?select=%2A&id=eq.b35bac1a-8d4b-4361-99cc-a1d274d1c4d2') {
+        if (url ==
+            '/rest/v1/users?select=%2A&id=eq.b35bac1a-8d4b-4361-99cc-a1d274d1c4d2') {
           final jsonString = jsonEncode([
             {
               'id': 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
@@ -593,7 +624,8 @@ void main() {
             ..headers.contentType = ContentType.json
             ..write(jsonString)
             ..close();
-        } else if (url == '/rest/v1/users?select=%2A&id=eq.aaabac1a-8d4b-4361-99cc-a1d274d1c4d2') {
+        } else if (url ==
+            '/rest/v1/users?select=%2A&id=eq.aaabac1a-8d4b-4361-99cc-a1d274d1c4d2') {
           final jsonString = jsonEncode([
             {
               'id': 'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
@@ -616,8 +648,9 @@ void main() {
 
     setUp(() async {
       mockServer = await HttpServer.bind('localhost', 0);
-      supabaseClient =
-          SupabaseClient('http://${mockServer.address.host}:${mockServer.port}', 'supabaseKey');
+      supabaseClient = SupabaseClient(
+          'http://${mockServer.address.host}:${mockServer.port}',
+          'supabaseKey');
       handleRequests(mockServer);
     });
 
@@ -626,22 +659,29 @@ void main() {
     });
 
     test('replaceMentionsWithUserNames with two profiles', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
       final comment =
           'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
 
-      final updatedComment = await repository.replaceMentionsWithUserNames(comment);
+      final updatedComment =
+          await repository.replaceMentionsWithUserNames(comment);
       expect(updatedComment, 'something random @Tyler yay @Sam');
     });
-    test('replaceMentionsWithUserNames with two userIds of the same user', () async {
-      final repository = Repository(supabaseClient: supabaseClient);
+    test('replaceMentionsWithUserNames with two userIds of the same user',
+        () async {
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
       final comment =
           'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
 
-      final updatedComment = await repository.replaceMentionsWithUserNames(comment);
+      final updatedComment =
+          await repository.replaceMentionsWithUserNames(comment);
       expect(updatedComment, 'something random @Tyler yay @Tyler');
+    });
     test('getZIndex', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
       final recentZIndex = repository.getZIndex(DateTime(2021, 4, 10));
       expect(recentZIndex.isNegative, false);
       expect(recentZIndex < 1000000, true);
@@ -651,11 +691,13 @@ void main() {
       expect(futureZIndex < 1000000, true);
     });
     test('getZIndex close ', () async {
-      final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
-      final firstZIndex = repository.getZIndex(DateTime(2021, 4, 10, 10, 0, 0)).toInt();
-      final laterZIndex = repository.getZIndex(DateTime(2021, 4, 10, 11, 0, 0)).toInt();
+      final repository =
+          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final firstZIndex =
+          repository.getZIndex(DateTime(2021, 4, 10, 10, 0, 0)).toInt();
+      final laterZIndex =
+          repository.getZIndex(DateTime(2021, 4, 10, 11, 0, 0)).toInt();
       expect(firstZIndex < laterZIndex, true);
-
     });
   });
 }
