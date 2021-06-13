@@ -40,4 +40,20 @@ class Comment {
       'user_id': userId,
     };
   }
+
+  Comment copyWith({
+    String? id,
+    String? text,
+    DateTime? createdAt,
+    String? videoId,
+    Profile? user,
+  }) {
+    return Comment(
+      id: id ?? this.id,
+      text: text ?? this.text,
+      createdAt: createdAt ?? this.createdAt,
+      videoId: videoId ?? this.videoId,
+      user: user ?? this.user,
+    );
+  }
 }

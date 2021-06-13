@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 
 import 'package:meta/meta.dart';
-import 'package:spot/models/comment.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
@@ -24,10 +23,6 @@ class VideoCubit extends Cubit<VideoState> {
   VideoDetail? _videoDetail;
   VideoPlayerController? _videoPlayerController;
   StreamSubscription<VideoDetail?>? _videoStreamSubscription;
-
-  List<Comment>? _comments;
-
-  bool _isCommentsShown = false;
 
   @override
   Future<void> close() {
@@ -51,8 +46,8 @@ class VideoCubit extends Cubit<VideoState> {
             emit(VideoLoading(_videoDetail!));
           } else if (state is VideoPlaying) {
             emit(VideoPlaying(
-              video: _videoDetail!,
-              videoPlayerController: _videoPlayerController!,
+              videoDetail: _videoDetail!,
+              videoPlayerController: _videoPlayerController,
             ));
           }
         }
@@ -77,60 +72,6 @@ class VideoCubit extends Cubit<VideoState> {
     } catch (err) {
       emit(VideoError(message: 'Error unliking the video.'));
       return Future.error(err);
-    }
-  }
-
-  Future<void> showComments() async {
-    try {
-      _isCommentsShown = true;
-      emit(VideoPlaying(
-        video: _videoDetail!,
-        videoPlayerController: _videoPlayerController!,
-        isCommentsShown: _isCommentsShown,
-        comments: _comments,
-      ));
-      _comments ??= await _repository.getComments(_videoId);
-      emit(VideoPlaying(
-        video: _videoDetail!,
-        videoPlayerController: _videoPlayerController!,
-        isCommentsShown: _isCommentsShown,
-        comments: _comments,
-      ));
-    } catch (err) {
-      emit(VideoError(message: 'Error opening comments of the video.'));
-    }
-  }
-
-  void hideComments() {
-    _isCommentsShown = false;
-    emit(VideoPlaying(
-      video: _videoDetail!,
-      videoPlayerController: _videoPlayerController!,
-      isCommentsShown: _isCommentsShown,
-    ));
-  }
-
-  Future<void> comment(String text) async {
-    try {
-      final userId = _repository.userId;
-      final user = await _repository.getProfile(userId!);
-      final comment = Comment(
-        id: 'new',
-        text: text,
-        createdAt: DateTime.now(),
-        videoId: _videoId,
-        user: user!,
-      );
-      _comments!.insert(0, comment);
-      emit(VideoPlaying(
-        video: _videoDetail!,
-        videoPlayerController: _videoPlayerController!,
-        isCommentsShown: _isCommentsShown,
-        comments: _comments,
-      ));
-      await _repository.comment(text: text, videoId: _videoId);
-    } catch (err) {
-      emit(VideoError(message: 'Error commenting.'));
     }
   }
 
@@ -164,7 +105,7 @@ class VideoCubit extends Cubit<VideoState> {
         await _videoPlayerController!.play();
 
         emit(VideoPlaying(
-          video: _videoDetail!,
+          videoDetail: _videoDetail!,
           videoPlayerController: _videoPlayerController!,
         ));
       }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -41,9 +42,21 @@ class Repository {
   final _videoDetailStreamController = BehaviorSubject<VideoDetail?>();
   Stream<VideoDetail?> get videoDetailStream => _videoDetailStreamController.stream;
 
-  final Map<String, Profile> _profiles = {};
+  @visibleForTesting
+  final Map<String, Profile> profilesCache = {};
   final _profileStreamController = BehaviorSubject<Map<String, Profile>>();
   Stream<Map<String, Profile>> get profileStream => _profileStreamController.stream;
+
+  @visibleForTesting
+  List<Comment> comments = [];
+  final _commentsStreamController = BehaviorSubject<List<Comment>>();
+  Stream<List<Comment>> get commentsStream => _commentsStreamController.stream;
+
+  List<AppNotification> _notifications = [];
+  final _notificationsStreamController = BehaviorSubject<List<AppNotification>>();
+  Stream<List<AppNotification>> get notificationsStream => _notificationsStreamController.stream;
+
+  final _mentionSuggestionCache = <String, List<Profile>>{};
 
   String? get userId => _supabaseClient.auth.currentUser?.id;
 
@@ -167,7 +180,7 @@ class Repository {
   }
 
   Future<Profile?> getProfile(String uid) async {
-    final targetProfile = _profiles[uid];
+    final targetProfile = profilesCache[uid];
     if (targetProfile != null) {
       return targetProfile;
     }
@@ -182,13 +195,13 @@ class Repository {
     }
 
     if (data.isEmpty) {
-      _profileStreamController.sink.add(_profiles);
+      _profileStreamController.sink.add(profilesCache);
       return null;
     }
 
     final profile = Profile.fromData(data[0]);
-    _profiles[uid] = profile;
-    _profileStreamController.sink.add(_profiles);
+    profilesCache[uid] = profile;
+    _profileStreamController.sink.add(profilesCache);
     return profile;
   }
 
@@ -210,8 +223,8 @@ class Repository {
     }
 
     final newProfile = Profile.fromData(data[0]);
-    _profiles[profile.id] = newProfile;
-    _profileStreamController.sink.add(_profiles);
+    profilesCache[profile.id] = newProfile;
+    _profileStreamController.sink.add(profilesCache);
   }
 
   /// Uploads the video and returns the download URL
@@ -328,9 +341,13 @@ class Repository {
     });
   }
 
-  Future<List<Comment>> getComments(String videoId) async {
-    final res =
-        await _supabaseClient.from('video_comments').select().eq('video_id', videoId).execute();
+  Future<void> getComments(String videoId) async {
+    final res = await _supabaseClient
+        .from('video_comments')
+        .select()
+        .eq('video_id', videoId)
+        .order('created_at')
+        .execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
@@ -339,15 +356,25 @@ class Repository {
         message: error.message,
       );
     }
+    comments = Comment.commentsFromData(List.from(data));
+    _commentsStreamController.sink.add(comments);
+
+    Future<Comment> replaceCommentText(Comment comment) async {
+      final commentText = await replaceMentionsWithUserNames(comment.text);
+      return comment.copyWith(text: commentText);
+    }
+
+    comments = await Future.wait(comments.map(replaceCommentText));
+    _commentsStreamController.sink.add(comments);
     await _analytics.logEvent(name: 'view_comments', parameters: {
       'video_id': videoId,
     });
-    return Comment.commentsFromData(List.from(data));
   }
 
   Future<void> comment({
     required String text,
     required String videoId,
+    required List<Profile> mentions,
   }) async {
     final userId = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient
@@ -361,12 +388,33 @@ class Repository {
         message: error.message,
       );
     }
+    if (mentions.isEmpty) {
+      return;
+    }
+    final commentId = res.data![0]['id'];
+    final mentionRes = await _supabaseClient
+        .from('mentions')
+        .insert(mentions
+            .where((mentionedProfile) => mentionedProfile.id != _videoDetails[videoId]?.userId)
+            .map((profile) => {
+                  'comment_id': commentId,
+                  'user_id': profile.id,
+                })
+            .toList())
+        .execute();
+    final mentionError = mentionRes.error;
+    if (mentionError != null) {
+      throw PlatformException(
+        code: mentionError.code ?? 'commet Video',
+        message: mentionError.message,
+      );
+    }
     await _analytics.logEvent(name: 'post_comment', parameters: {
       'video_id': videoId,
     });
   }
 
-  Future<List<AppNotification>> getNotifications() async {
+  Future<void> getNotifications() async {
     final uid = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient
         .from('notifications')
@@ -379,7 +427,7 @@ class Repository {
     final error = res.error;
     if (error != null) {
       throw PlatformException(
-        code: error.code ?? 'Unlike Video',
+        code: error.code ?? 'getNotifications',
         message: error.message,
       );
     }
@@ -389,8 +437,22 @@ class Repository {
     if (timestampOfLastSeenNotification != null) {
       createdAtOfLastSeenNotification = DateTime.parse(timestampOfLastSeenNotification);
     }
-    return AppNotification.fromData(data,
+    _notifications = AppNotification.fromData(data,
         createdAtOfLastSeenNotification: createdAtOfLastSeenNotification);
+    _notificationsStreamController.sink.add(_notifications);
+
+    Future<AppNotification> replaceCommentTextWithMentionedUserName(
+      AppNotification notification,
+    ) async {
+      if (notification.commentText == null) {
+        return notification;
+      }
+      final commentText = await replaceMentionsWithUserNames(notification.commentText!);
+      return notification.copyWith(commentText: commentText);
+    }
+
+    _notifications = await Future.wait(_notifications.map(replaceCommentTextWithMentionedUserName));
+    _notificationsStreamController.sink.add(_notifications);
   }
 
   Future<void> block(String blockedUserId) async {
@@ -549,6 +611,91 @@ class Repository {
     return DefaultCacheManager().getSingleFile(url);
   }
 
+  Future<List<Profile>> getMentions(String queryString) async {
+    if (_mentionSuggestionCache[queryString] != null) {
+      return _mentionSuggestionCache[queryString]!;
+    }
+    final res = await _supabaseClient
+        .from('users')
+        .select()
+        .like('name', '%$queryString%')
+        .limit(2)
+        .execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(code: 'Error finding mentionend users', message: error.message);
+    }
+    final data = List.from(res.data);
+    final profiles =
+        data.map<Profile>((row) => Profile.fromData(Map<String, dynamic>.from(row))).toList();
+    _mentionSuggestionCache[queryString] = profiles;
+    profilesCache.addEntries(
+        profiles.map<MapEntry<String, Profile>>((profile) => MapEntry(profile.id, profile)));
+    _profileStreamController.sink.add(profilesCache);
+    return profiles;
+  }
+
+  List<Profile> getMentionedProfiles(String commentText) {
+    final userNames = commentText
+        .split(' ')
+        .where((word) => word.isNotEmpty && word[0] == '@')
+        .map((word) => RegExp(r'^\w*').firstMatch(word.substring(1))!.group(0)!)
+        .toList();
+    final userNameMap = <String, Profile>{}..addEntries(profilesCache.values
+        .map<MapEntry<String, Profile>>((profile) => MapEntry(profile.name, profile)));
+    final mentionedProfiles = userNames
+        .map<Profile?>((userName) => userNameMap[userName])
+        .where((profile) => profile != null)
+        .map<Profile>((profile) => profile!)
+        .toList();
+    return mentionedProfiles;
+  }
+
+  /// Replaces mentioned user names with users' id in comment text
+  /// Called right before saving a new comment to the database
+  String replaceMentionsInAComment({required String comment, required List<Profile> mentions}) {
+    var mentionReplacedText = comment;
+    for (final mention in mentions) {
+      mentionReplacedText = mentionReplacedText.replaceAll('@${mention.name}', '@${mention.id}');
+    }
+    return mentionReplacedText;
+  }
+
+  /// Extracts the username to be searched within the database
+  /// Called when a user is typing up a comment
+  String? getMentionedUserName(String comment) {
+    final mention = comment.split(' ').last;
+    if (mention.isEmpty || mention[0] != '@') {
+      return null;
+    }
+    final mentionedUserName = mention.substring(1);
+    if (mentionedUserName.isEmpty) {
+      return null;
+    }
+    return mentionedUserName;
+  }
+
+  /// Returns list of userIds that are present in a comment
+  List<String> getUserIdsInComment(String comment) {
+    final regExp = RegExp(r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
+    final matches = regExp.allMatches(comment);
+    return matches.map((match) => match.group(0)!.substring(1)).toList();
+  }
+
+  /// Replaces user ids found in comments with user names
+  Future<String> replaceMentionsWithUserNames(
+    String comment,
+  ) async {
+    await Future.wait(getUserIdsInComment(comment).map(getProfile).toList());
+    final regExp = RegExp(r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
+    final replacedComment = comment.replaceAllMapped(regExp, (match) {
+      final key = match.group(0)!.substring(1);
+      final name = profilesCache[key]?.name;
+
+      /// Return the original id if no profile was found with the id
+      return '@${name ?? match.group(0)!.substring(1)}';
+    });
+    return replacedComment;
   double getZIndex(DateTime createdAt) {
     return max((createdAt.millisecondsSinceEpoch ~/ 1000000 - 1600000), 0).toDouble();
   }

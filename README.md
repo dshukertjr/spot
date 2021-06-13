@@ -20,9 +20,11 @@ How you utilise Spot is up to you! You may be able to check out the local festiv
 ---
 
 ## Figma
+
 https://www.figma.com/file/OBSvD6eG4eDno3aQ76Ovzo/Spot?node-id=2%3A1023
 
 ---
+
 ## Supabase Database Schema
 
 > Please note that you need enable `postgis` database extensions before run import database schema
@@ -33,7 +35,7 @@ create table if not exists public.users (
   name varchar(18) not null unique,
   description varchar(320) not null,
   image_url text,
-  
+
   constraint username_validation check (char_length(name) >= 1)
 );
 comment on table public.users is 'Holds all of users profile information';
@@ -82,6 +84,19 @@ create policy "Can insert comments" on public.comments for insert with check (au
 create policy "Can update comments" on public.comments for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Can delete comments" on public.comments for delete using (auth.uid() = user_id);
 
+create table if not exists public.mentions (
+    id uuid not null primary key DEFAULT uuid_generate_v4 (),
+    comment_id uuid references public.comments on delete cascade not null,
+    user_id uuid references public.users on delete cascade not null
+);
+comment on table public.comments is 'Holds all of the mentions within comments';
+
+alter table public.mentions enable row level security;
+create policy "Mentions are viewable by everyone. " on public.mentions for select using (true);
+create policy "Mentions can be inserted by the creator of the comment. " on public.mentions for insert with check (auth.uid() = (select user_id from public.comments where comments.id = mentions.comment_id));
+create policy "Mentions can be updated by the creator of the comment." on public.mentions for update using (auth.uid() = (select user_id from public.comments where comments.id = mentions.comment_id)) with check (auth.uid() = (select user_id from public.comments where comments.id = mentions.comment_id));
+create policy "Mentions can be deleted by the creator of the comment." on public.mentions for delete using (auth.uid() = (select user_id from public.comments where comments.id = mentions.comment_id));
+
 
 create table if not exists public.likes (
     video_id uuid references public.videos on delete cascade not null,
@@ -115,7 +130,7 @@ create table if not exists public.blocks (
     blocked_user_id uuid references public.users on delete cascade not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null,
     primary key (user_id, blocked_user_id),
-  
+
     constraint username_validation check (user_id != blocked_user_id)
 );
 comment on table public.blocks is 'Holds information of who is blocking who.';
@@ -140,7 +155,7 @@ create policy "Users can report a video." on public.reports for insert with chec
 
 create or replace view video_comments
 as
-    select 
+    select
         comments.id,
         comments.text,
         comments.created_at,
@@ -151,11 +166,11 @@ as
         users.image_url as user_image_url
     from comments
     join users on comments.user_id = users.id;
-    
+
 
 create or replace function nearby_videos(location text, user_id uuid)
 returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text)
-as 
+as
 $func$
     select
         videos.id,
@@ -230,7 +245,7 @@ language sql;
 
 create or replace view notifications
 as
-    select 
+    select
         'like' as type,
         videos.user_id as receiver_user_id,
         null as comment_text,
@@ -255,6 +270,21 @@ as
         users.image_url as action_user_image_url,
         comments.created_at
     from comments
+    join users on comments.user_id = users.id
+    join videos on videos.id = comments.video_id
+    union all
+    select
+        'mentioned' as type,
+        mentions.user_id as receiver_user_id,
+        comments.text as comment_text,
+        videos.id as video_id,
+        videos.thumbnail_url as video_thumbnail_url,
+        comments.user_id as action_user_id,
+        users.name as action_user_name,
+        users.image_url as action_user_image_url,
+        comments.created_at
+    from comments
+    join mentions on comments.id = mentions.comment_id
     join users on comments.user_id = users.id
     join videos on videos.id = comments.video_id
     union all
@@ -297,7 +327,9 @@ https://medium.com/flutter-community/automating-publishing-your-flutter-apps-to-
 Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
 <!-- ![coverage][coverage_badge] -->
+
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
+
 <!-- [![License: MIT][license_badge]][license_link] -->
 
 A Very Good Flutter Starter Project created by the [Very Good Ventures Team][very_good_ventures_link].

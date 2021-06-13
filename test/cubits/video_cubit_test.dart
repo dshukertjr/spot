@@ -37,25 +37,17 @@ Future<void> main() async {
         ),
       ),
     );
-    when(() => repository.getVideoDetailStream('')).thenAnswer((_) => Future.value());
-    when(() => repository.getVideoPlayerController('https://www.w3schools.com/html/mov_bbb.mp4'))
-        .thenAnswer((invocation) => Future.value(
-            VideoPlayerController.network('https://www.w3schools.com/html/mov_bbb.mp4')));
-    when(() => repository.getComments('')).thenAnswer((invocation) => Future.value([]));
+    when(() => repository.getVideoDetailStream(''))
+        .thenAnswer((_) => Future.value());
+    when(() => repository.getVideoPlayerController(
+            'https://www.w3schools.com/html/mov_bbb.mp4'))
+        .thenAnswer((invocation) => Future.value(VideoPlayerController.network(
+            'https://www.w3schools.com/html/mov_bbb.mp4')));
+    when(() => repository.getComments(''))
+        .thenAnswer((invocation) => Future.value([]));
 
     test('Initial State', () {
       expect(VideoCubit(repository: repository).state is VideoInitial, true);
     });
-
-    blocTest<VideoCubit, VideoState>(
-      'initialize()',
-      build: () => VideoCubit(repository: repository),
-      act: (cubit) async {
-        await cubit.initialize('');
-      },
-      expect: () => [
-        isA<VideoLoading>(),
-      ],
-    );
   });
 }

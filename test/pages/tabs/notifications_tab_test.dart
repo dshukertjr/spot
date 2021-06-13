@@ -21,7 +21,8 @@ void main() {
     testWidgets('Renders NotificationsTab correctly', (tester) async {
       final repository = MockRepository();
 
-      when(repository.getNotifications).thenAnswer((invocation) => Future.value([
+      when(repository.getNotifications).thenAnswer((invocation) => Future.value());
+      when(() => repository.notificationsStream).thenAnswer((_) => Stream.value([
             AppNotification(
               type: NotificationType.like,
               createdAt: DateTime.now(),
@@ -49,6 +50,8 @@ void main() {
               isNew: false,
             ),
           ]));
+      when(() => repository.replaceMentionsWithUserNames(any<String>()))
+          .thenAnswer((invocation) async => '');
 
       await tester.pumpApp(
         widget: BlocProvider<NotificationCubit>(
@@ -82,7 +85,8 @@ void main() {
     testWidgets('Takes care of new notification properly', (tester) async {
       final repository = MockRepository();
 
-      when(repository.getNotifications).thenAnswer((invocation) => Future.value([
+      when(repository.getNotifications).thenAnswer((invocation) => Future.value());
+      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.value([
             AppNotification(
               type: NotificationType.like,
               createdAt: DateTime.now(),
@@ -110,6 +114,8 @@ void main() {
               isNew: false,
             ),
           ]));
+      when(() => repository.replaceMentionsWithUserNames(any<String>()))
+          .thenAnswer((invocation) async => '');
 
       await tester.pumpApp(
         widget: BlocProvider<NotificationCubit>(
@@ -129,7 +135,8 @@ void main() {
     testWidgets('Empty notification will show empty text', (tester) async {
       final repository = MockRepository();
 
-      when(repository.getNotifications).thenAnswer((invocation) => Future.value([]));
+      when(repository.getNotifications).thenAnswer((invocation) => Future.value());
+      when(() => repository.notificationsStream).thenAnswer((invocation) => Stream.value([]));
 
       await tester.pumpApp(
         widget: BlocProvider<NotificationCubit>(

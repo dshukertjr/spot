@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/cubits/comment/comment_cubit.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/profile.dart';
@@ -15,6 +17,10 @@ import 'package:spot/pages/view_video_page.dart';
 import 'package:video_player/video_player.dart';
 
 import '../helpers/helpers.dart';
+
+class MockVideoCubit extends MockCubit<VideoState> implements VideoCubit {}
+
+class MockCommentCubit extends MockCubit<CommentState> implements CommentCubit {}
 
 void main() {
   setUpAll(() => HttpOverrides.global = null);
@@ -394,7 +400,9 @@ void main() {
           .thenAnswer(
               (_) => Future.value(VideoPlayerController.file(File('test_resources/video.mp4'))));
 
-      when(() => repository.getComments('aaa')).thenAnswer((_) => Future.value([
+      when(() => repository.getComments('aaa')).thenAnswer((_) => Future.value());
+
+      when(() => repository.commentsStream).thenAnswer((invocation) => Stream.value([
             Comment(
               id: 'id',
               text: 'sample comment',
@@ -404,9 +412,20 @@ void main() {
             ),
           ]));
 
+      when(() => repository.getUserIdsInComment(any<String>())).thenAnswer((invocation) => []);
+
       await tester.pumpApp(
-        widget: BlocProvider<VideoCubit>(
-          create: (BuildContext context) => VideoCubit(repository: repository)..initialize('aaa'),
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<VideoCubit>(
+              create: (BuildContext context) =>
+                  VideoCubit(repository: repository)..initialize('aaa'),
+            ),
+            BlocProvider<CommentCubit>(
+              create: (BuildContext context) =>
+                  CommentCubit(repository: repository, videoId: 'aaa')..loadComments(),
+            ),
+          ],
           child: ViewVideoPage(),
         ),
         repository: repository,
@@ -422,11 +441,174 @@ void main() {
 
       expect(find.byType(CommentsOverlay), findsOneWidget);
 
+      await tester.pump();
+
       // Comments are loaded and displaed
       expect(
           find.byWidgetPredicate((widget) =>
               widget is RichText && widget.text.toPlainText().contains('sample comment')),
           findsOneWidget);
+    });
+  });
+
+  group('Mentions', () {
+    setUpAll(() {
+      HttpOverrides.global = null;
+
+      registerFallbackValue<String>('');
+
+      registerFallbackValue<VideoState>(VideoPlaying(
+        videoDetail: VideoDetail(
+          id: 'id',
+          url: 'url',
+          imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+          thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+          gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+          createdAt: DateTime.now(),
+          description: 'description',
+          location: const LatLng(0, 0),
+          userId: 'userId',
+          likeCount: 1,
+          commentCount: 1,
+          haveLiked: false,
+          createdBy: Profile(id: 'id', name: 'name'),
+        ),
+      ));
+      registerFallbackValue<CommentState>(CommentInitial());
+    });
+
+    testWidgets('Mentions are being displayed properly', (tester) async {
+      final repository = MockRepository();
+      when(() => repository.userId).thenReturn('myUserId');
+      final mockVideoCubit = MockVideoCubit();
+      final mockCommentCubit = MockCommentCubit();
+
+      when(() => mockCommentCubit.getMentionSuggestion(any<String>()))
+          .thenAnswer((invocation) => Future.value());
+
+      when(mockCommentCubit.loadComments).thenAnswer((invocation) => Future.value());
+
+      when(() => mockCommentCubit.createCommentWithMentionedProfile(
+            commentText: any<String>(named: 'commentText'),
+            profileName: any<String>(named: 'profileName'),
+          )).thenReturn('@Tyler ');
+
+      whenListen(
+        mockVideoCubit,
+        Stream.fromIterable([
+          VideoPlaying(
+            videoDetail: VideoDetail(
+              id: 'id',
+              url: 'url',
+              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              createdAt: DateTime.now(),
+              description: 'description',
+              location: const LatLng(0, 0),
+              userId: 'userId',
+              likeCount: 1,
+              commentCount: 1,
+              haveLiked: false,
+              createdBy: Profile(id: 'id', name: 'name'),
+            ),
+          ),
+          VideoPlaying(
+            videoDetail: VideoDetail(
+              id: 'id',
+              url: 'url',
+              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+              createdAt: DateTime.now(),
+              description: 'description',
+              location: const LatLng(0, 0),
+              userId: 'userId',
+              likeCount: 1,
+              commentCount: 1,
+              haveLiked: false,
+              createdBy: Profile(id: 'id', name: 'name'),
+            ),
+          ),
+        ]),
+        initialState: VideoPlaying(
+          videoDetail: VideoDetail(
+            id: 'id',
+            url: 'url',
+            imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+            thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+            gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+            createdAt: DateTime.now(),
+            description: 'description',
+            location: const LatLng(0, 0),
+            userId: 'userId',
+            likeCount: 1,
+            commentCount: 1,
+            haveLiked: false,
+            createdBy: Profile(id: 'id', name: 'name'),
+          ),
+        ),
+      );
+
+      whenListen(
+        mockCommentCubit,
+        Stream.fromIterable([
+          CommentsLoaded(
+            [
+              Comment(
+                id: 'id',
+                text: 'text',
+                createdAt: DateTime.now(),
+                videoId: 'videoId',
+                user: Profile(id: 'id', name: 'name'),
+              )
+            ],
+            mentionSuggestions: [],
+            isLoadingMentions: true,
+          ),
+          CommentsLoaded(
+            [
+              Comment(
+                id: 'id',
+                text: 'text',
+                createdAt: DateTime.now(),
+                videoId: 'videoId',
+                user: Profile(id: 'id', name: 'name'),
+              )
+            ],
+            mentionSuggestions: [
+              Profile(id: 'aaa', name: 'Tyler'),
+              Profile(id: 'bbb', name: 'Takahiro'),
+            ],
+            isLoadingMentions: false,
+          ),
+        ]),
+      );
+
+      await tester.pumpApp(
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<VideoCubit>(create: (BuildContext context) => mockVideoCubit),
+            BlocProvider<CommentCubit>(create: (BuildContext context) => mockCommentCubit),
+          ],
+          child: ViewVideoPage(),
+        ),
+        repository: repository,
+      );
+
+      await tester.tap(find.byIcon(FeatherIcons.messageCircle));
+      await tester.pump();
+
+      /// suggestions are being displayed
+      expect(find.text('Tyler'), findsOneWidget);
+      expect(find.byWidget(preloader), findsOneWidget);
+
+      await tester.tap(find.text('Tyler'));
+
+      await tester.pump();
+
+      final value = tester.widget<TextFormField>(find.byType(TextFormField)).controller!.text;
+      expect(value, '@Tyler ');
     });
   });
 }

@@ -131,7 +131,9 @@ class _NotificationCell extends StatelessWidget {
       case NotificationType.like:
         return '${_notification.actionUserName} liked your video';
       case NotificationType.comment:
-        return '${_notification.actionUserName} commented ${_notification.commentText}';
+        return '${_notification.actionUserName} commented "${_notification.commentText}"';
+      case NotificationType.mentioned:
+        return '${_notification.actionUserName} mentioned you in a comment "${_notification.commentText}"';
       case NotificationType.follow:
         return '${_notification.actionUserName} started following you';
       case NotificationType.other:
@@ -145,6 +147,8 @@ class _NotificationCell extends StatelessWidget {
         return 'assets/images/like.png';
       case NotificationType.comment:
         return 'assets/images/comment.png';
+      case NotificationType.mentioned:
+        return 'assets/images/mentioned.png';
       case NotificationType.follow:
         return 'assets/images/follower.png';
       case NotificationType.other:

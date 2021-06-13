@@ -4,6 +4,7 @@ enum NotificationType {
   like,
   comment,
   follow,
+  mentioned,
   other,
 }
 
@@ -14,6 +15,8 @@ extension NotificationTypeCreate on NotificationType {
         return NotificationType.like;
       case 'comment':
         return NotificationType.comment;
+      case 'mentioned':
+        return NotificationType.mentioned;
       case 'follow':
         return NotificationType.follow;
       default:
@@ -36,6 +39,7 @@ class AppNotification {
   }) : assert(
           (type == NotificationType.like && targetVideoId != null) ||
               (type == NotificationType.comment && commentText != null) ||
+              (type == NotificationType.mentioned && commentText != null) ||
               type == NotificationType.follow ||
               type == NotificationType.other,
         );
@@ -75,5 +79,29 @@ class AppNotification {
         );
       },
     ).toList();
+  }
+
+  AppNotification copyWith({
+    NotificationType? type,
+    String? commentText,
+    String? targetVideoId,
+    String? targetVideoThumbnail,
+    String? actionUid,
+    String? actionUserName,
+    String? actionUserImageUrl,
+    DateTime? createdAt,
+    bool? isNew,
+  }) {
+    return AppNotification(
+      type: type ?? this.type,
+      commentText: commentText ?? this.commentText,
+      targetVideoId: targetVideoId ?? this.targetVideoId,
+      targetVideoThumbnail: targetVideoThumbnail ?? this.targetVideoThumbnail,
+      actionUid: actionUid ?? this.actionUid,
+      actionUserName: actionUserName ?? this.actionUserName,
+      actionUserImageUrl: actionUserImageUrl ?? this.actionUserImageUrl,
+      createdAt: createdAt ?? this.createdAt,
+      isNew: isNew ?? this.isNew,
+    );
   }
 }

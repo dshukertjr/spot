@@ -304,6 +304,342 @@ void main() {
       );
     });
 
+
+    group('Mentions', () {
+      test('getMentionedProfiles on a comment with email address', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'Email me at sample@example.com';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 0);
+      });
+      test('getMentionedProfiles on a comment with no mentions', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'What do you think?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 0);
+      });
+      test('getMentionedProfiles at the beginning of sentence', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = '@John What do you think?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 1);
+        expect(profiles.first.id, 'aaa');
+      });
+      test('getMentionedProfiles in a sentence', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'Hey @John ! How are you?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 1);
+        expect(profiles.first.id, 'aaa');
+      });
+      test('getMentionedProfiles with one matching username', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'What do you think @John?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 1);
+        expect(profiles.first.id, 'aaa');
+      });
+      test('getMentionedProfiles with two matching username', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'What do you think @John, @Mary?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 2);
+        expect(profiles.first.id, 'aaa');
+        expect(profiles[1].id, 'bbb');
+      });
+      test('getMentionedProfiles with space in the username would not work', () {
+        final repository = Repository(supabaseClient: supabaseClient);
+        final comment = 'What do you think @John Tyter?';
+        repository.profilesCache.addAll({
+          'aaa': Profile(
+            id: 'aaa',
+            name: 'John Tyter',
+          ),
+          'bbb': Profile(
+            id: 'bbb',
+            name: 'Mary',
+          ),
+        });
+
+        final profiles = repository.getMentionedProfiles(comment);
+
+        expect(profiles.length, 0);
+      });
+    });
+  });
+
+  group('replaceMentionsInAComment', () {
+    final supabaseClient = SupabaseClient('', 'supabaseKey');
+    final repository = Repository(supabaseClient: supabaseClient);
+    test('without mention', () {
+      final comment = '@test';
+      final replacedComment = repository.replaceMentionsInAComment(
+        comment: comment,
+        mentions: [],
+      );
+      expect(replacedComment, '@test');
+    });
+
+    test('user mentioned at the beginning', () {
+      final comment = '@test';
+      final replacedComment = repository.replaceMentionsInAComment(
+        comment: comment,
+        mentions: [
+          Profile(id: 'aaa', name: 'test'),
+        ],
+      );
+      expect(replacedComment, '@aaa');
+    });
+    test('user mentioned multiple times', () {
+      final comment = '@test @test';
+      final replacedComment = repository.replaceMentionsInAComment(
+        comment: comment,
+        mentions: [
+          Profile(id: 'aaa', name: 'test'),
+        ],
+      );
+      expect(replacedComment, '@aaa @aaa');
+    });
+    test('multiple user mentions', () {
+      final comment = '@test @some';
+      final replacedComment = repository.replaceMentionsInAComment(
+        comment: comment,
+        mentions: [
+          Profile(id: 'aaa', name: 'test'),
+          Profile(id: 'bbb', name: 'some'),
+        ],
+      );
+      expect(replacedComment, '@aaa @bbb');
+    });
+    test('there can be multiple mentions', () {
+      final comment = '@test @some';
+      final replacedComment = repository.replaceMentionsInAComment(
+        comment: comment,
+        mentions: [
+          Profile(id: 'aaa', name: 'test'),
+          Profile(id: 'bbb', name: 'some'),
+        ],
+      );
+      expect(replacedComment, '@aaa @bbb');
+    });
+
+    test('mention can be in a sentence', () {
+      final comment = 'some comment @test more words';
+      final replacedComment = repository.replaceMentionsInAComment(
+        comment: comment,
+        mentions: [
+          Profile(id: 'aaa', name: 'test'),
+        ],
+      );
+      expect(replacedComment, 'some comment @aaa more words');
+    });
+
+    test('multiple user mentions', () {
+      final comment = 'some comment @test';
+      final replacedComment = repository.replaceMentionsInAComment(
+        comment: comment,
+        mentions: [
+          Profile(id: 'aaa', name: 'test'),
+        ],
+      );
+      expect(replacedComment, 'some comment @aaa');
+    });
+  });
+
+  group('getMentionedUserName', () {
+    final supabaseClient = SupabaseClient('', 'supabaseKey');
+    final repository = Repository(supabaseClient: supabaseClient);
+    test('username is the only thing within the comment', () {
+      final comment = '@test';
+      final mentionedUserName = repository.getMentionedUserName(comment);
+      expect(mentionedUserName, 'test');
+    });
+    test('username is at the end of comment', () {
+      final comment = 'something @test';
+      final mentionedUserName = repository.getMentionedUserName(comment);
+      expect(mentionedUserName, 'test');
+    });
+    test('There are no @ sign in the comment', () {
+      final comment = 'something test';
+      final mentionedUserName = repository.getMentionedUserName(comment);
+      expect(mentionedUserName, isNull);
+    });
+    test('@mention is not the last word in the comment', () {
+      final comment = 'something @test another';
+      final mentionedUserName = repository.getMentionedUserName(comment);
+      expect(mentionedUserName, isNull);
+    });
+    test('There are multiple @ sign in the comment', () {
+      final comment = 'something @test @some';
+      final mentionedUserName = repository.getMentionedUserName(comment);
+      expect(mentionedUserName, 'some');
+    });
+    test('getUserIdsInComment with 0 user id', () {
+      final comment = 'some random text';
+      final userIds = repository.getUserIdsInComment(comment);
+      expect(userIds, []);
+    });
+    test('getUserIdsInComment with 1 user id at the beginning', () {
+      final comment = '@b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay';
+      final userIds = repository.getUserIdsInComment(comment);
+      expect(userIds, ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+    });
+    test('getUserIdsInComment with 1 user id', () {
+      final comment = 'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay';
+      final userIds = repository.getUserIdsInComment(comment);
+      expect(userIds, ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+    });
+    test('getUserIdsInComment with 2 user id', () {
+      final comment =
+          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
+      final userIds = repository.getUserIdsInComment(comment);
+      expect(userIds,
+          ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2', 'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+    });
+    test('getUserIdsInComment with 2 user id with the same id', () {
+      final comment =
+          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
+      final userIds = repository.getUserIdsInComment(comment);
+      expect(userIds,
+          ['b35bac1a-8d4b-4361-99cc-a1d274d1c4d2', 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2']);
+    });
+  });
+
+  group('replaceMentionsWithUserNames', () {
+    late SupabaseClient supabaseClient;
+    late HttpServer mockServer;
+
+    Future<void> handleRequests(HttpServer server) async {
+      await for (final HttpRequest request in server) {
+        final url = request.uri.toString();
+        if (url == '/rest/v1/users?select=%2A&id=eq.b35bac1a-8d4b-4361-99cc-a1d274d1c4d2') {
+          final jsonString = jsonEncode([
+            {
+              'id': 'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
+              'name': 'Tyler',
+              'description': 'Hi',
+            },
+          ]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
+        } else if (url == '/rest/v1/users?select=%2A&id=eq.aaabac1a-8d4b-4361-99cc-a1d274d1c4d2') {
+          final jsonString = jsonEncode([
+            {
+              'id': 'aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
+              'name': 'Sam',
+              'description': 'Hi',
+            },
+          ]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
+        } else {
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..close();
+        }
+      }
+    }
+
+    setUp(() async {
+      mockServer = await HttpServer.bind('localhost', 0);
+      supabaseClient =
+          SupabaseClient('http://${mockServer.address.host}:${mockServer.port}', 'supabaseKey');
+      handleRequests(mockServer);
+    });
+
+    tearDown(() async {
+      await mockServer.close();
+    });
+
+    test('replaceMentionsWithUserNames with two profiles', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
+      final comment =
+          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
+
+      final updatedComment = await repository.replaceMentionsWithUserNames(comment);
+      expect(updatedComment, 'something random @Tyler yay @Sam');
+    });
+    test('replaceMentionsWithUserNames with two userIds of the same user', () async {
+      final repository = Repository(supabaseClient: supabaseClient);
+      final comment =
+          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
+
+      final updatedComment = await repository.replaceMentionsWithUserNames(comment);
+      expect(updatedComment, 'something random @Tyler yay @Tyler');
     test('getZIndex', () async {
       final repository = Repository(supabaseClient: supabaseClient, analytics: analytics);
       final recentZIndex = repository.getZIndex(DateTime(2021, 4, 10));
@@ -319,6 +655,7 @@ void main() {
       final firstZIndex = repository.getZIndex(DateTime(2021, 4, 10, 10, 0, 0)).toInt();
       final laterZIndex = repository.getZIndex(DateTime(2021, 4, 10, 11, 0, 0)).toInt();
       expect(firstZIndex < laterZIndex, true);
+
     });
   });
 }

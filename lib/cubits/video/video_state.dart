@@ -6,23 +6,19 @@ abstract class VideoState {}
 class VideoInitial extends VideoState {}
 
 class VideoLoading extends VideoState {
-  VideoLoading(this.video);
+  VideoLoading(this.videoDetail);
 
-  final VideoDetail video;
+  final VideoDetail videoDetail;
 }
 
 class VideoPlaying extends VideoState {
   VideoPlaying({
-    required this.video,
-    required this.videoPlayerController,
-    bool? isCommentsShown,
-    this.comments,
-  }) : isCommentsShown = isCommentsShown ?? false;
+    required this.videoDetail,
+    this.videoPlayerController,
+  });
 
-  final VideoDetail video;
-  final VideoPlayerController videoPlayerController;
-  final bool isCommentsShown;
-  final List<Comment>? comments;
+  final VideoDetail videoDetail;
+  final VideoPlayerController? videoPlayerController;
 }
 
 class VideoError extends VideoState {
