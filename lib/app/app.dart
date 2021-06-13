@@ -38,7 +38,8 @@ class App extends StatelessWidget {
         ],
         child: MaterialApp(
           theme: ThemeData.dark().copyWith(
-            textSelectionTheme: const TextSelectionThemeData(cursorColor: Color(0xFFFFFFFF)),
+            textSelectionTheme:
+                const TextSelectionThemeData(cursorColor: Color(0xFFFFFFFF)),
             primaryColor: const Color(0xFFFFFFFF),
             accentColor: const Color(0xFFFFFFFF),
             appBarTheme: const AppBarTheme(
