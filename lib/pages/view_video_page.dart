@@ -119,16 +119,7 @@ class _VideoScreenState extends State<VideoScreen> {
       fit: StackFit.expand,
       children: [
         widget._controller == null
-            ? Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    widget._video.imageUrl,
-                    fit: BoxFit.cover,
-                  ),
-                  const Center(child: preloader),
-                ],
-              )
+            ? preloader
             : FullScreenVideoPlayer(
                 videoPlayerController: widget._controller!,
               ),
