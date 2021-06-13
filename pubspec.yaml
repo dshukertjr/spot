@@ -1,10 +1,10 @@
 name: spot
 description: Find local video posts
-version: 1.0.11+21
+version: 1.0.14+33
 publish_to: none
 
 environment:
-  sdk: ">=2.12.0-0 <3.0.0"
+  sdk: '>=2.12.0-0 <3.0.0'
 
 dependencies:
   flutter:
@@ -28,7 +28,6 @@ dependencies:
   rxdart: ^0.26.0
   geocoding: ^2.0.0
   share: ^2.0.1
-  
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +48,6 @@ flutter:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/launcher/icon.png"
-  adaptive_icon_foreground: "assets/launcher/foreground.png"
-  adaptive_icon_background: "assets/launcher/background.png"
+  image_path: 'assets/launcher/icon.png'
+  adaptive_icon_foreground: 'assets/launcher/foreground.png'
+  adaptive_icon_background: 'assets/launcher/background.png'
