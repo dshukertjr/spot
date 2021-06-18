@@ -635,7 +635,7 @@ class Repository {
     final file = await DefaultCacheManager().getSingleFile(videoDetail.url);
     await Share.shareFiles(
       [file.path],
-      text: 'Check out this video on Spot https://spot9752f.page.link/IA',
+      text: 'Check out this video on Spot https://spotvideo.page.link/ias',
     );
     await _analytics.logEvent(
         name: 'share_video', parameters: {'video_id': videoDetail.id});
