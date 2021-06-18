@@ -632,7 +632,7 @@ class Repository {
   }
 
   Future<void> shareVideo(VideoDetail videoDetail) async {
-    final file = await DefaultCacheManager().getSingleFile(videoDetail.id);
+    final file = await DefaultCacheManager().getSingleFile(videoDetail.url);
     await Share.shareFiles(
       [file.path],
       text: 'Check out this video on Spot https://spot9752f.page.link/IA',
