@@ -71,24 +71,31 @@ class Repository {
   Future<void> agreedToTermsOfService() =>
       _localStorage.write(key: _termsOfServiceAgreementKey, value: 'true');
 
-  Future<bool> hasSession() =>
-      _localStorage.containsKey(key: _persistantSessionKey);
-
-  Future<String?> getSessionString() =>
-      _localStorage.read(key: _persistantSessionKey);
+  Future<void> setSessionString(String sessionString) =>
+      _localStorage.write(key: _persistantSessionKey, value: sessionString);
 
   Future<void> deleteSession() =>
       _localStorage.delete(key: _persistantSessionKey);
 
-  Future<void> setSessionString(String sessionString) =>
-      _localStorage.write(key: _persistantSessionKey, value: sessionString);
+  Future<Session?> recoverSession() async {
+    final jsonStr = await _localStorage.read(key: _persistantSessionKey);
+    if (jsonStr == null) {
+      await deleteSession();
+      return null;
+    }
 
-  Future<Session?> recoverSession(String jsonString) async {
-    final res = await _supabaseClient.auth.recoverSession(jsonString);
+    final res = await _supabaseClient.auth.recoverSession(jsonStr);
     final error = res.error;
     if (error != null) {
+      await deleteSession();
       throw PlatformException(code: 'login error', message: error.message);
     }
+    final session = res.data;
+    if (session == null) {
+      await deleteSession();
+      return null;
+    }
+    await setSessionString(session.persistSessionString);
     return res.data;
   }
 
@@ -257,9 +264,7 @@ class Repository {
         message: error.message,
       );
     }
-    final urlRes = await _supabaseClient.storage
-        .from(bucket)
-        .createSignedUrl(path, 60 * 60 * 24 * 365 * 50);
+    final urlRes = _supabaseClient.storage.from(bucket).getPublicUrl(path);
     final urlError = urlRes.error;
     if (urlError != null) {
       throw PlatformException(
