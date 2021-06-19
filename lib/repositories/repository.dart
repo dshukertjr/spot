@@ -226,10 +226,8 @@ class Repository {
   }
 
   Future<void> saveProfile({required Profile profile}) async {
-    final res = await _supabaseClient
-        .from('users')
-        .insert(profile.toMap(), upsert: true)
-        .execute();
+    final res =
+        await _supabaseClient.from('users').upsert(profile.toMap()).execute();
     final data = res.data;
     final error = res.error;
     if (error != null) {
