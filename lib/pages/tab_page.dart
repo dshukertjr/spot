@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -167,6 +168,36 @@ class TabPageState extends State<TabPage> {
         },
       ),
     );
+  }
+
+  Future<void> onResumed() async {
+    await RepositoryProvider.of<Repository>(context).recoverSession();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance
+        ?.addObserver(LifecycleEventHandler(resumeCallBack: onResumed));
+  }
+}
+
+class LifecycleEventHandler extends WidgetsBindingObserver {
+  LifecycleEventHandler({
+    required this.resumeCallBack,
+  });
+  final AsyncCallback resumeCallBack;
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        await resumeCallBack();
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+    }
   }
 }
 

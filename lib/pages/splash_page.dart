@@ -31,46 +31,17 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
   }
 
-  Future<void> _restoreSession() async {
-    try {
-      final hasSession =
-          await RepositoryProvider.of<Repository>(context).hasSession();
-      if (!hasSession) {
-        return;
-      }
-
-      final jsonStr =
-          await RepositoryProvider.of<Repository>(context).getSessionString();
-      if (jsonStr == null) {
-        await RepositoryProvider.of<Repository>(context).deleteSession();
-        return;
-      }
-      final session = await RepositoryProvider.of<Repository>(context)
-          .recoverSession(jsonStr);
-
-      if (session == null) {
-        await RepositoryProvider.of<Repository>(context).deleteSession();
-        return;
-      }
-
-      await RepositoryProvider.of<Repository>(context)
-          .setSessionString(session.persistSessionString);
-    } catch (e) {
-      await RepositoryProvider.of<Repository>(context).deleteSession();
-    }
-  }
-
   Future<void> _redirect() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    await _restoreSession();
-
-    /// Check Auth State
-    final userId = RepositoryProvider.of<Repository>(context).userId;
-    if (userId == null) {
-      _redirectToLoginPage();
-      return;
-    }
     try {
+      await Future.delayed(const Duration(milliseconds: 100));
+      await RepositoryProvider.of<Repository>(context).recoverSession();
+
+      /// Check Auth State
+      final userId = RepositoryProvider.of<Repository>(context).userId;
+      if (userId == null) {
+        _redirectToLoginPage();
+        return;
+      }
       final profile =
           await RepositoryProvider.of<Repository>(context).getSelfProfile();
       if (profile == null) {

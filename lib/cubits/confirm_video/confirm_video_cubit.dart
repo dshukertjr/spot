@@ -181,7 +181,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     /// -t 2 creates a 2 second gif
     /// -i ${filePath} input file path
     /// -vf scale=-2:120
-    final command = '-y -t 2 -i $videoPath -vf scale=-2:120 -r 10 $tempPath';
+    final command = '-y -t 2 -i $videoPath -vf scale=-2:240 -r 10 $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(
