@@ -74,11 +74,16 @@ class _NotificationCell extends StatelessWidget {
             Navigator.of(context)
                 .push(ViewVideoPage.route(_notification.targetVideoId!));
             break;
+          case NotificationType.mentioned:
+            Navigator.of(context)
+                .push(ViewVideoPage.route(_notification.targetVideoId!));
+            break;
           case NotificationType.follow:
             Navigator.of(context)
                 .push(ProfilePage.route(_notification.actionUid!));
             break;
-          default:
+          case NotificationType.other:
+            break;
         }
       },
       child: Padding(
