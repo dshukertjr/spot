@@ -141,6 +141,8 @@ void main() {
           .thenAnswer((invocation) => Future.value(null));
       when(() => repository.profileStream)
           .thenAnswer((invocation) => Stream.value({}));
+      when(repository.recoverSession)
+          .thenAnswer((invocation) => Future.value());
 
       final loginPage = LoginPage();
 
@@ -188,6 +190,8 @@ void main() {
           .thenAnswer((invocation) => Future.value(null));
       when(() => repository.profileStream)
           .thenAnswer((invocation) => Stream.value({}));
+      when(repository.recoverSession)
+          .thenAnswer((invocation) => Future.value());
 
       final loginPage = LoginPage();
 

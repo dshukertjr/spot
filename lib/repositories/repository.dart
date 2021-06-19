@@ -77,7 +77,7 @@ class Repository {
   Future<void> deleteSession() =>
       _localStorage.delete(key: _persistantSessionKey);
 
-  Future<Session?> recoverSession() async {
+  Future<void> recoverSession() async {
     final jsonStr = await _localStorage.read(key: _persistantSessionKey);
     if (jsonStr == null) {
       await deleteSession();
@@ -96,7 +96,6 @@ class Repository {
       return null;
     }
     await setSessionString(session.persistSessionString);
-    return res.data;
   }
 
   /// Returns Persist Session String
