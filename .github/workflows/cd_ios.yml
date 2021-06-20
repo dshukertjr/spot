@@ -2,12 +2,10 @@ name: CD_iOS
 
 on:
   push:
-    branches:
-      - main
     pull_request:
 
 jobs:
-  build:
+  ios-build:
     runs-on: macOS-latest
 
     steps:
