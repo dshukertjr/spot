@@ -2,9 +2,12 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_border.dart';
+import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/record/record_cubit.dart';
 import 'package:spot/pages/confirm_recording_page.dart';
+import 'package:spot/pages/tab_page.dart';
 
 import '../components/app_scaffold.dart';
 import '../cubits/record/record_cubit.dart';
@@ -215,7 +218,42 @@ class _RecordPreviewState extends State<RecordPreview> {
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              Navigator.of(context).pop();
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return FrostedDialog(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                              'Are you sure you want to discard your work and exit the recording screen?'),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              GradientButton(
+                                strokeWidth: 0,
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                              const SizedBox(width: 8),
+                              GradientButton(
+                                onPressed: () {
+                                  Navigator.of(context).popUntil((route) =>
+                                      route.settings.name == TabPage.name);
+                                },
+                                child: const Text('Exit Recording'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      hasBackdropShadow: false,
+                    );
+                  });
             },
           ),
           Expanded(
