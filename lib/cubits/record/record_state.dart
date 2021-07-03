@@ -34,7 +34,7 @@ class RecordCompleted extends RecordState {
     required this.videoFile,
   });
   final CameraController controller;
-  final XFile videoFile;
+  final File videoFile;
 }
 
 class RecordError extends RecordState {

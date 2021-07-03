@@ -4,8 +4,11 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:flutter_video_info/flutter_video_info.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:spot/app/constants.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
@@ -26,6 +29,8 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   final _flutterFFmpeg = FlutterFFmpeg();
 
   bool _doneCompressingVideo = false;
+  bool _isSeekingToBeginning = false;
+  LatLng? _videoLocation;
   late final File _compressedVideo;
   late final File _videoImage;
   late final File _thumbnail;
@@ -33,7 +38,9 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
 
   @override
   Future<void> close() {
-    _videoPlayerController.dispose();
+    _videoPlayerController
+      ..removeListener(_limitVideoDuration)
+      ..dispose();
     return super.close();
   }
 
@@ -41,10 +48,12 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     try {
       final videoPath = videoFile.path;
       _videoPlayerController = VideoPlayerController.file(File(videoPath));
-      await _videoPlayerController.setLooping(true);
       await _videoPlayerController.initialize();
       await _videoPlayerController.play();
+      _videoPlayerController.addListener(_limitVideoDuration);
       emit(ConfirmVideoPlaying(videoPlayerController: _videoPlayerController));
+
+      _videoLocation = await _repository.getVideoLocation(videoPath);
 
       final tempDir = await getTemporaryDirectory();
       final videoTempPath = '${tempDir.path}/temp.mp4';
@@ -77,7 +86,10 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       await Future.delayed(const Duration(milliseconds: 100));
       return !_doneCompressingVideo;
     });
-    final location = await _repository.determinePosition();
+
+    // If the video does not have location metadata, get the current location
+    _videoLocation ??= await _repository.determinePosition();
+
     final userId = _repository.userId;
     if (userId == null) {
       throw PlatformException(code: 'Not Signed In');
@@ -112,7 +124,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
         gifUrl: videoGifUrl,
         description: description,
         creatorUid: userId,
-        location: location,
+        location: _videoLocation!,
       );
 
       await _repository.saveVideo(creatingVideo);
@@ -130,7 +142,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     ///  -movflags +faststart optimizes video for web streaming
     /// by bringing some of the headers upfront
     final command =
-        '-y -i $videoPath -c:v libx264 -preset veryfast -tune zerolatency -movflags +faststart -filter:v scale=-2:720 $tempPath';
+        '-t ${maxVideoDuration.inSeconds} -y -i $videoPath -c:v libx264 -preset veryfast -tune zerolatency -movflags +faststart -filter:v scale=-2:720 $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(
@@ -161,8 +173,12 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     required String videoPath,
     required String tempPath,
   }) async {
+    /// -y overrides the output file
+    /// -i ${filePath} input file path
+    ///
     final command =
-        '-y -i $videoPath -vf "scale=200:-2, crop=200:200:exact=1" $tempPath';
+        // '-y -i $videoPath -vf "scale=200:-2, crop=200:200:exact=1" $tempPath';
+        '-y -i $videoPath -vf "crop=w=\'min(iw\,ih)\':h=\'min(iw\,ih)\',scale=200:200,setsar=1" $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(
@@ -180,7 +196,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     /// -y overrides the output file
     /// -t 2 creates a 2 second gif
     /// -i ${filePath} input file path
-    /// -vf scale=-2:120
+    /// -vf scale=-2:240 sets the height at 240 and width at the same aspect ratio
     final command = '-y -t 2 -i $videoPath -vf scale=-2:240 -r 10 $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
@@ -190,5 +206,19 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       );
     }
     return File(tempPath);
+  }
+
+  /// Only show the video for the max duration amount
+  Future<void> _limitVideoDuration() async {
+    if (_videoPlayerController.value.position ==
+            _videoPlayerController.value.duration ||
+        _videoPlayerController.value.position > maxVideoDuration) {
+      if (!_isSeekingToBeginning) {
+        _isSeekingToBeginning = true;
+        await _videoPlayerController.pause();
+        await _videoPlayerController.seekTo(const Duration(seconds: 0));
+        _isSeekingToBeginning = false;
+      }
+    }
   }
 }

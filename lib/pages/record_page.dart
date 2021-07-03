@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_border.dart';
@@ -8,6 +9,7 @@ import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/record/record_cubit.dart';
 import 'package:spot/pages/confirm_recording_page.dart';
 import 'package:spot/pages/tab_page.dart';
+import 'package:spot/repositories/repository.dart';
 
 import '../components/app_scaffold.dart';
 import '../cubits/record/record_cubit.dart';
@@ -19,7 +21,9 @@ class RecordPage extends StatelessWidget {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
       builder: (_) => BlocProvider<RecordCubit>(
-        create: (_) => RecordCubit()..initialize(),
+        create: (context) =>
+            RecordCubit(repository: RepositoryProvider.of<Repository>(context))
+              ..initialize(),
         child: RecordPage(),
       ),
     );
@@ -43,16 +47,19 @@ class RecordPage extends StatelessWidget {
             return RecordPreview(
               controller: state.controller,
               isPaused: true,
+              hasStartedRecording: false,
             );
           } else if (state is RecordInProgress) {
             return RecordPreview(
               controller: state.controller,
               isPaused: false,
+              hasStartedRecording: true,
             );
           } else if (state is RecordPaused) {
             return RecordPreview(
               controller: state.controller,
               isPaused: true,
+              hasStartedRecording: true,
             );
           } else if (state is RecordProcessing) {
             return Stack(
@@ -61,6 +68,7 @@ class RecordPage extends StatelessWidget {
                 RecordPreview(
                   controller: state.controller,
                   isPaused: true,
+                  hasStartedRecording: true,
                 ),
                 Positioned.fill(
                   child: DecoratedBox(
@@ -76,6 +84,7 @@ class RecordPage extends StatelessWidget {
             return RecordPreview(
               controller: state.controller,
               isPaused: true,
+              hasStartedRecording: true,
             );
           } else if (state is RecordError) {
             return Stack(
@@ -107,12 +116,15 @@ class RecordPreview extends StatefulWidget {
     Key? key,
     required CameraController controller,
     required bool isPaused,
+    required bool hasStartedRecording,
   })  : _controller = controller,
         _isPaused = isPaused,
+        _hasStartedRecording = hasStartedRecording,
         super(key: key);
 
   final CameraController _controller;
   final bool _isPaused;
+  final bool _hasStartedRecording;
 
   @override
   _RecordPreviewState createState() => _RecordPreviewState();
@@ -130,7 +142,48 @@ class _RecordPreviewState extends State<RecordPreview> {
         _recordButton(context),
         _gauge(context),
         _completeButton(context),
+        _uploadButton(context),
       ],
+    );
+  }
+
+  Widget _uploadButton(BuildContext context) {
+    if (widget._hasStartedRecording) {
+      return Container();
+    }
+    return Positioned(
+      left: 24,
+      bottom: MediaQuery.of(context).padding.bottom + 24,
+      child: SizedBox(
+        height: 70,
+        child: Center(
+          child: SizedBox(
+            width: 37,
+            height: 37,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(50),
+              clipBehavior: Clip.antiAlias,
+              child: InkResponse(
+                onTap: () =>
+                    BlocProvider.of<RecordCubit>(context).uploadVideo(),
+                child: Ink(
+                  decoration: const BoxDecoration(
+                    gradient: blueGradient,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      FeatherIcons.upload,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -218,42 +271,46 @@ class _RecordPreviewState extends State<RecordPreview> {
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return FrostedDialog(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                              'Are you sure you want to discard your work and exit the recording screen?'),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              GradientButton(
-                                strokeWidth: 0,
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('Cancel'),
-                              ),
-                              const SizedBox(width: 8),
-                              GradientButton(
-                                onPressed: () {
-                                  Navigator.of(context).popUntil((route) =>
-                                      route.settings.name == TabPage.name);
-                                },
-                                child: const Text('Exit Recording'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      hasBackdropShadow: false,
-                    );
-                  });
+              if (widget._hasStartedRecording) {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return FrostedDialog(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Text(
+                                'Are you sure you want to discard your work and exit the recording screen?'),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                GradientButton(
+                                  strokeWidth: 0,
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Cancel'),
+                                ),
+                                const SizedBox(width: 8),
+                                GradientButton(
+                                  onPressed: () {
+                                    Navigator.of(context).popUntil((route) =>
+                                        route.settings.name == TabPage.name);
+                                  },
+                                  child: const Text('Exit Recording'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        hasBackdropShadow: false,
+                      );
+                    });
+              } else {
+                Navigator.of(context).pop();
+              }
             },
           ),
           Expanded(
@@ -431,7 +488,7 @@ class __RecordingGaugeIndicatorState extends State<_RecordingGaugeIndicator>
   void initState() {
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 30),
+      duration: maxVideoDuration,
     );
     _animationController
       ..addStatusListener(_checkComplete)

@@ -7,8 +7,10 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_video_info/flutter_video_info.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:share/share.dart';
 import 'package:spot/models/comment.dart';
@@ -741,5 +743,29 @@ class Repository {
   double getZIndex(DateTime createdAt) {
     return max((createdAt.millisecondsSinceEpoch ~/ 1000000 - 1600000), 0)
         .toDouble();
+  }
+
+  Future<File?> getVideoFile() async {
+    try {
+      final pickedVideo =
+          await ImagePicker().getVideo(source: ImageSource.gallery);
+      if (pickedVideo != null) {
+        return File(pickedVideo.path);
+      }
+    } catch (err) {
+      debugPrint(err.toString());
+    }
+  }
+
+  Future<LatLng?> getVideoLocation(String videoPath) async {
+    final videoInfo = await FlutterVideoInfo().getVideoInfo(videoPath);
+    final locationString = videoInfo?.location;
+    if (locationString != null) {
+      print(locationString);
+      final matches = RegExp(r'(\+|\-)(\d*\.?\d*)').allMatches(locationString);
+      final lat = double.parse(matches.elementAt(0).group(0)!);
+      final lng = double.parse(matches.elementAt(1).group(0)!);
+      return LatLng(lat, lng);
+    }
   }
 }
