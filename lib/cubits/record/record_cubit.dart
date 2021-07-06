@@ -1,11 +1,19 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:meta/meta.dart';
+import 'package:spot/repositories/repository.dart';
 
 part 'record_state.dart';
 
 class RecordCubit extends Cubit<RecordState> {
-  RecordCubit() : super(RecordInitial());
+  RecordCubit({
+    required Repository repository,
+  })  : _repository = repository,
+        super(RecordInitial());
+  final Repository _repository;
+
   CameraController? _controller;
 
   @override
@@ -50,9 +58,18 @@ class RecordCubit extends Cubit<RecordState> {
     emit(RecordProcessing(controller: _controller!));
 
     // stopVideoRecording takes about a whole second
-    final videoFile = await _controller!.stopVideoRecording();
+    final videoXFile = await _controller!.stopVideoRecording();
+    final videoFile = File(videoXFile.path);
     emit(
       RecordCompleted(controller: _controller!, videoFile: videoFile),
     );
+  }
+
+  Future<void> uploadVideo() async {
+    final videoPickedFile = await _repository.getVideoFile();
+    if (videoPickedFile != null) {
+      final videoFile = File(videoPickedFile.path);
+      emit(RecordCompleted(controller: _controller!, videoFile: videoFile));
+    }
   }
 }

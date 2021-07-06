@@ -5,5 +5,5 @@ else
 end
 
 storage_mode("git")
-type("adhoc")
+type("appstore")
 app_identifier("app.spotvideo")

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -18,13 +17,13 @@ import '../components/app_scaffold.dart';
 
 class ConfirmRecordingPage extends StatelessWidget {
   static const name = 'ConfirmRecordingPage';
-  static Route<void> route({required XFile videoFile}) {
+  static Route<void> route({required File videoFile}) {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
       builder: (context) => BlocProvider<ConfirmVideoCubit>(
         create: (context) => ConfirmVideoCubit(
             repository: RepositoryProvider.of<Repository>(context))
-          ..initialize(videoFile: File(videoFile.path)),
+          ..initialize(videoFile: videoFile),
         child: ConfirmRecordingPage(),
       ),
     );
@@ -68,8 +67,20 @@ class ConfirmRecordingPage extends StatelessWidget {
           } else if (state is ConfirmVideoUploaded) {
             return preloader;
           } else if (state is ConfirmVideoState) {
-            return const Center(
-              child: Text('Error occured. Please retry'),
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Error occured. Please retry'),
+                  const SizedBox(height: 16),
+                  GradientButton(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(RecordPage.route());
+                    },
+                    child: const Text('Restart'),
+                  ),
+                ],
+              ),
             );
           }
           throw UnimplementedError('Confirm Recording Page State not caught');

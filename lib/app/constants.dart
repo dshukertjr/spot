@@ -28,6 +28,8 @@ const blueGradient = LinearGradient(colors: [
   appLightBlue,
 ]);
 
+const maxVideoDuration = Duration(seconds: 30);
+
 const preloader = Center(
   child: CircularProgressIndicator(
     valueColor: AlwaysStoppedAnimation<Color>(appRed),

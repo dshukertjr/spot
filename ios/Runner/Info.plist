@@ -59,7 +59,7 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Spot needs to access photo library to choose profile image. </string>
+	<string>Spot needs to access photo library to select files. </string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Spot needs to access your location to display posts around you.</string>
 </dict>
