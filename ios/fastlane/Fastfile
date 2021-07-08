@@ -40,7 +40,7 @@ platform :ios do
     )
 
     deliver(
-      submit_for_review: true,
+      submit_for_review: false,
       automatic_release: false,
       skip_metadata: false,
       skip_screenshots: false,
