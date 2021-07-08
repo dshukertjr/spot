@@ -16,7 +16,7 @@ Future<void> main() async {
     test('Initial State', () {
       final repository = MockRepository();
       when(() => repository.search('')).thenAnswer((_) => Future.value());
-      expect(SearchCubit(repository: repository).state is SearchInitial, true);
+      expect(SearchCubit(repository: repository).state is SearchLoading, true);
     });
 
     blocTest<SearchCubit, SearchState>(

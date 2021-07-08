@@ -310,8 +310,12 @@ class Repository {
         message: 'No data found for this videoId',
       );
     }
-    _videoDetails[videoId] =
-        VideoDetail.fromData(Map.from(List.from(data).first));
+    var videoDetail = VideoDetail.fromData(Map.from(List.from(data).first));
+    if (videoDetail.location != null) {
+      final locationString = await _locationToString(videoDetail.location!);
+      videoDetail = videoDetail.copyWith(locationString: locationString);
+    }
+    _videoDetails[videoId] = videoDetail;
     _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
     await _analytics.logEvent(name: 'view_video', parameters: {
       'video_id': videoId,
@@ -766,6 +770,38 @@ class Repository {
       final lat = double.parse(matches.elementAt(0).group(0)!);
       final lng = double.parse(matches.elementAt(1).group(0)!);
       return LatLng(lat, lng);
+    }
+  }
+
+  Future<List<Video>> getNewVideos() async {
+    final res = await _supabaseClient
+        .from('videos')
+        .select(
+            'id, url, image_url, thumbnail_url, gif_url, description, user_id, created_at')
+        .order('created_at')
+        .limit(24)
+        .execute();
+    if (res.error != null) {
+      throw PlatformException(
+          code: 'NewVideos', message: 'Error loading new videos');
+    }
+    final videos = Video.videosFromData(res.data!);
+    return videos;
+  }
+
+  Future<String> _locationToString(LatLng location) async {
+    try {
+      final placemarks =
+          await placemarkFromCoordinates(location.latitude, location.longitude);
+      if (placemarks.isEmpty) {
+        return 'Unknown';
+      }
+      if (placemarks.first.administrativeArea?.isEmpty == true) {
+        return '${placemarks.first.name}';
+      }
+      return '${placemarks.first.administrativeArea}, ${placemarks.first.country}';
+    } catch (e) {
+      return 'Unknown';
     }
   }
 }

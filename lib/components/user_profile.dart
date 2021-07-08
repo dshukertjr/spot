@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/app/constants.dart';
+import 'package:spot/components/video_list.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
 import 'package:spot/pages/edit_profile_page.dart';
-import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 
 import 'profile_image.dart';
@@ -57,40 +57,7 @@ class _UserPosts extends StatelessWidget {
           return preloader;
         } else if (state is VideosLoaded) {
           final videos = state.videos;
-          return Wrap(
-            children: List.generate(videos.length, (index) {
-              final video = videos[index];
-              return FractionallySizedBox(
-                widthFactor: 0.5,
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(ViewVideoPage.route(video.id));
-                    },
-                    child: Image.network(
-                      video.thumbnailUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.cumulativeBytesLoaded /
-                                (loadingProgress.expectedTotalBytes ??
-                                    10000000),
-                            valueColor:
-                                const AlwaysStoppedAnimation<Color>(appRed),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              );
-            }),
-          );
+          return VideoList(videos: videos);
         } else if (state is VideosError) {
           return const Center(
             child: Text('Something went wrong. Please reopen the app. '),

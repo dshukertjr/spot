@@ -8,9 +8,22 @@ part 'search_state.dart';
 class SearchCubit extends Cubit<SearchState> {
   SearchCubit({required Repository repository})
       : _repository = repository,
-        super(SearchInitial());
+        super(SearchLoading());
 
   final Repository _repository;
+
+  Future<void> loadInitialVideos() async {
+    try {
+      final videos = await _repository.getNewVideos();
+      if (videos.isEmpty) {
+        emit(SearchEmpty());
+      } else {
+        emit(SearchLoaded(videos));
+      }
+    } catch (err) {
+      emit(SearchError());
+    }
+  }
 
   Future<void> search(String queryString) async {
     try {

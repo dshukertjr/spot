@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:spot/components/video_list.dart';
 import 'package:spot/cubits/search/search_cubit.dart';
-import 'package:spot/models/video.dart';
 
 import '../../app/constants.dart';
 import '../../repositories/repository.dart';
-import '../view_video_page.dart';
 
 class SearchTab extends StatefulWidget {
   static Widget create() {
     return BlocProvider<SearchCubit>(
       create: (context) =>
-          SearchCubit(repository: RepositoryProvider.of<Repository>(context)),
+          SearchCubit(repository: RepositoryProvider.of<Repository>(context))
+            ..loadInitialVideos(),
       child: SearchTab(),
     );
   }
@@ -51,18 +51,11 @@ class _SearchTabState extends State<SearchTab> {
         ),
         BlocBuilder<SearchCubit, SearchState>(
           builder: (context, state) {
-            if (state is SearchInitial) {
-              return const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Center(
-                  child: Text('Search anything you would like'),
-                ),
-              );
-            } else if (state is SearchLoading) {
+            if (state is SearchLoading) {
               return preloader;
             } else if (state is SearchLoaded) {
               final videos = state.videos;
-              return _SearchResults(videos: videos);
+              return VideoList(videos: videos);
             } else if (state is SearchEmpty) {
               return const Padding(
                 padding: EdgeInsets.all(16.0),
@@ -103,53 +96,5 @@ class _SearchTabState extends State<SearchTab> {
     if (!currentFocus.hasPrimaryFocus) {
       currentFocus.unfocus();
     }
-  }
-}
-
-class _SearchResults extends StatelessWidget {
-  const _SearchResults({
-    Key? key,
-    required this.videos,
-  }) : super(key: key);
-
-  final List<Video> videos;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: Wrap(
-        children: List.generate(videos.length, (index) {
-          final video = videos[index];
-          return FractionallySizedBox(
-            widthFactor: 0.5,
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(ViewVideoPage.route(video.id));
-                },
-                child: Image.network(
-                  video.thumbnailUrl,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.cumulativeBytesLoaded /
-                            (loadingProgress.expectedTotalBytes ?? 100000000),
-                        valueColor: const AlwaysStoppedAnimation<Color>(appRed),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
   }
 }
