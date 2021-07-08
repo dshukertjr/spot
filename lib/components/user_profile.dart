@@ -5,9 +5,7 @@ import 'package:spot/app/constants.dart';
 import 'package:spot/components/video_list.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
-import 'package:spot/models/video.dart';
 import 'package:spot/pages/edit_profile_page.dart';
-import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 
 import 'profile_image.dart';
