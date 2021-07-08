@@ -768,4 +768,20 @@ class Repository {
       return LatLng(lat, lng);
     }
   }
+
+  Future<List<Video>> getNewVideos() async {
+    final res = await _supabaseClient
+        .from('videos')
+        .select(
+            'id, url, image_url, thumbnail_url, gif_url, description, user_id, created_at')
+        .order('created_at')
+        .limit(24)
+        .execute();
+    if (res.error != null) {
+      throw PlatformException(
+          code: 'NewVideos', message: 'Error loading new videos');
+    }
+    final videos = Video.videosFromData(res.data!);
+    return videos;
+  }
 }
