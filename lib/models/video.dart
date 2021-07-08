@@ -120,6 +120,7 @@ class VideoDetail extends Video {
     required this.commentCount,
     required this.haveLiked,
     required this.createdBy,
+    this.locationString,
   }) : super(
           id: id,
           url: url,
@@ -136,6 +137,10 @@ class VideoDetail extends Video {
   final int commentCount;
   final bool haveLiked;
   final Profile createdBy;
+
+  /// String representitive of the location
+  /// e.g. NewYork, USA
+  final String? locationString;
 
   static VideoDetail fromData(Map<String, dynamic> data) {
     return VideoDetail(
@@ -174,11 +179,13 @@ class VideoDetail extends Video {
     int? likeCount,
     int? commentCount,
     bool? haveLiked,
+    String? locationString,
   }) {
     return VideoDetail(
       likeCount: likeCount ?? this.likeCount,
       commentCount: commentCount ?? this.commentCount,
       haveLiked: haveLiked ?? this.haveLiked,
+      locationString: locationString ?? this.locationString,
       createdAt: createdAt,
       createdBy: createdBy,
       description: description,

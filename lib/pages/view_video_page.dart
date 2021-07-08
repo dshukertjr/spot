@@ -131,103 +131,7 @@ class _VideoScreenState extends State<VideoScreen> {
         Positioned(
           bottom: 123,
           right: 14,
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: SizedBox(
-              width: 36,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ProfileImage(
-                    imageUrl: widget._video.createdBy.imageUrl,
-                    onPressed: () async {
-                      await widget._controller?.pause();
-                      await Navigator.of(context)
-                          .push(ProfilePage.route(widget._video.createdBy.id));
-                      await widget._controller?.play();
-                    },
-                    size: 36,
-                  ),
-                  const SizedBox(height: 36),
-                  IconButton(
-                    icon: const Icon(FeatherIcons.messageCircle),
-                    onPressed: () async {
-                      setState(() {
-                        _isCommentsShown = true;
-                      });
-                      await widget._controller?.pause();
-                      await BlocProvider.of<CommentCubit>(context)
-                          .loadComments();
-                    },
-                  ),
-                  Text(widget._video.commentCount.toString()),
-                  const SizedBox(height: 36),
-                  IconButton(
-                    icon: widget._video.haveLiked
-                        ? const Icon(
-                            Icons.favorite,
-                            color: appOrange,
-                          )
-                        : const Icon(
-                            Icons.favorite_border,
-                            color: Color(0xFFFFFFFF),
-                          ),
-                    onPressed: () {
-                      if (widget._video.haveLiked) {
-                        BlocProvider.of<VideoCubit>(context).unlike();
-                      } else {
-                        BlocProvider.of<VideoCubit>(context).like();
-                      }
-                    },
-                  ),
-                  Text(widget._video.likeCount.toString()),
-                  const SizedBox(height: 36),
-                  IconButton(
-                    onPressed: () {
-                      BlocProvider.of<VideoCubit>(context).shareVideo();
-                    },
-                    icon: const Icon(FeatherIcons.share2),
-                  ),
-                  const SizedBox(height: 36),
-                  PopupMenuButton<VideoMenu>(
-                    onSelected: (VideoMenu result) async {
-                      switch (result) {
-                        case VideoMenu.block:
-                          _showBlockDialog();
-                          break;
-                        case VideoMenu.report:
-                          final reported = await _showReportDialog();
-                          if (reported == true) {
-                            context.showSnackbar('Thanks for reporting');
-                          }
-                          break;
-                        case VideoMenu.delete:
-                          _showDeleteDialog();
-                          break;
-                      }
-                    },
-                    itemBuilder: (BuildContext context) =>
-                        <PopupMenuEntry<VideoMenu>>[
-                      const PopupMenuItem<VideoMenu>(
-                        value: VideoMenu.block,
-                        child: Text('Block this user'),
-                      ),
-                      const PopupMenuItem<VideoMenu>(
-                        value: VideoMenu.report,
-                        child: Text('Report this video'),
-                      ),
-                      if (widget._video.userId == _userId)
-                        const PopupMenuItem<VideoMenu>(
-                          value: VideoMenu.delete,
-                          child: Text('Delete this video'),
-                        ),
-                    ],
-                    child: const Icon(FeatherIcons.moreHorizontal),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          child: _rightButtons(context),
         ),
         Positioned(
           left: 19,
@@ -252,6 +156,17 @@ class _VideoScreenState extends State<VideoScreen> {
                     height: 1.3,
                   ),
                 ),
+                if (widget._video.locationString != null) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(FeatherIcons.mapPin, size: 18),
+                      const SizedBox(width: 4),
+                      Expanded(child: Text(widget._video.locationString!)),
+                    ],
+                  ),
+                ]
               ],
             ),
           ),
@@ -277,6 +192,105 @@ class _VideoScreenState extends State<VideoScreen> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _rightButtons(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: SizedBox(
+        width: 36,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ProfileImage(
+              imageUrl: widget._video.createdBy.imageUrl,
+              onPressed: () async {
+                await widget._controller?.pause();
+                await Navigator.of(context)
+                    .push(ProfilePage.route(widget._video.createdBy.id));
+                await widget._controller?.play();
+              },
+              size: 36,
+            ),
+            const SizedBox(height: 36),
+            IconButton(
+              icon: const Icon(FeatherIcons.messageCircle),
+              onPressed: () async {
+                setState(() {
+                  _isCommentsShown = true;
+                });
+                await widget._controller?.pause();
+                await BlocProvider.of<CommentCubit>(context).loadComments();
+              },
+            ),
+            Text(widget._video.commentCount.toString()),
+            const SizedBox(height: 36),
+            IconButton(
+              icon: widget._video.haveLiked
+                  ? const Icon(
+                      Icons.favorite,
+                      color: appOrange,
+                    )
+                  : const Icon(
+                      Icons.favorite_border,
+                      color: Color(0xFFFFFFFF),
+                    ),
+              onPressed: () {
+                if (widget._video.haveLiked) {
+                  BlocProvider.of<VideoCubit>(context).unlike();
+                } else {
+                  BlocProvider.of<VideoCubit>(context).like();
+                }
+              },
+            ),
+            Text(widget._video.likeCount.toString()),
+            const SizedBox(height: 36),
+            IconButton(
+              onPressed: () {
+                BlocProvider.of<VideoCubit>(context).shareVideo();
+              },
+              icon: const Icon(FeatherIcons.share2),
+            ),
+            const SizedBox(height: 36),
+            PopupMenuButton<VideoMenu>(
+              onSelected: (VideoMenu result) async {
+                switch (result) {
+                  case VideoMenu.block:
+                    _showBlockDialog();
+                    break;
+                  case VideoMenu.report:
+                    final reported = await _showReportDialog();
+                    if (reported == true) {
+                      context.showSnackbar('Thanks for reporting');
+                    }
+                    break;
+                  case VideoMenu.delete:
+                    _showDeleteDialog();
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) =>
+                  <PopupMenuEntry<VideoMenu>>[
+                const PopupMenuItem<VideoMenu>(
+                  value: VideoMenu.block,
+                  child: Text('Block this user'),
+                ),
+                const PopupMenuItem<VideoMenu>(
+                  value: VideoMenu.report,
+                  child: Text('Report this video'),
+                ),
+                if (widget._video.userId == _userId)
+                  const PopupMenuItem<VideoMenu>(
+                    value: VideoMenu.delete,
+                    child: Text('Delete this video'),
+                  ),
+              ],
+              child: const Icon(FeatherIcons.moreHorizontal),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

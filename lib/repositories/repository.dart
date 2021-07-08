@@ -310,8 +310,12 @@ class Repository {
         message: 'No data found for this videoId',
       );
     }
-    _videoDetails[videoId] =
-        VideoDetail.fromData(Map.from(List.from(data).first));
+    var videoDetail = VideoDetail.fromData(Map.from(List.from(data).first));
+    if (videoDetail.location != null) {
+      final locationString = await _locationToString(videoDetail.location!);
+      videoDetail = videoDetail.copyWith(locationString: locationString);
+    }
+    _videoDetails[videoId] = videoDetail;
     _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
     await _analytics.logEvent(name: 'view_video', parameters: {
       'video_id': videoId,
@@ -783,5 +787,21 @@ class Repository {
     }
     final videos = Video.videosFromData(res.data!);
     return videos;
+  }
+
+  Future<String> _locationToString(LatLng location) async {
+    try {
+      final placemarks =
+          await placemarkFromCoordinates(location.latitude, location.longitude);
+      if (placemarks.isEmpty) {
+        return 'Unknown';
+      }
+      if (placemarks.first.administrativeArea?.isEmpty == true) {
+        return '${placemarks.first.name}';
+      }
+      return '${placemarks.first.administrativeArea}, ${placemarks.first.country}';
+    } catch (e) {
+      return 'Unknown';
+    }
   }
 }
