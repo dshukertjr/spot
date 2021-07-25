@@ -16,7 +16,7 @@ class VideoList extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: Wrap(
-        alignment: WrapAlignment.spaceBetween,
+        alignment: WrapAlignment.start,
         children: List.generate(videos.length, (index) {
           final video = videos[index];
           return SizedBox(
