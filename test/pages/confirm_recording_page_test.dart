@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/cubits/confirm_video/confirm_video_cubit.dart';
 import 'package:spot/pages/confirm_recording_page.dart';
 

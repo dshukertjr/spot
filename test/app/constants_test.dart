@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 
 void main() {
   group('howLongAgo', () {

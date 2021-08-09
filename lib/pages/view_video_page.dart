@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/full_screen_video_player.dart';
 import 'package:spot/components/gradient_button.dart';
@@ -18,7 +18,7 @@ import 'package:spot/pages/profile_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
-import '../app/constants.dart';
+import '../utils/constants.dart';
 import '../components/app_scaffold.dart';
 import 'tab_page.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/pages/tab_page.dart';
 import 'package:spot/repositories/repository.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_border.dart';
 import 'package:spot/components/gradient_button.dart';
@@ -14,6 +14,7 @@ import 'package:spot/pages/tabs/notifications_tab.dart';
 import 'package:spot/pages/tabs/profile_tab.dart';
 import 'package:spot/pages/tabs/search_tab.dart';
 import 'package:spot/repositories/repository.dart';
+import 'package:spot/utils/functions.dart';
 
 import '../components/app_scaffold.dart';
 import 'record_page.dart';
@@ -161,10 +162,19 @@ class TabPageState extends State<TabPage> {
           ],
         ),
         onTap: () {
-          setState(() {
-            currentIndex = tabIndex;
-          });
-          if (onPressed != null) onPressed();
+          if (tabIndex == 2 || tabIndex == 3) {
+            AuthRequired.action(context, action: () {
+              setState(() {
+                currentIndex = tabIndex;
+              });
+              if (onPressed != null) onPressed();
+            });
+          } else {
+            setState(() {
+              currentIndex = tabIndex;
+            });
+            if (onPressed != null) onPressed();
+          }
         },
       ),
     );
@@ -239,63 +249,66 @@ class RecordButton extends StatelessWidget {
               ),
               child: InkWell(
                 onTap: () async {
-                  final hasLocationPermission =
-                      await RepositoryProvider.of<Repository>(context)
-                          .hasLocationPermission();
-                  if (hasLocationPermission) {
-                    await Navigator.of(context).push(RecordPage.route());
-                  } else {
-                    await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return FrostedDialog(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                'Your location permission is off',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                  AuthRequired.action(context, action: () async {
+                    final hasLocationPermission =
+                        await RepositoryProvider.of<Repository>(context)
+                            .hasLocationPermission();
+                    if (hasLocationPermission) {
+                      await Navigator.of(context).push(RecordPage.route());
+                    } else {
+                      await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return FrostedDialog(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'Your location permission is off',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 12),
-                              const Text(
-                                  'Please grant location permission to post a video. '),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  GradientButton(
-                                    strokeWidth: 0,
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Cancel'),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  GradientButton(
-                                    onPressed: () async {
-                                      final couldOpen = await RepositoryProvider
-                                              .of<Repository>(context)
-                                          .openLocationSettingsPage();
-                                      if (!couldOpen) {
-                                        context.showErrorSnackbar(
-                                            'Failed to open settings page. ');
-                                      }
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Open Settings'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  }
+                                const SizedBox(height: 12),
+                                const Text(
+                                    'Please grant location permission to post a video. '),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    GradientButton(
+                                      strokeWidth: 0,
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Cancel'),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    GradientButton(
+                                      onPressed: () async {
+                                        final couldOpen =
+                                            await RepositoryProvider.of<
+                                                    Repository>(context)
+                                                .openLocationSettingsPage();
+                                        if (!couldOpen) {
+                                          context.showErrorSnackbar(
+                                              'Failed to open settings page. ');
+                                        }
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Open Settings'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  });
                 },
                 child: const Padding(
                   padding: EdgeInsets.all(9),

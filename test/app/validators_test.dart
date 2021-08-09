@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:spot/app/validators.dart';
+import 'package:spot/utils/validators.dart';
 
 void main() {
   group('Valid username', () {

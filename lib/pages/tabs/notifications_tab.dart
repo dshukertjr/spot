@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/components/notification_dot.dart';
 import 'package:spot/components/profile_image.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';

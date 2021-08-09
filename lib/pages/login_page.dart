@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/pages/splash_page.dart';
@@ -81,120 +81,134 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned(
-            top: -53,
-            right: -47,
-            child: AnimatedBuilder(
-                animation: _controller,
-                child: Image.asset(
-                  'assets/images/purple-fog.png',
-                  height: 228,
-                ),
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _controller.value,
-                    child: child,
-                  );
-                }),
-          ),
-          Positioned(
-            top: 201,
-            left: 0,
-            child: AnimatedBuilder(
+      body: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              top: -53,
+              right: -47,
+              child: AnimatedBuilder(
+                  animation: _controller,
+                  child: Image.asset(
+                    'assets/images/purple-fog.png',
+                    height: 228,
+                  ),
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _controller.value,
+                      child: child,
+                    );
+                  }),
+            ),
+            Positioned(
+              top: 201,
+              left: 0,
+              child: AnimatedBuilder(
+                  animation: _curvedAnimation,
+                  child: Image.asset(
+                    'assets/images/blue-ellipse.png',
+                    height: 168,
+                  ),
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(-200 + 200 * _curvedAnimation.value, 0),
+                      child: child,
+                    );
+                  }),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              left: 37,
+              child: AnimatedBuilder(
                 animation: _curvedAnimation,
-                child: Image.asset(
-                  'assets/images/blue-ellipse.png',
-                  height: 168,
-                ),
+                child: Image.asset('assets/images/blue-blob.png'),
                 builder: (context, child) {
                   return Transform.translate(
-                    offset: Offset(-200 + 200 * _curvedAnimation.value, 0),
+                    offset: Offset(
+                      200 - 200 * _curvedAnimation.value,
+                      400 - 400 * _curvedAnimation.value,
+                    ),
                     child: child,
                   );
-                }),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            left: 37,
-            child: AnimatedBuilder(
-              animation: _curvedAnimation,
-              child: Image.asset('assets/images/blue-blob.png'),
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(
-                    200 - 200 * _curvedAnimation.value,
-                    400 - 400 * _curvedAnimation.value,
-                  ),
-                  child: child,
-                );
-              },
+                },
+              ),
             ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 46,
-            child: AnimatedBuilder(
-              animation: _delayedCurvedAnimation,
-              child: Image.asset('assets/images/yellow-blob.png'),
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(
-                    -300 + 300 * _delayedCurvedAnimation.value,
-                    400 - 400 * _curvedAnimation.value,
-                  ),
-                  child: child,
-                );
-              },
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: AnimatedBuilder(
-              animation: _moreDdelayedCurvedAnimation,
-              child: Image.asset('assets/images/red-blob.png'),
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(
-                    0,
-                    300 - 300 * _moreDdelayedCurvedAnimation.value,
-                  ),
-                  child: child,
-                );
-              },
-            ),
-          ),
-          FrostedDialog(
-            child: AnimatedOpacity(
-              duration: _dialogOpacityAnimationDuration,
-              opacity: _dialogOpacity,
-              child: _isLoading
-                  ? const SizedBox(
-                      height: 150,
-                      child: preloader,
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (currentDialogPage == DialogPage.termsOfService)
-                          ..._termsOfService(),
-                        if (currentDialogPage == DialogPage.loginOrSignup)
-                          ..._loginOrSignup(),
-                        if (currentDialogPage == DialogPage.login) ..._login(),
-                        if (currentDialogPage == DialogPage.signUp)
-                          ..._signUp(),
-                      ],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 46,
+              child: AnimatedBuilder(
+                animation: _delayedCurvedAnimation,
+                child: Image.asset('assets/images/yellow-blob.png'),
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(
+                      -300 + 300 * _delayedCurvedAnimation.value,
+                      400 - 400 * _curvedAnimation.value,
                     ),
+                    child: child,
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: AnimatedBuilder(
+                animation: _moreDdelayedCurvedAnimation,
+                child: Image.asset('assets/images/red-blob.png'),
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(
+                      0,
+                      300 - 300 * _moreDdelayedCurvedAnimation.value,
+                    ),
+                    child: child,
+                  );
+                },
+              ),
+            ),
+            FrostedDialog(
+              child: AnimatedOpacity(
+                duration: _dialogOpacityAnimationDuration,
+                opacity: _dialogOpacity,
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 150,
+                        child: preloader,
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (currentDialogPage == DialogPage.termsOfService)
+                            ..._termsOfService(),
+                          if (currentDialogPage == DialogPage.loginOrSignup)
+                            ..._loginOrSignup(),
+                          if (currentDialogPage == DialogPage.login)
+                            ..._login(),
+                          if (currentDialogPage == DialogPage.signUp)
+                            ..._signUp(),
+                        ],
+                      ),
+              ),
+            ),
+            Positioned(
+              top: 12,
+              left: 12,
+              child: IconButton(
+                color: Colors.white,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.close),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -263,7 +277,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   List<Widget> _loginOrSignup() {
     return [
       const Text(
-        'Would you like to...',
+        'Sign in to continue...',
         style: TextStyle(fontSize: 18),
       ),
       const SizedBox(height: 24.5),

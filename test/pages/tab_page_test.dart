@@ -8,6 +8,7 @@ import 'package:spot/components/notification_dot.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
+import 'package:spot/pages/login_page.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tab_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
@@ -91,8 +92,13 @@ void main() {
       expect(
           tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 1);
     });
-    testWidgets('Tapping Notifications goes to tab index 2', (tester) async {
+
+    testWidgets('Tapping Notifications goes to LoginPage when not signed in',
+        (tester) async {
       final repository = MockRepository();
+      when(() => repository.userId).thenReturn(null);
+      when(() => repository.hasAgreedToTermsOfService)
+          .thenAnswer((invocation) async => false);
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
@@ -106,12 +112,58 @@ void main() {
       );
       await tester.tap(find.ancestor(
           of: find.text('Notifications'), matching: find.byType(InkResponse)));
+      await tester.pumpAndSettle();
+      expect(find.byType(LoginPage), findsOneWidget);
+    });
+    testWidgets('Tapping Notifications goes to tab index 2 when signed in',
+        (tester) async {
+      final repository = MockRepository();
+      when(() => repository.userId).thenReturn('aaa');
+      final tabPage = TabPage();
+      await tester.pumpApp(
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<NotificationCubit>(
+                create: (context) => NotificationCubit(repository: repository)),
+          ],
+          child: tabPage,
+        ),
+        repository: repository,
+      );
+      await tester.tap(find.ancestor(
+          of: find.text('Notifications'), matching: find.byType(InkResponse)));
+      await tester.pump();
       expect(
           tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 2);
     });
 
-    testWidgets('Tapping Profile goes to tab index 3', (tester) async {
+    testWidgets('Tapping Profile goes to LoginPage when not signed in',
+        (tester) async {
       final repository = MockRepository();
+      when(() => repository.userId).thenReturn(null);
+      when(() => repository.hasAgreedToTermsOfService)
+          .thenAnswer((invocation) async => false);
+      final tabPage = TabPage();
+      await tester.pumpApp(
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<NotificationCubit>(
+                create: (context) => NotificationCubit(repository: repository)),
+          ],
+          child: tabPage,
+        ),
+        repository: repository,
+      );
+      await tester.tap(find.ancestor(
+          of: find.text('Profile'), matching: find.byType(InkResponse)));
+      await tester.pumpAndSettle();
+      expect(find.byType(LoginPage), findsOneWidget);
+    });
+
+    testWidgets('Tapping Profile goes to tab index 3 when signed in',
+        (tester) async {
+      final repository = MockRepository();
+      when(() => repository.userId).thenReturn('aaa');
       final tabPage = TabPage();
       await tester.pumpApp(
         widget: MultiBlocProvider(
@@ -127,6 +179,25 @@ void main() {
           of: find.text('Profile'), matching: find.byType(InkResponse)));
       expect(
           tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 3);
+    });
+    testWidgets('Tapping record button when not signed in will open LoginPage',
+        (tester) async {
+      final repository = MockRepository();
+      when(() => repository.userId).thenReturn(null);
+      final tabPage = TabPage();
+      await tester.pumpApp(
+        widget: MultiBlocProvider(
+          providers: [
+            BlocProvider<NotificationCubit>(
+                create: (context) => NotificationCubit(repository: repository)),
+          ],
+          child: tabPage,
+        ),
+        repository: repository,
+      );
+      await tester.tap(find.byType(RecordButton));
+      await tester.pumpAndSettle();
+      expect(find.byType(LoginPage), findsOneWidget);
     });
   });
 

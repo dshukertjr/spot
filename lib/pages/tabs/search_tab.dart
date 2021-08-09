@@ -4,7 +4,7 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/components/video_list.dart';
 import 'package:spot/cubits/search/search_cubit.dart';
 
-import '../../app/constants.dart';
+import '../../utils/constants.dart';
 import '../../repositories/repository.dart';
 
 class SearchTab extends StatefulWidget {

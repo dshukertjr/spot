@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 
 class NotificationDot extends StatelessWidget {
   const NotificationDot({
