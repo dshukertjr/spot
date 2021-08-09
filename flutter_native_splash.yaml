@@ -1,3 +1,3 @@
 flutter_native_splash:
   image: assets/launcher/splash.png
-  background_image: 'assets/launcher/splash_background.jpg'
+  background_image: 'assets/launcher/splash_background.png'
