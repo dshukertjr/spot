@@ -1,2 +1,3 @@
 - Search tab now displays the recently posted videos
 - Video will display the location on lower left corner
+- Updated splash screen
