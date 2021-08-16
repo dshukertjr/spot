@@ -317,9 +317,15 @@ class Repository {
 
   Future<void> getVideoDetailStream(String videoId) async {
     _videoDetailStreamController.sink.add(null);
-    final userId = _supabaseClient.auth.currentUser!.id;
-    final res = await _supabaseClient.rpc('get_video_detail',
-        params: {'video_id': videoId, 'user_id': userId}).execute();
+    final userId = _supabaseClient.auth.currentUser?.id;
+    late final PostgrestResponse res;
+    if (userId != null) {
+      res = await _supabaseClient.rpc('get_video_detail',
+          params: {'video_id': videoId, 'user_id': userId}).execute();
+    } else {
+      res = await _supabaseClient.rpc('anonymous_get_video_detail',
+          params: {'video_id': videoId}).execute();
+    }
     final data = res.data;
     final error = res.error;
     if (error != null) {

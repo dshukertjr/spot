@@ -40,13 +40,13 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  late final _controller = AnimationController(
+  late final _purpleAnimationController = AnimationController(
     duration: const Duration(seconds: 2),
     vsync: this,
   )..forward();
 
   late final _curvedAnimation = CurvedAnimation(
-    parent: _controller,
+    parent: _purpleAnimationController,
     curve: Curves.easeOutCubic,
   );
 
@@ -89,14 +89,14 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               top: -53,
               right: -47,
               child: AnimatedBuilder(
-                  animation: _controller,
+                  animation: _purpleAnimationController,
                   child: Image.asset(
                     'assets/images/purple-fog.png',
                     height: 228,
                   ),
                   builder: (context, child) {
                     return Opacity(
-                      opacity: _controller.value,
+                      opacity: _purpleAnimationController.value,
                       child: child,
                     );
                   }),
@@ -222,7 +222,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _purpleAnimationController.dispose();
     _yellowBlobAnimationController.dispose();
     _redBlobAnimationController.dispose();
     _emailController.dispose();
@@ -284,7 +284,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       _LoginButton(
         label: 'Sign in',
         onPressed: () {
-          _fadeDialog(action: () {
+          _doSomethingWithinFadeDialog(action: () {
             setState(() {
               currentDialogPage = DialogPage.login;
             });
@@ -295,7 +295,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       _LoginButton(
         label: 'Create an Account',
         onPressed: () {
-          _fadeDialog(action: () {
+          _doSomethingWithinFadeDialog(action: () {
             setState(() {
               currentDialogPage = DialogPage.signUp;
             });
@@ -312,7 +312,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           IconButton(
             icon: const Icon(FeatherIcons.chevronLeft),
             onPressed: () {
-              _fadeDialog(action: () {
+              _doSomethingWithinFadeDialog(action: () {
                 setState(() {
                   currentDialogPage = DialogPage.loginOrSignup;
                 });
@@ -392,7 +392,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           IconButton(
             icon: const Icon(FeatherIcons.chevronLeft),
             onPressed: () {
-              _fadeDialog(action: () {
+              _doSomethingWithinFadeDialog(action: () {
                 setState(() {
                   currentDialogPage = DialogPage.loginOrSignup;
                 });
@@ -476,7 +476,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _redBlobAnimationController..forward();
   }
 
-  Future<void> _fadeDialog({required void Function() action}) async {
+  Future<void> _doSomethingWithinFadeDialog(
+      {required void Function() action}) async {
     setState(() {
       _dialogOpacity = 0;
     });

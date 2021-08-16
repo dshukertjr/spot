@@ -288,6 +288,31 @@ $func$
 $func$
 language sql;
 
+create or replace function anonymous_get_video_detail(video_id uuid)
+returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text, location text, like_count int, comment_count int, have_liked int)
+as
+$func$
+    select
+        videos.id,
+        videos.url,
+        videos.image_url,
+        videos.thumbnail_url,
+        videos.gif_url,
+        videos.created_at,
+        videos.description,
+        users.id as user_id,
+        users.name as user_name,
+        users.description as user_description,
+        users.image_url as user_image_url,
+        st_astext(videos.location) as location,
+        (select count(*) from likes where video_id = videos.id)::int as like_count,
+        (select count(*) from comments where video_id = videos.id)::int as comment_count,
+        (0)::int as have_liked
+    from videos
+    join users on videos.user_id = users.id
+    where videos.id = $1;
+$func$
+language sql;
 
 create or replace view notifications
 as

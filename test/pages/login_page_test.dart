@@ -32,7 +32,7 @@ void main() {
               .currentDialogPage,
           DialogPage.loginOrSignup);
 
-      expect(find.text('Would you like to...'), findsOneWidget);
+      expect(find.text('Sign in to continue...'), findsOneWidget);
     });
 
     testWidgets('Agreeing to terms of service takes to loginorsignup dialog',
@@ -55,14 +55,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // Displaying terms of service dialog
-      expect(find.text('Would you like to...'), findsNothing);
+      expect(find.text('Sign in to continue...'), findsNothing);
       expect(find.text('Agree'), findsOneWidget);
 
       await tester.tap(find.text('Agree'));
       await tester.pumpAndSettle();
 
       // Displaying loginOrSignup
-      expect(find.text('Would you like to...'), findsOneWidget);
+      expect(find.text('Sign in to continue...'), findsOneWidget);
       expect(find.text('Agree'), findsNothing);
     });
 
@@ -154,7 +154,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Displaying loginOrSignup
-      expect(find.text('Would you like to...'), findsOneWidget);
+      expect(find.text('Sign in to continue...'), findsOneWidget);
 
       await tester.tap(find.text('Sign in'));
       await tester.pumpAndSettle();
@@ -203,7 +203,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Displaying loginOrSignup
-      expect(find.text('Would you like to...'), findsOneWidget);
+      expect(find.text('Sign in to continue...'), findsOneWidget);
 
       await tester.tap(find.text('Create an Account'));
       await tester.pumpAndSettle();
@@ -248,7 +248,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Displaying loginOrSignup
-      expect(find.text('Would you like to...'), findsOneWidget);
+      expect(find.text('Sign in to continue...'), findsOneWidget);
 
       await tester.tap(find.text('Sign in'));
       await tester.pumpAndSettle();
