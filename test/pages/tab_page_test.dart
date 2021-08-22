@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,7 +29,12 @@ void main() {
       late final Repository repository;
       setUpAll(() {
         repository = MockRepository();
+        final statusKnown = Completer<void>();
         when(() => repository.userId).thenReturn('aaa');
+        when(() => repository.myProfile)
+            .thenReturn(Profile(id: 'aaa', name: ''));
+        when(() => repository.statusKnown).thenReturn(statusKnown);
+        statusKnown.complete();
       });
       testWidgets('Every tab gets rendered', (tester) async {
         final tabPage = TabPage();
@@ -113,10 +120,10 @@ void main() {
           ),
           repository: repository,
         );
-        await tester.tap(find.ancestor(
+
+        await tester.runAsync(() async => await tester.tap(find.ancestor(
             of: find.text('Notifications'),
-            matching: find.byType(InkResponse)));
-        await tester.pump();
+            matching: find.byType(InkResponse))));
         expect(
             tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 2);
       });
@@ -134,8 +141,8 @@ void main() {
           ),
           repository: repository,
         );
-        await tester.tap(find.ancestor(
-            of: find.text('Profile'), matching: find.byType(InkResponse)));
+        await tester.runAsync(() async => await tester.tap(find.ancestor(
+            of: find.text('Profile'), matching: find.byType(InkResponse))));
         expect(
             tester.state<TabPageState>(find.byWidget(tabPage)).currentIndex, 3);
       });
@@ -212,202 +219,256 @@ void main() {
         expect(find.byType(LoginPage), findsOneWidget);
       });
     });
+
+    group('signed in, but no profile', () {
+      late final Repository repository;
+      setUpAll(() {
+        repository = MockRepository();
+        when(() => repository.userId).thenReturn('aaa');
+        when(() => repository.statusKnown).thenReturn(Completer());
+        when(() => repository.myProfile).thenReturn(null);
+        when(() => repository.hasAgreedToTermsOfService)
+            .thenAnswer((invocation) async => true);
+        repository.statusKnown.complete();
+      });
+      testWidgets('Tapping Notifications goes to LoginPage', (tester) async {
+        await tester.pumpApp(
+          widget: MultiBlocProvider(
+            providers: [
+              BlocProvider<NotificationCubit>(
+                  create: (context) => NotificationCubit(
+                      repository: RepositoryProvider.of<Repository>(context))),
+            ],
+            child: TabPage(),
+          ),
+          repository: repository,
+        );
+        await tester.tap(find.ancestor(
+            of: find.text('Notifications'),
+            matching: find.byType(InkResponse)));
+        await tester.pumpAndSettle();
+        expect(find.byType(LoginPage), findsOneWidget);
+      });
+    });
   });
 
   group('NotificationDot', () {
     setUpAll(() {
       registerFallbackValue<DateTime>(DateTime.parse('2021-05-20T00:00:00.00'));
     });
-    testWidgets('Notification dots are shown properly', (tester) async {
-      final repository = MockRepository();
-      when(repository.getNotifications).thenAnswer(
-        (_) => Future.value(),
-      );
-      when(() => repository.notificationsStream).thenAnswer((invocation) =>
-          Stream.value([
-            AppNotification(
-              type: NotificationType.like,
-              createdAt: DateTime.now(),
-              targetVideoId: '',
-              targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-              actionUid: 'aaa',
-              actionUserName: 'Tyler',
-              isNew: true,
-            ),
-            AppNotification(
-              type: NotificationType.follow,
-              createdAt: DateTime.now(),
-              actionUid: 'aaa',
-              actionUserName: 'Tyler',
-              isNew: false,
-            ),
-            AppNotification(
-              type: NotificationType.comment,
-              createdAt: DateTime.now(),
-              targetVideoId: '',
-              targetVideoThumbnail: 'https://dshukertjr.dev/images/profile.jpg',
-              actionUid: 'aaa',
-              actionUserName: 'Tyler',
-              commentText:
-                  'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
-              isNew: false,
-            ),
-          ]));
-      when(() => repository.updateTimestampOfLastSeenNotification(any()))
-          .thenAnswer((_) => Future.value());
-      when(repository.determinePosition)
-          .thenAnswer((_) => Future.value(const LatLng(0, 0)));
-      when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
-          .thenAnswer((_) => Future.value([]));
-      when(() => repository.getVideosInBoundingBox(LatLngBounds(
-              southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
-          .thenAnswer((_) => Future.value([]));
-      when(() => repository.mapVideosStream)
-          .thenAnswer((_) => Stream.value([]));
-      when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.getProfile('aaa'))
-          .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
-      when((() => repository.profileStream))
-          .thenAnswer((_) => Stream.value({}));
-      when(() => repository.getVideosFromUid('aaa'))
-          .thenAnswer((_) => Future.value([]));
-      when(() => repository.replaceMentionsWithUserNames(
-              'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2'))
-          .thenAnswer((invocation) async => 'something random @Tyler yay @Sam');
+    group('has notifications', () {
+      late final Repository repository;
+      setUpAll(() {
+        repository = MockRepository();
+        when(() => repository.statusKnown)
+            .thenReturn(Completer<void>()..complete());
 
-      final tabPage = TabPage();
-      await tester.pumpApp(
-        widget: MultiBlocProvider(
-          providers: [
-            BlocProvider<NotificationCubit>(
-              create: (context) => NotificationCubit(repository: repository)
-                ..loadNotifications(),
-            ),
-          ],
-          child: tabPage,
-        ),
-        repository: repository,
-      );
-      expect(find.byType(NotificationDot), findsNothing);
-      await tester.pump();
+        when(() => repository.myProfile)
+            .thenReturn(Profile(id: 'aaa', name: 'aaa'));
+        when(repository.getNotifications).thenAnswer((_) => Future.value());
+      });
+      testWidgets('Notification dots are shown properly', (tester) async {
+        when(() => repository.notificationsStream)
+            .thenAnswer((invocation) => Stream.value([
+                  AppNotification(
+                    type: NotificationType.like,
+                    createdAt: DateTime.now(),
+                    targetVideoId: '',
+                    targetVideoThumbnail:
+                        'https://dshukertjr.dev/images/profile.jpg',
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    isNew: true,
+                  ),
+                  AppNotification(
+                    type: NotificationType.follow,
+                    createdAt: DateTime.now(),
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    isNew: false,
+                  ),
+                  AppNotification(
+                    type: NotificationType.comment,
+                    createdAt: DateTime.now(),
+                    targetVideoId: '',
+                    targetVideoThumbnail:
+                        'https://dshukertjr.dev/images/profile.jpg',
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    commentText:
+                        'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
+                    isNew: false,
+                  ),
+                ]));
+        when(() => repository.updateTimestampOfLastSeenNotification(any()))
+            .thenAnswer((_) => Future.value());
+        when(repository.determinePosition)
+            .thenAnswer((_) => Future.value(const LatLng(0, 0)));
+        when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
+            .thenAnswer((_) => Future.value([]));
+        when(() => repository.getVideosInBoundingBox(LatLngBounds(
+                southwest: const LatLng(0, 0),
+                northeast: const LatLng(45, 45))))
+            .thenAnswer((_) => Future.value([]));
+        when(() => repository.mapVideosStream)
+            .thenAnswer((_) => Stream.value([]));
+        when(() => repository.userId).thenReturn('aaa');
+        when(() => repository.getProfile('aaa'))
+            .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+        when((() => repository.profileStream))
+            .thenAnswer((_) => Stream.value({}));
+        when(() => repository.getVideosFromUid('aaa'))
+            .thenAnswer((_) => Future.value([]));
+        when(() => repository.replaceMentionsWithUserNames(
+                'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2'))
+            .thenAnswer(
+                (invocation) async => 'something random @Tyler yay @Sam');
 
-      // Finds the one dot in notification tab and bottom tab bar
-      expect(find.byType(NotificationDot), findsNWidgets(2));
-      await tester.tap(find.ancestor(
-          of: find.text('Notifications'), matching: find.byType(InkResponse)));
-      await tester.pump();
-      expect(find.byType(NotificationDot), findsNWidgets(1));
+        final tabPage = TabPage();
+        await tester.pumpApp(
+          widget: MultiBlocProvider(
+            providers: [
+              BlocProvider<NotificationCubit>(
+                create: (context) => NotificationCubit(repository: repository)
+                  ..loadNotifications(),
+              ),
+            ],
+            child: tabPage,
+          ),
+          repository: repository,
+        );
+        expect(find.byType(NotificationDot), findsNothing);
+        await tester.pump();
+
+        // Finds the one dot in notification tab and bottom tab bar
+        expect(find.byType(NotificationDot), findsNWidgets(2));
+
+        await tester.runAsync(() async => await tester.tap(find.ancestor(
+            of: find.text('Notifications'),
+            matching: find.byType(InkResponse))));
+        await tester.pump();
+        expect(find.byType(NotificationDot), findsNWidgets(1));
+      });
+
+      testWidgets(
+          'Users who don\'t have timestampOfLastSeenNotification and have notifications will see a dot',
+          (tester) async {
+        when(() => repository.notificationsStream)
+            .thenAnswer((invocation) => Stream.value([
+                  AppNotification(
+                    type: NotificationType.like,
+                    createdAt: DateTime.now(),
+                    targetVideoId: '',
+                    targetVideoThumbnail:
+                        'https://dshukertjr.dev/images/profile.jpg',
+                    actionUid: 'aaa',
+                    actionUserName: 'Tyler',
+                    isNew: true,
+                  ),
+                ]));
+        when(() => repository.updateTimestampOfLastSeenNotification(any()))
+            .thenAnswer((_) => Future.value());
+        when(repository.determinePosition)
+            .thenAnswer((_) => Future.value(const LatLng(0, 0)));
+        when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
+            .thenAnswer((_) => Future.value([]));
+        when(() => repository.getVideosInBoundingBox(LatLngBounds(
+                southwest: const LatLng(0, 0),
+                northeast: const LatLng(45, 45))))
+            .thenAnswer((_) => Future.value([]));
+        when(() => repository.mapVideosStream)
+            .thenAnswer((_) => Stream.value([]));
+        when(() => repository.userId).thenReturn('aaa');
+        when(() => repository.getProfile('aaa'))
+            .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+        when((() => repository.profileStream))
+            .thenAnswer((_) => Stream.value({}));
+        when(() => repository.getVideosFromUid('aaa'))
+            .thenAnswer((_) => Future.value([]));
+
+        final tabPage = TabPage();
+        await tester.pumpApp(
+          widget: MultiBlocProvider(
+            providers: [
+              BlocProvider<NotificationCubit>(
+                create: (context) => NotificationCubit(repository: repository)
+                  ..loadNotifications(),
+              ),
+            ],
+            child: tabPage,
+          ),
+          repository: repository,
+        );
+        expect(find.byType(NotificationDot), findsNothing);
+        await tester.pump();
+
+        // Finds the one dot in notification tab and bottom tab bar
+        expect(find.byType(NotificationDot), findsNWidgets(2));
+        await tester.runAsync(() async => await tester.tap(find.ancestor(
+            of: find.text('Notifications'),
+            matching: find.byType(InkResponse))));
+        await tester.pump();
+        expect(find.byType(NotificationDot), findsOneWidget);
+      });
     });
 
-    testWidgets(
-        'Users without notifications should not see any Notification Dot',
-        (tester) async {
-      final repository = MockRepository();
-      when(repository.getNotifications).thenAnswer(
-        (_) => Future.value([]),
-      );
-      when(() => repository.updateTimestampOfLastSeenNotification(any()))
-          .thenAnswer((_) => Future.value());
-      when(repository.determinePosition)
-          .thenAnswer((_) => Future.value(const LatLng(0, 0)));
-      when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
-          .thenAnswer((_) => Future.value([]));
-      when(() => repository.getVideosInBoundingBox(LatLngBounds(
-              southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
-          .thenAnswer((_) => Future.value([]));
-      when(() => repository.mapVideosStream)
-          .thenAnswer((_) => Stream.value([]));
-      when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.getProfile('aaa'))
-          .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
-      when((() => repository.profileStream))
-          .thenAnswer((_) => Stream.value({}));
-      when(() => repository.getVideosFromUid('aaa'))
-          .thenAnswer((_) => Future.value([]));
+    group('does not have notifications', () {
+      testWidgets(
+          'Users without notifications should not see any Notification Dot',
+          (tester) async {
+        final repository = MockRepository();
+        when(() => repository.statusKnown)
+            .thenReturn(Completer<void>()..complete());
 
-      final tabPage = TabPage();
-      await tester.pumpApp(
-        widget: MultiBlocProvider(
-          providers: [
-            BlocProvider<NotificationCubit>(
-              create: (context) => NotificationCubit(repository: repository)
-                ..loadNotifications(),
-            ),
-          ],
-          child: tabPage,
-        ),
-        repository: repository,
-      );
-      expect(find.byType(NotificationDot), findsNothing);
-      await tester.pump();
+        when(() => repository.myProfile)
+            .thenReturn(Profile(id: 'aaa', name: 'aaa'));
+        when(repository.getNotifications).thenAnswer(
+          (_) => Future.value([]),
+        );
+        when(() => repository.updateTimestampOfLastSeenNotification(any()))
+            .thenAnswer((_) => Future.value());
+        when(repository.determinePosition)
+            .thenAnswer((_) => Future.value(const LatLng(0, 0)));
+        when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
+            .thenAnswer((_) => Future.value([]));
+        when(() => repository.getVideosInBoundingBox(LatLngBounds(
+                southwest: const LatLng(0, 0),
+                northeast: const LatLng(45, 45))))
+            .thenAnswer((_) => Future.value([]));
+        when(() => repository.mapVideosStream)
+            .thenAnswer((_) => Stream.value([]));
+        when(() => repository.userId).thenReturn('aaa');
+        when(() => repository.getProfile('aaa'))
+            .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+        when((() => repository.profileStream))
+            .thenAnswer((_) => Stream.value({}));
+        when(() => repository.getVideosFromUid('aaa'))
+            .thenAnswer((_) => Future.value([]));
 
-      // Finds the one dot in notification tab and bottom tab bar
-      expect(find.byType(NotificationDot), findsNothing);
-      await tester.tap(find.ancestor(
-          of: find.text('Notifications'), matching: find.byType(InkResponse)));
-      await tester.pump();
-      expect(find.byType(NotificationDot), findsNothing);
-    });
+        final tabPage = TabPage();
+        await tester.pumpApp(
+          widget: MultiBlocProvider(
+            providers: [
+              BlocProvider<NotificationCubit>(
+                create: (context) => NotificationCubit(repository: repository)
+                  ..loadNotifications(),
+              ),
+            ],
+            child: tabPage,
+          ),
+          repository: repository,
+        );
+        expect(find.byType(NotificationDot), findsNothing);
+        await tester.pump();
 
-    testWidgets(
-        'Users who don\'t have timestampOfLastSeenNotification and have notifications will see a dot',
-        (tester) async {
-      final repository = MockRepository();
-      when(repository.getNotifications).thenAnswer((_) => Future.value());
-      when(() => repository.notificationsStream)
-          .thenAnswer((invocation) => Stream.value([
-                AppNotification(
-                  type: NotificationType.like,
-                  createdAt: DateTime.now(),
-                  targetVideoId: '',
-                  targetVideoThumbnail:
-                      'https://dshukertjr.dev/images/profile.jpg',
-                  actionUid: 'aaa',
-                  actionUserName: 'Tyler',
-                  isNew: true,
-                ),
-              ]));
-      when(() => repository.updateTimestampOfLastSeenNotification(any()))
-          .thenAnswer((_) => Future.value());
-      when(repository.determinePosition)
-          .thenAnswer((_) => Future.value(const LatLng(0, 0)));
-      when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
-          .thenAnswer((_) => Future.value([]));
-      when(() => repository.getVideosInBoundingBox(LatLngBounds(
-              southwest: const LatLng(0, 0), northeast: const LatLng(45, 45))))
-          .thenAnswer((_) => Future.value([]));
-      when(() => repository.mapVideosStream)
-          .thenAnswer((_) => Stream.value([]));
-      when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.getProfile('aaa'))
-          .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
-      when((() => repository.profileStream))
-          .thenAnswer((_) => Stream.value({}));
-      when(() => repository.getVideosFromUid('aaa'))
-          .thenAnswer((_) => Future.value([]));
-
-      final tabPage = TabPage();
-      await tester.pumpApp(
-        widget: MultiBlocProvider(
-          providers: [
-            BlocProvider<NotificationCubit>(
-              create: (context) => NotificationCubit(repository: repository)
-                ..loadNotifications(),
-            ),
-          ],
-          child: tabPage,
-        ),
-        repository: repository,
-      );
-      expect(find.byType(NotificationDot), findsNothing);
-      await tester.pump();
-
-      // Finds the one dot in notification tab and bottom tab bar
-      expect(find.byType(NotificationDot), findsNWidgets(2));
-      await tester.tap(find.ancestor(
-          of: find.text('Notifications'), matching: find.byType(InkResponse)));
-      await tester.pump();
-      expect(find.byType(NotificationDot), findsOneWidget);
+        // Finds the one dot in notification tab and bottom tab bar
+        expect(find.byType(NotificationDot), findsNothing);
+        await tester.runAsync(() async => await tester.tap(find.ancestor(
+            of: find.text('Notifications'),
+            matching: find.byType(InkResponse))));
+        await tester.pump();
+        expect(find.byType(NotificationDot), findsNothing);
+      });
     });
   });
 
@@ -419,6 +480,11 @@ void main() {
         'Users with location permission will be able to go to record page',
         (tester) async {
       final repository = MockRepository();
+      when(() => repository.userId).thenReturn('aaa');
+      when(() => repository.myProfile)
+          .thenReturn(Profile(id: 'aaa', name: 'abd'));
+      when(() => repository.statusKnown)
+          .thenReturn(Completer<void>()..complete());
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([]),
       );
@@ -470,6 +536,11 @@ void main() {
     testWidgets('Users without location permission will see a dialog',
         (tester) async {
       final repository = MockRepository();
+      when(() => repository.userId).thenReturn('aaa');
+      when(() => repository.myProfile)
+          .thenReturn(Profile(id: 'aaa', name: 'abd'));
+      when(() => repository.statusKnown)
+          .thenReturn(Completer<void>()..complete());
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([]),
       );

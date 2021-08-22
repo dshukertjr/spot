@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:spot/pages/edit_profile_page.dart';
 import 'package:spot/utils/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
-import 'package:spot/pages/splash_page.dart';
 import 'package:spot/repositories/repository.dart';
 
 import '../components/app_scaffold.dart';
@@ -359,15 +359,21 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final persistSessionString =
-                await RepositoryProvider.of<Repository>(context).signIn(
-                    email: _emailController.text,
-                    password: _passwordController.text);
+            final repository = RepositoryProvider.of<Repository>(context);
+            final persistSessionString = await repository.signIn(
+                email: _emailController.text,
+                password: _passwordController.text);
             // Store current session
             await RepositoryProvider.of<Repository>(context)
                 .setSessionString(persistSessionString);
-
-            await Navigator.of(context).pushReplacement(SplashPage.route());
+            await repository.statusKnown.future;
+            final myProfile = repository.myProfile;
+            if (myProfile == null) {
+              await Navigator.of(context).pushReplacement(
+                  EditProfilePage.route(isCreatingAccount: true));
+            } else {
+              Navigator.of(context).pop();
+            }
           } on PlatformException catch (err) {
             setState(() {
               _isLoading = false;
@@ -448,7 +454,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             await RepositoryProvider.of<Repository>(context)
                 .setSessionString(persistSessionString);
 
-            await Navigator.of(context).pushReplacement(SplashPage.route());
+            await Navigator.of(context).pushReplacement(
+                EditProfilePage.route(isCreatingAccount: true));
           } on PlatformException catch (err) {
             setState(() {
               _isLoading = false;

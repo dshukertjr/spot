@@ -233,13 +233,14 @@ void main() {
       expect(sessionString is String, true);
     });
 
-    test('getSelfProfile', () async {
+    test('getMyProfile', () async {
       final repository =
           Repository(supabaseClient: supabaseClient, analytics: analytics);
 
       await repository.signIn(email: '', password: '');
 
-      final profile = await repository.getSelfProfile();
+      await repository.statusKnown.future;
+      final profile = repository.myProfile;
 
       expect(profile!.id, 'aaa');
     });

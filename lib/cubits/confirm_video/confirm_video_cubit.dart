@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
@@ -27,7 +28,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
 
   final _flutterFFmpeg = FlutterFFmpeg();
 
-  bool _doneCompressingVideo = false;
+  final _compressingVideoCompleter = Completer();
   bool _isSeekingToBeginning = false;
   LatLng? _videoLocation;
   late final File _compressedVideo;
@@ -70,7 +71,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       final gifTempPath = '${tempDir.path}/temp.gif';
       _gif = await _getGif(videoPath: videoPath, tempPath: gifTempPath);
 
-      _doneCompressingVideo = true;
+      _compressingVideoCompleter.complete();
     } catch (e) {
       emit(ConfirmVideoError());
     }
@@ -81,10 +82,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
         ConfirmVideoTranscoding(videoPlayerController: _videoPlayerController));
 
     /// wait until video processing is complete
-    await Future.doWhile(() async {
-      await Future.delayed(const Duration(milliseconds: 100));
-      return !_doneCompressingVideo;
-    });
+    await _compressingVideoCompleter.future;
 
     // If the video does not have location metadata, get the current location
     _videoLocation ??= await _repository.determinePosition();

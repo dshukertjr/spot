@@ -8,7 +8,6 @@ import 'package:spot/utils/validators.dart';
 import 'package:spot/components/app_scaffold.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
-import 'package:spot/pages/splash_page.dart';
 import 'package:spot/repositories/repository.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -23,14 +22,13 @@ class EditProfilePage extends StatefulWidget {
 
   static Route<void> route({
     required bool isCreatingAccount,
-    required String uid,
   }) {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
       builder: (context) => BlocProvider<ProfileCubit>(
         create: (context) => ProfileCubit(
           repository: RepositoryProvider.of<Repository>(context),
-        )..loadProfile(uid),
+        )..loadMyProfile(),
         child: EditProfilePage(
           isCreatingAccount: isCreatingAccount,
         ),
@@ -172,8 +170,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       imageFile: _selectedImageFile,
                     );
                     if (widget.isCreatingAccount) {
-                      await Navigator.of(context)
-                          .pushReplacement(SplashPage.route());
+                      Navigator.of(context).pop();
                     } else {
                       Navigator.of(context).pop();
                     }

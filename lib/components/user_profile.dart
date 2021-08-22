@@ -109,8 +109,8 @@ class _Profile extends StatelessWidget {
                     if (userId == profile.id)
                       OutlinedButton.icon(
                         onPressed: () {
-                          Navigator.of(context).push(EditProfilePage.route(
-                              isCreatingAccount: false, uid: userId!));
+                          Navigator.of(context).push(
+                              EditProfilePage.route(isCreatingAccount: false));
                         },
                         icon: const Icon(
                           FeatherIcons.edit2,

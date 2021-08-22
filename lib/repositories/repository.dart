@@ -17,7 +17,6 @@ import 'package:spot/models/comment.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
-import 'package:spot/pages/login_page.dart';
 import 'package:supabase/supabase.dart';
 import 'package:video_player/video_player.dart';
 import 'package:geocoding/geocoding.dart';
@@ -27,7 +26,9 @@ class Repository {
     required SupabaseClient supabaseClient,
     required FirebaseAnalytics analytics,
   })  : _supabaseClient = supabaseClient,
-        _analytics = analytics;
+        _analytics = analytics {
+    setAuthListenner();
+  }
 
   final SupabaseClient _supabaseClient;
   final FirebaseAnalytics _analytics;
@@ -69,6 +70,13 @@ class Repository {
   /// Return userId or null
   String? get userId => _supabaseClient.auth.currentUser?.id;
 
+  /// Completes when auth state and myProfile is loaded
+  Completer<void> statusKnown = Completer<void>();
+
+  /// The user's profile
+  Profile? get myProfile => profilesCache[userId ?? ''];
+
+  /// Whether the user has agreed to terms of service or not
   Future<bool> get hasAgreedToTermsOfService =>
       _localStorage.containsKey(key: _termsOfServiceAgreementKey);
 
@@ -80,6 +88,14 @@ class Repository {
 
   Future<void> deleteSession() =>
       _localStorage.delete(key: _persistantSessionKey);
+
+  void setAuthListenner() {
+    _supabaseClient.auth.onAuthStateChange((event, session) {
+      if (session?.user != null && !statusKnown.isCompleted) {
+        _getMyProfile();
+      }
+    });
+  }
 
   Future<void> recoverSession() async {
     final jsonStr = await _localStorage.read(key: _persistantSessionKey);
@@ -131,12 +147,17 @@ class Repository {
     return res.data!.persistSessionString;
   }
 
-  Future<Profile?> getSelfProfile() {
+  Future<Profile?> _getMyProfile() async {
     final userId = this.userId;
     if (userId == null) {
       throw PlatformException(code: 'not signed in ', message: 'Not signed in');
     }
-    return getProfile(userId);
+    try {
+      await getProfile(userId);
+    } catch (e) {
+      print(e.toString());
+    }
+    statusKnown.complete();
   }
 
   Future<void> getVideosFromLocation(LatLng location) async {

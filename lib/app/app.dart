@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
-import 'package:spot/pages/splash_page.dart';
 import 'package:spot/pages/tab_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';

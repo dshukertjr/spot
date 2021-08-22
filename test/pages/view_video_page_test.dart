@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bloc_test/bloc_test.dart';
@@ -25,7 +26,9 @@ class MockCommentCubit extends MockCubit<CommentState> implements CommentCubit {
 }
 
 void main() {
-  setUpAll(() => HttpOverrides.global = null);
+  setUpAll(() {
+    HttpOverrides.global = null;
+  });
   group('VideoPage', () {
     testWidgets('Renders ViewVideoPage', (tester) async {
       final repository = MockRepository();
@@ -231,7 +234,12 @@ void main() {
 
     testWidgets('like() is called when haveLiked is false', (tester) async {
       final repository = MockRepository();
+      final statusKnown = Completer<void>();
       when(() => repository.userId).thenReturn('myUserId');
+      when(() => repository.myProfile)
+          .thenReturn(Profile(id: 'myUserId', name: 'myName'));
+      when(() => repository.statusKnown).thenReturn(statusKnown);
+      statusKnown.complete();
       when(() => repository.getVideoDetailStream('aaa'))
           .thenAnswer((_) => Future.value(
                 VideoDetail(
@@ -388,7 +396,12 @@ void main() {
 
     testWidgets('unlike() is called when haveLiked is true', (tester) async {
       final repository = MockRepository();
+      final statusKnown = Completer<void>();
       when(() => repository.userId).thenReturn('myUserId');
+      when(() => repository.myProfile)
+          .thenReturn(Profile(id: 'myUserId', name: 'myName'));
+      when(() => repository.statusKnown).thenReturn(statusKnown);
+      statusKnown.complete();
       when(() => repository.getVideoDetailStream('aaa'))
           .thenAnswer((_) => Future.value(
                 VideoDetail(

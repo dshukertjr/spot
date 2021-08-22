@@ -161,9 +161,9 @@ class TabPageState extends State<TabPage> {
             ),
           ],
         ),
-        onTap: () {
+        onTap: () async {
           if (tabIndex == 2 || tabIndex == 3) {
-            AuthRequired.action(context, action: () {
+            await AuthRequired.action(context, action: () {
               setState(() {
                 currentIndex = tabIndex;
               });
@@ -249,7 +249,7 @@ class RecordButton extends StatelessWidget {
               ),
               child: InkWell(
                 onTap: () async {
-                  AuthRequired.action(context, action: () async {
+                  await AuthRequired.action(context, action: () async {
                     final hasLocationPermission =
                         await RepositoryProvider.of<Repository>(context)
                             .hasLocationPermission();
