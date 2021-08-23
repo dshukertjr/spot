@@ -242,6 +242,11 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   List<Widget> _termsOfService() {
     return [
+      const Text(
+        'Sign in to continue!',
+        style: TextStyle(fontSize: 24),
+      ),
+      const SizedBox(height: 8),
       SizedBox(
         height: 300,
         child: FutureBuilder(
@@ -277,7 +282,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   List<Widget> _loginOrSignup() {
     return [
       const Text(
-        'Sign in to continue...',
+        'Would you like to...',
         style: TextStyle(fontSize: 18),
       ),
       const SizedBox(height: 24.5),
