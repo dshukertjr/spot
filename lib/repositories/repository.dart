@@ -25,14 +25,17 @@ class Repository {
   Repository({
     required SupabaseClient supabaseClient,
     required FirebaseAnalytics analytics,
+    required FlutterSecureStorage localStorage,
   })  : _supabaseClient = supabaseClient,
-        _analytics = analytics {
+        _analytics = analytics,
+        _localStorage = localStorage {
     setAuthListenner();
   }
 
   final SupabaseClient _supabaseClient;
   final FirebaseAnalytics _analytics;
-  static const _localStorage = FlutterSecureStorage();
+  final FlutterSecureStorage _localStorage;
+  // static const _localStorage = FlutterSecureStorage();
   static const _persistantSessionKey = 'supabase_session';
   static const _termsOfServiceAgreementKey = 'agreed';
   static const _timestampOfLastSeenNotification =
@@ -93,6 +96,7 @@ class Repository {
     _supabaseClient.auth.onAuthStateChange((event, session) {
       if (session?.user != null && !statusKnown.isCompleted) {
         _getMyProfile();
+        getNotifications();
       }
     });
   }
@@ -494,11 +498,15 @@ class Repository {
   }
 
   Future<void> getNotifications() async {
-    final uid = _supabaseClient.auth.currentUser!.id;
+    if (userId == null) {
+      // If the user is not signed in, return empty result
+      _notificationsStreamController.sink.add([]);
+      return;
+    }
     final res = await _supabaseClient
         .from('notifications')
         .select()
-        .eq('receiver_user_id', uid)
+        .eq('receiver_user_id', userId)
         .order('created_at')
         .limit(50)
         .execute();

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
@@ -15,8 +16,11 @@ class MockSupabaseClient extends Mock implements SupabaseClient {}
 
 class MockFirebaseAnalytics extends Mock implements FirebaseAnalytics {}
 
+class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
+
 void main() {
   final analytics = MockFirebaseAnalytics();
+  final localStorage = MockFlutterSecureStorage();
 
   setUp(() {
     registerFallbackValue<String>('');
@@ -30,6 +34,8 @@ void main() {
         .thenAnswer((invocation) async => null);
     when(() =>
             analytics.logSearch(searchTerm: any<String>(named: 'searchTerm')))
+        .thenAnswer((invocation) async => null);
+    when(() => localStorage.read(key: any<String>(named: 'key')))
         .thenAnswer((invocation) async => null);
   });
 
@@ -194,6 +200,14 @@ void main() {
             ..headers.contentType = ContentType.json
             ..write(jsonString)
             ..close();
+        } else if (url ==
+            '/rest/v1/notifications?select=%2A&receiver_user_id=eq.aaa&order=%22created_at%22.desc.nullslast&limit=50') {
+          final jsonString = jsonEncode([]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
         } else {
           request.response
             ..statusCode = HttpStatus.ok
@@ -216,8 +230,10 @@ void main() {
     });
 
     test('signUp', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
 
       final sessionString = await repository.signUp(email: '', password: '');
 
@@ -225,8 +241,10 @@ void main() {
     });
 
     test('signIn', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
 
       final sessionString = await repository.signIn(email: '', password: '');
 
@@ -234,20 +252,25 @@ void main() {
     });
 
     test('getMyProfile', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
 
       await repository.signIn(email: '', password: '');
 
       await repository.statusKnown.future;
+      await Future.delayed(const Duration(seconds: 1));
       final profile = repository.myProfile;
 
       expect(profile!.id, 'aaa');
     });
 
     test('getVideosFromLocation', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
 
       await repository.signIn(email: '', password: '');
 
@@ -263,8 +286,10 @@ void main() {
     });
 
     test('getVideosInBoundingBox', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
 
       await repository.signIn(email: '', password: '');
 
@@ -281,8 +306,10 @@ void main() {
     });
 
     test('getVideosFromUid', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
 
       await repository.signIn(email: '', password: '');
 
@@ -294,8 +321,10 @@ void main() {
     });
 
     test('getProfile', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
 
       await repository.signIn(email: '', password: '');
 
@@ -305,8 +334,10 @@ void main() {
     });
 
     test('saveProfile', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
 
       await repository.signIn(email: '', password: '');
 
@@ -323,8 +354,10 @@ void main() {
 
     group('Mentions', () {
       test('getMentionedProfiles on a comment with email address', () {
-        final repository =
-            Repository(supabaseClient: supabaseClient, analytics: analytics);
+        final repository = Repository(
+            supabaseClient: supabaseClient,
+            analytics: analytics,
+            localStorage: localStorage);
         final comment = 'Email me at sample@example.com';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -341,8 +374,10 @@ void main() {
         expect(profiles.length, 0);
       });
       test('getMentionedProfiles on a comment with no mentions', () {
-        final repository =
-            Repository(supabaseClient: supabaseClient, analytics: analytics);
+        final repository = Repository(
+            supabaseClient: supabaseClient,
+            analytics: analytics,
+            localStorage: localStorage);
         final comment = 'What do you think?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -359,8 +394,10 @@ void main() {
         expect(profiles.length, 0);
       });
       test('getMentionedProfiles at the beginning of sentence', () {
-        final repository =
-            Repository(supabaseClient: supabaseClient, analytics: analytics);
+        final repository = Repository(
+            supabaseClient: supabaseClient,
+            analytics: analytics,
+            localStorage: localStorage);
         final comment = '@John What do you think?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -378,8 +415,10 @@ void main() {
         expect(profiles.first.id, 'aaa');
       });
       test('getMentionedProfiles in a sentence', () {
-        final repository =
-            Repository(supabaseClient: supabaseClient, analytics: analytics);
+        final repository = Repository(
+            supabaseClient: supabaseClient,
+            analytics: analytics,
+            localStorage: localStorage);
         final comment = 'Hey @John ! How are you?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -397,8 +436,10 @@ void main() {
         expect(profiles.first.id, 'aaa');
       });
       test('getMentionedProfiles with one matching username', () {
-        final repository =
-            Repository(supabaseClient: supabaseClient, analytics: analytics);
+        final repository = Repository(
+            supabaseClient: supabaseClient,
+            analytics: analytics,
+            localStorage: localStorage);
         final comment = 'What do you think @John?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -417,8 +458,10 @@ void main() {
         expect(profiles.first.id, 'aaa');
       });
       test('getMentionedProfiles with two matching username', () {
-        final repository =
-            Repository(supabaseClient: supabaseClient, analytics: analytics);
+        final repository = Repository(
+            supabaseClient: supabaseClient,
+            analytics: analytics,
+            localStorage: localStorage);
         final comment = 'What do you think @John, @Mary?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -439,8 +482,10 @@ void main() {
       });
       test('getMentionedProfiles with space in the username would not work',
           () {
-        final repository =
-            Repository(supabaseClient: supabaseClient, analytics: analytics);
+        final repository = Repository(
+            supabaseClient: supabaseClient,
+            analytics: analytics,
+            localStorage: localStorage);
         final comment = 'What do you think @John Tyter?';
         repository.profilesCache.addAll({
           'aaa': Profile(
@@ -462,8 +507,10 @@ void main() {
 
   group('replaceMentionsInAComment', () {
     final supabaseClient = SupabaseClient('', 'supabaseKey');
-    final repository =
-        Repository(supabaseClient: supabaseClient, analytics: analytics);
+    final repository = Repository(
+        supabaseClient: supabaseClient,
+        analytics: analytics,
+        localStorage: localStorage);
     test('without mention', () {
       final comment = '@test';
       final replacedComment = repository.replaceMentionsInAComment(
@@ -541,8 +588,10 @@ void main() {
 
   group('getMentionedUserName', () {
     final supabaseClient = SupabaseClient('', 'supabaseKey');
-    final repository =
-        Repository(supabaseClient: supabaseClient, analytics: analytics);
+    final repository = Repository(
+        supabaseClient: supabaseClient,
+        analytics: analytics,
+        localStorage: localStorage);
     test('username is the only thing within the comment', () {
       final comment = '@test';
       final mentionedUserName = repository.getMentionedUserName(comment);
@@ -660,8 +709,10 @@ void main() {
     });
 
     test('replaceMentionsWithUserNames with two profiles', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
       final comment =
           'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
 
@@ -671,8 +722,10 @@ void main() {
     });
     test('replaceMentionsWithUserNames with two userIds of the same user',
         () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
       final comment =
           'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
 
@@ -681,8 +734,10 @@ void main() {
       expect(updatedComment, 'something random @Tyler yay @Tyler');
     });
     test('getZIndex', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
       final recentZIndex = repository.getZIndex(DateTime(2021, 4, 10));
       expect(recentZIndex.isNegative, false);
       expect(recentZIndex < 1000000, true);
@@ -692,8 +747,10 @@ void main() {
       expect(futureZIndex < 1000000, true);
     });
     test('getZIndex close ', () async {
-      final repository =
-          Repository(supabaseClient: supabaseClient, analytics: analytics);
+      final repository = Repository(
+          supabaseClient: supabaseClient,
+          analytics: analytics,
+          localStorage: localStorage);
       final firstZIndex =
           repository.getZIndex(DateTime(2021, 4, 10, 10, 0, 0)).toInt();
       final laterZIndex =
