@@ -32,12 +32,10 @@ void main() {
       late final Repository repository;
       setUpAll(() {
         repository = MockRepository();
-        final statusKnown = Completer<void>();
         when(() => repository.userId).thenReturn('aaa');
         when(() => repository.myProfile)
             .thenReturn(Profile(id: 'aaa', name: ''));
-        when(() => repository.statusKnown).thenReturn(statusKnown);
-        statusKnown.complete();
+        when(() => repository.statusKnown).thenReturn(Completer()..complete());
       });
       testWidgets('Every tab gets rendered', (tester) async {
         final tabPage = TabPage();

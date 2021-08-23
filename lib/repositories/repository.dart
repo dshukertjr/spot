@@ -119,6 +119,13 @@ class Repository {
       await deleteSession();
       return null;
     }
+    if (userId != null && !statusKnown.isCompleted) {
+      // ignore: unawaited_futures
+      _getMyProfile();
+      // ignore: unawaited_futures
+      getNotifications();
+    }
+
     await setSessionString(session.persistSessionString);
   }
 
@@ -499,8 +506,7 @@ class Repository {
 
   Future<void> getNotifications() async {
     if (userId == null) {
-      // If the user is not signed in, return empty result
-      _notificationsStreamController.sink.add([]);
+      // If the user is not signed in, do not emit anything
       return;
     }
     final res = await _supabaseClient
