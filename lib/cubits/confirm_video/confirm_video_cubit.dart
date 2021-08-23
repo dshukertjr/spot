@@ -15,8 +15,6 @@ import 'package:video_player/video_player.dart';
 
 part 'confirm_video_state.dart';
 
-// ignore_for_file: lines_longer_than_80_chars
-
 class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
   ConfirmVideoCubit({required Repository repository})
       : _repository = repository,

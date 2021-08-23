@@ -722,7 +722,7 @@ class Repository {
     final res = await _supabaseClient
         .from('users')
         .select()
-        .like('name', '%$queryString%')
+        .ilike('name', '%$queryString%')
         .limit(2)
         .execute();
     final error = res.error;
@@ -779,7 +779,7 @@ class Repository {
     }
     final mentionedUserName = mention.substring(1);
     if (mentionedUserName.isEmpty) {
-      return null;
+      return '@';
     }
     return mentionedUserName;
   }
