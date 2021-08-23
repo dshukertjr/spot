@@ -94,6 +94,15 @@ class CommentCubit extends Cubit<CommentState> {
     if (mentionedUserName == null) {
       emit(CommentsLoaded(_comments));
       return;
+    } else if (mentionedUserName == '@') {
+      final myUserId = _repository.userId;
+      final usersInComments = _comments
+          .where((comment) => comment.user.id != myUserId)
+          .map((comment) => comment.user)
+          .take(2)
+          .toList();
+      emit(CommentsLoaded(_comments, mentionSuggestions: usersInComments));
+      return;
     }
     emit(CommentsLoaded(_comments, isLoadingMentions: true));
     final mentionSuggestions = await _repository.getMentions(mentionedUserName);
