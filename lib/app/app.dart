@@ -16,7 +16,7 @@ class App extends StatelessWidget {
   static const _supabaseannonKey = String.fromEnvironment('SUPABASE_ANNON_KEY');
   final _supabaseClient = SupabaseClient(_supabaseUrl, _supabaseannonKey);
   final _analytics = FirebaseAnalytics();
-  final _localStorage = FlutterSecureStorage();
+  final _localStorage = const FlutterSecureStorage();
 
   @override
   Widget build(BuildContext context) {
