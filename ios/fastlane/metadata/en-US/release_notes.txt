@@ -1,2 +1,2 @@
-- First time users are now not required to create an account to view posts
+- First time users are no longer required to create an account
 - Significantly reduced the time until app open

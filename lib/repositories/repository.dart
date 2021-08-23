@@ -513,6 +513,7 @@ class Repository {
         .from('notifications')
         .select()
         .eq('receiver_user_id', userId)
+        .not('action_user_id', 'eq', userId)
         .order('created_at')
         .limit(50)
         .execute();
