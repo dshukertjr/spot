@@ -215,7 +215,7 @@ void main() {
       }
     }
 
-    setUp(() async {
+    setUpAll(() async {
       registerFallbackValue<String>('');
       mockServer = await HttpServer.bind('localhost', 0);
       supabaseClient = SupabaseClient(
@@ -224,7 +224,7 @@ void main() {
       handleRequests(mockServer);
     });
 
-    tearDown(() async {
+    tearDownAll(() async {
       await mockServer.close();
     });
 

@@ -532,7 +532,7 @@ class Repository {
       createdAtOfLastSeenNotification =
           DateTime.parse(timestampOfLastSeenNotification);
     }
-    _notifications = AppNotification.fromData(data ?? [],
+    _notifications = AppNotification.fromData(data,
         createdAtOfLastSeenNotification: createdAtOfLastSeenNotification);
     _notificationsStreamController.sink.add(_notifications);
 
