@@ -1,2 +1,3 @@
 - First time users are no longer required to create an account
 - Significantly reduced the time until app open
+- UX improvements around mentioning other users in a comment
