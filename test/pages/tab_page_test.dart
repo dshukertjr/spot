@@ -10,6 +10,7 @@ import 'package:spot/components/notification_dot.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
+import 'package:spot/pages/edit_profile_page.dart';
 import 'package:spot/pages/login_page.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tab_page.dart';
@@ -225,11 +226,14 @@ void main() {
       setUpAll(() {
         repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.statusKnown).thenReturn(Completer());
+        when(() => repository.statusKnown).thenReturn(Completer()..complete());
         when(() => repository.myProfile).thenReturn(null);
+        when(() => repository.profileStream)
+            .thenAnswer((invocation) => Stream.value({}));
+        when(() => repository.getProfile('aaa'))
+            .thenAnswer((invocation) async => null);
         when(() => repository.hasAgreedToTermsOfService)
             .thenAnswer((invocation) async => true);
-        repository.statusKnown.complete();
       });
       testWidgets('Tapping Notifications goes to LoginPage', (tester) async {
         await tester.pumpApp(
@@ -243,11 +247,12 @@ void main() {
           ),
           repository: repository,
         );
-        await tester.tap(find.ancestor(
+
+        await tester.runAsync(() async => await tester.tap(find.ancestor(
             of: find.text('Notifications'),
-            matching: find.byType(InkResponse)));
+            matching: find.byType(InkResponse))));
         await tester.pumpAndSettle();
-        expect(find.byType(LoginPage), findsOneWidget);
+        expect(find.byType(EditProfilePage), findsOneWidget);
       });
     });
   });
