@@ -3,9 +3,9 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
-import 'package:spot/l10n/l10n.dart';
-import 'package:spot/pages/splash_page.dart';
+import 'package:spot/pages/tab_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';
 
@@ -16,6 +16,7 @@ class App extends StatelessWidget {
   static const _supabaseannonKey = String.fromEnvironment('SUPABASE_ANNON_KEY');
   final _supabaseClient = SupabaseClient(_supabaseUrl, _supabaseannonKey);
   final _analytics = FirebaseAnalytics();
+  final _localStorage = const FlutterSecureStorage();
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +26,7 @@ class App extends StatelessWidget {
           create: (context) => Repository(
             supabaseClient: _supabaseClient,
             analytics: _analytics,
+            localStorage: _localStorage,
           ),
         ),
       ],
@@ -70,14 +72,12 @@ class App extends StatelessWidget {
             ),
           ),
           localizationsDelegates: [
-            AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
           ],
-          supportedLocales: AppLocalizations.supportedLocales,
           navigatorObservers: [
             FirebaseAnalyticsObserver(analytics: _analytics),
           ],
-          home: SplashPage(),
+          home: TabPage(),
         ),
       ),
     );

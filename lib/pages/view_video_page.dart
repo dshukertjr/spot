@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/components/app_scaffold.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/full_screen_video_player.dart';
 import 'package:spot/components/gradient_button.dart';
@@ -16,10 +17,10 @@ import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/pages/profile_page.dart';
 import 'package:spot/repositories/repository.dart';
+import 'package:spot/utils/functions.dart';
 import 'package:video_player/video_player.dart';
 
-import '../app/constants.dart';
-import '../components/app_scaffold.dart';
+import '../utils/constants.dart';
 import 'tab_page.dart';
 
 @visibleForTesting
@@ -110,7 +111,7 @@ class VideoScreen extends StatefulWidget {
 }
 
 class _VideoScreenState extends State<VideoScreen> {
-  late final String _userId;
+  late final String? _userId;
   bool _isCommentsShown = false;
 
   @override
@@ -237,11 +238,13 @@ class _VideoScreenState extends State<VideoScreen> {
                       color: Color(0xFFFFFFFF),
                     ),
               onPressed: () {
-                if (widget._video.haveLiked) {
-                  BlocProvider.of<VideoCubit>(context).unlike();
-                } else {
-                  BlocProvider.of<VideoCubit>(context).like();
-                }
+                AuthRequired.action(context, action: () {
+                  if (widget._video.haveLiked) {
+                    BlocProvider.of<VideoCubit>(context).unlike();
+                  } else {
+                    BlocProvider.of<VideoCubit>(context).like();
+                  }
+                });
               },
             ),
             Text(widget._video.likeCount.toString()),
@@ -254,21 +257,23 @@ class _VideoScreenState extends State<VideoScreen> {
             ),
             const SizedBox(height: 36),
             PopupMenuButton<VideoMenu>(
-              onSelected: (VideoMenu result) async {
-                switch (result) {
-                  case VideoMenu.block:
-                    _showBlockDialog();
-                    break;
-                  case VideoMenu.report:
-                    final reported = await _showReportDialog();
-                    if (reported == true) {
-                      context.showSnackbar('Thanks for reporting');
-                    }
-                    break;
-                  case VideoMenu.delete:
-                    _showDeleteDialog();
-                    break;
-                }
+              onSelected: (VideoMenu result) {
+                AuthRequired.action(context, action: () async {
+                  switch (result) {
+                    case VideoMenu.block:
+                      _showBlockDialog();
+                      break;
+                    case VideoMenu.report:
+                      final reported = await _showReportDialog();
+                      if (reported == true) {
+                        context.showSnackbar('Thanks for reporting');
+                      }
+                      break;
+                    case VideoMenu.delete:
+                      _showDeleteDialog();
+                      break;
+                  }
+                });
               },
               itemBuilder: (BuildContext context) =>
                   <PopupMenuEntry<VideoMenu>>[
@@ -296,11 +301,7 @@ class _VideoScreenState extends State<VideoScreen> {
 
   @override
   void initState() {
-    final userId = RepositoryProvider.of<Repository>(context).userId;
-    if (userId == null) {
-      throw PlatformException(code: 'not signed in');
-    }
-    _userId = userId;
+    _userId = RepositoryProvider.of<Repository>(context).userId;
     super.initState();
   }
 
@@ -672,9 +673,11 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                   const SizedBox(width: 8),
                   GradientButton(
                     onPressed: () {
-                      BlocProvider.of<CommentCubit>(context)
-                          .postComment(_commentController.text);
-                      _commentController.clear();
+                      AuthRequired.action(context, action: () {
+                        BlocProvider.of<CommentCubit>(context)
+                            .postComment(_commentController.text);
+                        _commentController.clear();
+                      });
                     },
                     child: const Text('Send'),
                   ),

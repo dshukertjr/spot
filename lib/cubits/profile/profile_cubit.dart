@@ -27,6 +27,11 @@ class ProfileCubit extends Cubit<ProfileState> {
     return super.close();
   }
 
+  Future<void> loadMyProfile() async {
+    final uid = _repository.userId!;
+    await loadProfile(uid);
+  }
+
   Future<void> loadProfile(String uid) async {
     try {
       await _repository.getProfile(uid);

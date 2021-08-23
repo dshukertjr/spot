@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/components/video_list.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
@@ -109,8 +109,8 @@ class _Profile extends StatelessWidget {
                     if (userId == profile.id)
                       OutlinedButton.icon(
                         onPressed: () {
-                          Navigator.of(context).push(EditProfilePage.route(
-                              isCreatingAccount: false, uid: userId!));
+                          Navigator.of(context).push(
+                              EditProfilePage.route(isCreatingAccount: false));
                         },
                         icon: const Icon(
                           FeatherIcons.edit2,

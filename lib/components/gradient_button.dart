@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/components/gradient_border.dart';
 
 class GradientButton extends StatelessWidget {

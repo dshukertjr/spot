@@ -2,12 +2,14 @@ name: CD_iOS
 
 on:
   push:
+    branches:
+      - main
     paths:
-        - "pubspec.yaml"
-        
+      - 'pubspec.yaml'
+
   pull_request:
     paths:
-        - "pubspec.yaml"
+      - 'pubspec.yaml'
 
 jobs:
   ios-build:

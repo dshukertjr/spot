@@ -1,3 +1,2 @@
-- Search tab now displays the recently posted videos
-- Video will display the location on lower left corner
-- Updated splash screen
+- First time users are no longer required to create an account
+- Significantly reduced the time until app open

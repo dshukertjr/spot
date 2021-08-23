@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:spot/app/constants.dart';
+import 'package:spot/pages/edit_profile_page.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
-import 'package:spot/pages/splash_page.dart';
 import 'package:spot/repositories/repository.dart';
 
 import '../components/app_scaffold.dart';
@@ -40,13 +40,13 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  late final _controller = AnimationController(
+  late final _purpleAnimationController = AnimationController(
     duration: const Duration(seconds: 2),
     vsync: this,
   )..forward();
 
   late final _curvedAnimation = CurvedAnimation(
-    parent: _controller,
+    parent: _purpleAnimationController,
     curve: Curves.easeOutCubic,
   );
 
@@ -81,120 +81,134 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned(
-            top: -53,
-            right: -47,
-            child: AnimatedBuilder(
-                animation: _controller,
-                child: Image.asset(
-                  'assets/images/purple-fog.png',
-                  height: 228,
-                ),
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _controller.value,
-                    child: child,
-                  );
-                }),
-          ),
-          Positioned(
-            top: 201,
-            left: 0,
-            child: AnimatedBuilder(
+      body: SafeArea(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              top: -53,
+              right: -47,
+              child: AnimatedBuilder(
+                  animation: _purpleAnimationController,
+                  child: Image.asset(
+                    'assets/images/purple-fog.png',
+                    height: 228,
+                  ),
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _purpleAnimationController.value,
+                      child: child,
+                    );
+                  }),
+            ),
+            Positioned(
+              top: 201,
+              left: 0,
+              child: AnimatedBuilder(
+                  animation: _curvedAnimation,
+                  child: Image.asset(
+                    'assets/images/blue-ellipse.png',
+                    height: 168,
+                  ),
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(-200 + 200 * _curvedAnimation.value, 0),
+                      child: child,
+                    );
+                  }),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              left: 37,
+              child: AnimatedBuilder(
                 animation: _curvedAnimation,
-                child: Image.asset(
-                  'assets/images/blue-ellipse.png',
-                  height: 168,
-                ),
+                child: Image.asset('assets/images/blue-blob.png'),
                 builder: (context, child) {
                   return Transform.translate(
-                    offset: Offset(-200 + 200 * _curvedAnimation.value, 0),
+                    offset: Offset(
+                      200 - 200 * _curvedAnimation.value,
+                      400 - 400 * _curvedAnimation.value,
+                    ),
                     child: child,
                   );
-                }),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            left: 37,
-            child: AnimatedBuilder(
-              animation: _curvedAnimation,
-              child: Image.asset('assets/images/blue-blob.png'),
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(
-                    200 - 200 * _curvedAnimation.value,
-                    400 - 400 * _curvedAnimation.value,
-                  ),
-                  child: child,
-                );
-              },
+                },
+              ),
             ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 46,
-            child: AnimatedBuilder(
-              animation: _delayedCurvedAnimation,
-              child: Image.asset('assets/images/yellow-blob.png'),
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(
-                    -300 + 300 * _delayedCurvedAnimation.value,
-                    400 - 400 * _curvedAnimation.value,
-                  ),
-                  child: child,
-                );
-              },
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: AnimatedBuilder(
-              animation: _moreDdelayedCurvedAnimation,
-              child: Image.asset('assets/images/red-blob.png'),
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(
-                    0,
-                    300 - 300 * _moreDdelayedCurvedAnimation.value,
-                  ),
-                  child: child,
-                );
-              },
-            ),
-          ),
-          FrostedDialog(
-            child: AnimatedOpacity(
-              duration: _dialogOpacityAnimationDuration,
-              opacity: _dialogOpacity,
-              child: _isLoading
-                  ? const SizedBox(
-                      height: 150,
-                      child: preloader,
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (currentDialogPage == DialogPage.termsOfService)
-                          ..._termsOfService(),
-                        if (currentDialogPage == DialogPage.loginOrSignup)
-                          ..._loginOrSignup(),
-                        if (currentDialogPage == DialogPage.login) ..._login(),
-                        if (currentDialogPage == DialogPage.signUp)
-                          ..._signUp(),
-                      ],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 46,
+              child: AnimatedBuilder(
+                animation: _delayedCurvedAnimation,
+                child: Image.asset('assets/images/yellow-blob.png'),
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(
+                      -300 + 300 * _delayedCurvedAnimation.value,
+                      400 - 400 * _curvedAnimation.value,
                     ),
+                    child: child,
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: AnimatedBuilder(
+                animation: _moreDdelayedCurvedAnimation,
+                child: Image.asset('assets/images/red-blob.png'),
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(
+                      0,
+                      300 - 300 * _moreDdelayedCurvedAnimation.value,
+                    ),
+                    child: child,
+                  );
+                },
+              ),
+            ),
+            FrostedDialog(
+              child: AnimatedOpacity(
+                duration: _dialogOpacityAnimationDuration,
+                opacity: _dialogOpacity,
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 150,
+                        child: preloader,
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (currentDialogPage == DialogPage.termsOfService)
+                            ..._termsOfService(),
+                          if (currentDialogPage == DialogPage.loginOrSignup)
+                            ..._loginOrSignup(),
+                          if (currentDialogPage == DialogPage.login)
+                            ..._login(),
+                          if (currentDialogPage == DialogPage.signUp)
+                            ..._signUp(),
+                        ],
+                      ),
+              ),
+            ),
+            Positioned(
+              top: 12,
+              left: 12,
+              child: IconButton(
+                color: Colors.white,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.close),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -208,7 +222,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _purpleAnimationController.dispose();
     _yellowBlobAnimationController.dispose();
     _redBlobAnimationController.dispose();
     _emailController.dispose();
@@ -228,6 +242,11 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   List<Widget> _termsOfService() {
     return [
+      const Text(
+        'Sign in to continue!',
+        style: TextStyle(fontSize: 24),
+      ),
+      const SizedBox(height: 8),
       SizedBox(
         height: 300,
         child: FutureBuilder(
@@ -270,7 +289,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       _LoginButton(
         label: 'Sign in',
         onPressed: () {
-          _fadeDialog(action: () {
+          _doSomethingWithinFadeDialog(action: () {
             setState(() {
               currentDialogPage = DialogPage.login;
             });
@@ -281,7 +300,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       _LoginButton(
         label: 'Create an Account',
         onPressed: () {
-          _fadeDialog(action: () {
+          _doSomethingWithinFadeDialog(action: () {
             setState(() {
               currentDialogPage = DialogPage.signUp;
             });
@@ -298,7 +317,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           IconButton(
             icon: const Icon(FeatherIcons.chevronLeft),
             onPressed: () {
-              _fadeDialog(action: () {
+              _doSomethingWithinFadeDialog(action: () {
                 setState(() {
                   currentDialogPage = DialogPage.loginOrSignup;
                 });
@@ -345,15 +364,21 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final persistSessionString =
-                await RepositoryProvider.of<Repository>(context).signIn(
-                    email: _emailController.text,
-                    password: _passwordController.text);
+            final repository = RepositoryProvider.of<Repository>(context);
+            final persistSessionString = await repository.signIn(
+                email: _emailController.text,
+                password: _passwordController.text);
             // Store current session
             await RepositoryProvider.of<Repository>(context)
                 .setSessionString(persistSessionString);
-
-            await Navigator.of(context).pushReplacement(SplashPage.route());
+            await repository.statusKnown.future;
+            final myProfile = repository.myProfile;
+            if (myProfile == null) {
+              await Navigator.of(context).pushReplacement(
+                  EditProfilePage.route(isCreatingAccount: true));
+            } else {
+              Navigator.of(context).pop();
+            }
           } on PlatformException catch (err) {
             setState(() {
               _isLoading = false;
@@ -378,7 +403,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           IconButton(
             icon: const Icon(FeatherIcons.chevronLeft),
             onPressed: () {
-              _fadeDialog(action: () {
+              _doSomethingWithinFadeDialog(action: () {
                 setState(() {
                   currentDialogPage = DialogPage.loginOrSignup;
                 });
@@ -434,7 +459,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             await RepositoryProvider.of<Repository>(context)
                 .setSessionString(persistSessionString);
 
-            await Navigator.of(context).pushReplacement(SplashPage.route());
+            await Navigator.of(context).pushReplacement(
+                EditProfilePage.route(isCreatingAccount: true));
           } on PlatformException catch (err) {
             setState(() {
               _isLoading = false;
@@ -462,7 +488,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _redBlobAnimationController..forward();
   }
 
-  Future<void> _fadeDialog({required void Function() action}) async {
+  Future<void> _doSomethingWithinFadeDialog(
+      {required void Function() action}) async {
     setState(() {
       _dialogOpacity = 0;
     });

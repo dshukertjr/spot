@@ -25,12 +25,17 @@ class Repository {
   Repository({
     required SupabaseClient supabaseClient,
     required FirebaseAnalytics analytics,
+    required FlutterSecureStorage localStorage,
   })  : _supabaseClient = supabaseClient,
-        _analytics = analytics;
+        _analytics = analytics,
+        _localStorage = localStorage {
+    setAuthListenner();
+  }
 
   final SupabaseClient _supabaseClient;
   final FirebaseAnalytics _analytics;
-  static const _localStorage = FlutterSecureStorage();
+  final FlutterSecureStorage _localStorage;
+  // static const _localStorage = FlutterSecureStorage();
   static const _persistantSessionKey = 'supabase_session';
   static const _termsOfServiceAgreementKey = 'agreed';
   static const _timestampOfLastSeenNotification =
@@ -65,8 +70,16 @@ class Repository {
 
   final _mentionSuggestionCache = <String, List<Profile>>{};
 
+  /// Return userId or null
   String? get userId => _supabaseClient.auth.currentUser?.id;
 
+  /// Completes when auth state and myProfile is loaded
+  Completer<void> statusKnown = Completer<void>();
+
+  /// The user's profile
+  Profile? get myProfile => profilesCache[userId ?? ''];
+
+  /// Whether the user has agreed to terms of service or not
   Future<bool> get hasAgreedToTermsOfService =>
       _localStorage.containsKey(key: _termsOfServiceAgreementKey);
 
@@ -78,6 +91,15 @@ class Repository {
 
   Future<void> deleteSession() =>
       _localStorage.delete(key: _persistantSessionKey);
+
+  void setAuthListenner() {
+    _supabaseClient.auth.onAuthStateChange((event, session) {
+      if (session?.user != null && !statusKnown.isCompleted) {
+        _getMyProfile();
+        getNotifications();
+      }
+    });
+  }
 
   Future<void> recoverSession() async {
     final jsonStr = await _localStorage.read(key: _persistantSessionKey);
@@ -97,6 +119,13 @@ class Repository {
       await deleteSession();
       return null;
     }
+    if (userId != null && !statusKnown.isCompleted) {
+      // ignore: unawaited_futures
+      _getMyProfile();
+      // ignore: unawaited_futures
+      getNotifications();
+    }
+
     await setSessionString(session.persistSessionString);
   }
 
@@ -129,22 +158,37 @@ class Repository {
     return res.data!.persistSessionString;
   }
 
-  Future<Profile?> getSelfProfile() {
+  Future<Profile?> _getMyProfile() async {
     final userId = this.userId;
     if (userId == null) {
       throw PlatformException(code: 'not signed in ', message: 'Not signed in');
     }
-    return getProfile(userId);
+    try {
+      await getProfile(userId);
+    } catch (e) {
+      print(e.toString());
+    }
+    statusKnown.complete();
   }
 
   Future<void> getVideosFromLocation(LatLng location) async {
-    final res = await _supabaseClient
-        .rpc('nearby_videos', params: {
-          'location': 'POINT(${location.longitude} ${location.latitude})',
-          'user_id': userId!,
-        })
-        .limit(5)
-        .execute();
+    late final PostgrestResponse res;
+    if (userId != null) {
+      res = await _supabaseClient
+          .rpc('nearby_videos', params: {
+            'location': 'POINT(${location.longitude} ${location.latitude})',
+            'user_id': userId!,
+          })
+          .limit(5)
+          .execute();
+    } else {
+      res = await _supabaseClient
+          .rpc('anonymous_nearby_videos', params: {
+            'location': 'POINT(${location.longitude} ${location.latitude})'
+          })
+          .limit(5)
+          .execute();
+    }
     final error = res.error;
     final data = res.data;
     if (error != null) {
@@ -160,13 +204,24 @@ class Repository {
   }
 
   Future<void> getVideosInBoundingBox(LatLngBounds bounds) async {
-    final res = await _supabaseClient.rpc('videos_in_bouding_box', params: {
-      'min_lng': '${bounds.southwest.longitude}',
-      'min_lat': '${bounds.southwest.latitude}',
-      'max_lng': '${bounds.northeast.longitude}',
-      'max_lat': '${bounds.northeast.latitude}',
-      'user_id': userId!,
-    }).execute();
+    late final PostgrestResponse res;
+    if (userId != null) {
+      res = await _supabaseClient.rpc('videos_in_bouding_box', params: {
+        'min_lng': '${bounds.southwest.longitude}',
+        'min_lat': '${bounds.southwest.latitude}',
+        'max_lng': '${bounds.northeast.longitude}',
+        'max_lat': '${bounds.northeast.latitude}',
+        'user_id': userId!,
+      }).execute();
+    } else {
+      res =
+          await _supabaseClient.rpc('anonymous_videos_in_bouding_box', params: {
+        'min_lng': '${bounds.southwest.longitude}',
+        'min_lat': '${bounds.southwest.latitude}',
+        'max_lng': '${bounds.northeast.longitude}',
+        'max_lat': '${bounds.northeast.latitude}',
+      }).execute();
+    }
     final error = res.error;
     final data = res.data;
     if (error != null) {
@@ -294,9 +349,15 @@ class Repository {
 
   Future<void> getVideoDetailStream(String videoId) async {
     _videoDetailStreamController.sink.add(null);
-    final userId = _supabaseClient.auth.currentUser!.id;
-    final res = await _supabaseClient.rpc('get_video_detail',
-        params: {'video_id': videoId, 'user_id': userId}).execute();
+    final userId = _supabaseClient.auth.currentUser?.id;
+    late final PostgrestResponse res;
+    if (userId != null) {
+      res = await _supabaseClient.rpc('get_video_detail',
+          params: {'video_id': videoId, 'user_id': userId}).execute();
+    } else {
+      res = await _supabaseClient.rpc('anonymous_get_video_detail',
+          params: {'video_id': videoId}).execute();
+    }
     final data = res.data;
     final error = res.error;
     if (error != null) {
@@ -444,11 +505,15 @@ class Repository {
   }
 
   Future<void> getNotifications() async {
-    final uid = _supabaseClient.auth.currentUser!.id;
+    if (userId == null) {
+      // If the user is not signed in, do not emit anything
+      return;
+    }
     final res = await _supabaseClient
         .from('notifications')
         .select()
-        .eq('receiver_user_id', uid)
+        .eq('receiver_user_id', userId)
+        .not('action_user_id', 'eq', userId)
         .order('created_at')
         .limit(50)
         .execute();
@@ -471,7 +536,7 @@ class Repository {
         createdAtOfLastSeenNotification: createdAtOfLastSeenNotification);
     _notificationsStreamController.sink.add(_notifications);
 
-    Future<AppNotification> replaceCommentTextWithMentionedUserName(
+    Future<AppNotification> _replaceCommentTextWithMentionedUserName(
       AppNotification notification,
     ) async {
       if (notification.commentText == null) {
@@ -483,7 +548,7 @@ class Repository {
     }
 
     _notifications = await Future.wait(
-        _notifications.map(replaceCommentTextWithMentionedUserName));
+        _notifications.map(_replaceCommentTextWithMentionedUserName));
     _notificationsStreamController.sink.add(_notifications);
   }
 

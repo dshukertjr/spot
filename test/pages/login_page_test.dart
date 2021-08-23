@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -124,11 +126,14 @@ void main() {
     });
 
     testWidgets(
-        'Login success will navigate to splash screen and EditProfilePage',
+        'Login success will navigate EditProfilePage before setting profile',
         (tester) async {
       final repository = MockRepository();
+      when(() => repository.userId).thenReturn('aaa');
+      when(() => repository.myProfile).thenReturn(null);
       when(() => repository.getProfile('aaa'))
-          .thenAnswer((_) => Future.value(null));
+          .thenAnswer((invocation) async => null);
+      when(() => repository.statusKnown).thenReturn(Completer()..complete());
       when(() => repository.hasAgreedToTermsOfService)
           .thenAnswer((_) => Future.value(true));
       when(() => repository.signIn(
@@ -136,9 +141,6 @@ void main() {
           password: 'securepassword')).thenAnswer((_) => Future.value(''));
       when(() => repository.setSessionString(''))
           .thenAnswer((invocation) => Future.value());
-      when(() => repository.userId).thenReturn('aaa');
-      when(repository.getSelfProfile)
-          .thenAnswer((invocation) => Future.value(null));
       when(() => repository.profileStream)
           .thenAnswer((invocation) => Stream.value({}));
       when(repository.recoverSession)
@@ -172,22 +174,21 @@ void main() {
       expect(find.byType(EditProfilePage), findsOneWidget);
     });
 
-    testWidgets(
-        'Register success will navigate to splash screen and EditProfilePage',
+    testWidgets('Register success will navigate to EditProfilePage',
         (tester) async {
       final repository = MockRepository();
+      when(() => repository.userId).thenReturn('aaa');
       when(() => repository.getProfile('aaa'))
           .thenAnswer((_) => Future.value(null));
       when(() => repository.hasAgreedToTermsOfService)
           .thenAnswer((_) => Future.value(true));
+      when(() => repository.statusKnown).thenReturn(Completer()..complete());
       when(() => repository.signUp(
           email: 'sample@spotvideo.app',
           password: 'securepassword')).thenAnswer((_) => Future.value(''));
       when(() => repository.setSessionString(''))
           .thenAnswer((invocation) => Future.value());
-      when(() => repository.userId).thenReturn('aaa');
-      when(repository.getSelfProfile)
-          .thenAnswer((invocation) => Future.value(null));
+      when(() => repository.myProfile).thenReturn(null);
       when(() => repository.profileStream)
           .thenAnswer((invocation) => Stream.value({}));
       when(repository.recoverSession)
@@ -233,8 +234,7 @@ void main() {
       when(() => repository.setSessionString(''))
           .thenAnswer((invocation) => Future.value());
       when(() => repository.userId).thenReturn('aaa');
-      when(repository.getSelfProfile)
-          .thenAnswer((invocation) => Future.value(null));
+      when(() => repository.myProfile).thenReturn(null);
       when(() => repository.profileStream)
           .thenAnswer((invocation) => Stream.value({}));
 
