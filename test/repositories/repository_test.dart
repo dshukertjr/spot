@@ -200,8 +200,7 @@ void main() {
             ..headers.contentType = ContentType.json
             ..write(jsonString)
             ..close();
-        } else if (url ==
-            '/rest/v1/notifications?select=%2A&receiver_user_id=eq.aaa&action_user_id=not.eq.aaa&order=%22created_at%22.desc.nullslast&limit=50') {
+        } else if (url.contains('notifications')) {
           final jsonString = jsonEncode([]);
           request.response
             ..statusCode = HttpStatus.ok
