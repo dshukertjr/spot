@@ -473,6 +473,39 @@ $func$
 $func$
 language sql;
 
+create or replace view liked_videos
+as
+    select
+        videos.id,
+        videos.user_id,
+        videos.created_at,
+        videos.url,
+        videos.image_url,
+        videos.thumbnail_url,
+        videos.gif_url,
+        videos.description,
+        likes.user_id as liked_by,
+        likes.created_at as liked_at
+    from videos
+    join likes on videos.id = likes.video_id;
+
+-- create a view for followed users
+create or replace function followers(my_user_id uuid, target_user_id uuid)
+returns table(id uuid, name text, description text, image_url text, is_following bool)
+as
+$func$
+    select
+        users.id,
+        users.name,
+        users.description,
+        users.image_url,
+        (select cast(case when EXISTS ( SELECT * FROM follow WHERE follow.followed_user_id = $2 and follow.following_user_id = $1 ) then true else false end as bool)) as is_following
+    from users
+    join follow on users.id = follow.following_user_id
+    where follow.followed_user_id = $2;
+$func$
+language sql;
+
 ```
 
 ---

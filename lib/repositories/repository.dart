@@ -259,11 +259,30 @@ class Repository {
         .order('created_at')
         .execute();
     final error = res.error;
-    final data = res.data;
     if (error != null) {
       throw PlatformException(code: 'getVideosFromUid error');
-    } else if (data == null) {
+    }
+    final data = res.data;
+    if (data == null) {
       throw PlatformException(code: 'getVideosFromUid error');
+    }
+    return Video.videosFromData(data: data, userId: userId);
+  }
+
+  Future<List<Video>> getLikedPostsFromUid(String uid) async {
+    final res = await _supabaseClient
+        .from('liked_videos')
+        .select()
+        .eq('liked_by', uid)
+        .order('liked_at')
+        .execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(code: 'getLikedPostsFromUid error');
+    }
+    final data = res.data;
+    if (data == null) {
+      throw PlatformException(code: 'getLikedPostsFromUid error');
     }
     return Video.videosFromData(data: data, userId: userId);
   }
@@ -443,7 +462,7 @@ class Repository {
         message: error.message,
       );
     }
-    profileDetailsCache[userId!]!
+    profileDetailsCache[userId!] = profileDetailsCache[userId!]!
         .copyWith(likeCount: profileDetailsCache[userId!]!.likeCount + 1);
     _profileStreamController.add(profileDetailsCache);
     await _analytics.logEvent(name: 'like_video', parameters: {
@@ -471,7 +490,7 @@ class Repository {
         message: error.message,
       );
     }
-    profileDetailsCache[userId!]!
+    profileDetailsCache[userId!] = profileDetailsCache[userId!]!
         .copyWith(likeCount: profileDetailsCache[userId!]!.likeCount - 1);
     _profileStreamController.add(profileDetailsCache);
     await _analytics.logEvent(name: 'unlike_video', parameters: {
@@ -914,7 +933,7 @@ class Repository {
       'following_user_id': userId,
       'followed_user_id': followedUid,
     }).execute();
-    profileDetailsCache[userId!]!
+    profileDetailsCache[userId!] = profileDetailsCache[userId!]!
         .copyWith(likeCount: profileDetailsCache[userId!]!.followingCount + 1);
     _profileStreamController.add(profileDetailsCache);
   }
@@ -934,7 +953,7 @@ class Repository {
         .eq('following_user_id', userId)
         .eq('followed_user_id', followedUid)
         .execute();
-    profileDetailsCache[userId!]!
+    profileDetailsCache[userId!] = profileDetailsCache[userId!]!
         .copyWith(likeCount: profileDetailsCache[userId!]!.followingCount - 1);
     _profileStreamController.add(profileDetailsCache);
   }
@@ -953,5 +972,28 @@ class Repository {
     } catch (e) {
       return 'Unknown';
     }
+  }
+
+  Future<List<Profile>> getFollowers(String uid) async {
+    late final PostgrestResponse res;
+    if (userId == null) {
+      res = await _supabaseClient.rpc('').execute();
+    } else {
+      // get followers of uid with is_following
+      res = await _supabaseClient.rpc('followers', params: {
+        'my_user_id': userId,
+        'target_user_id': uid,
+      }).execute();
+    }
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'getFollowers',
+        message: error.message,
+      );
+    }
+    final data = res.data! as List;
+    final profiles = Profile.fromList(List<Map<String, dynamic>>.from(data));
+    return profiles;
   }
 }

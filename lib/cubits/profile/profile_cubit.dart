@@ -21,6 +21,8 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   StreamSubscription<Map<String, Profile>>? _subscription;
 
+  List<Profile> _followerOrFollowingList = [];
+
   @override
   Future<void> close() {
     _subscription?.cancel();
@@ -87,10 +89,35 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   Future<void> follow(String followedUid) {
+    if (_followerOrFollowingList.isNotEmpty) {
+      // Update the follow state within _followerOrFollowingList
+      final index = _followerOrFollowingList
+          .indexWhere((profile) => profile.id == followedUid);
+      _followerOrFollowingList[index] =
+          _followerOrFollowingList[index].copyWith(isFollowing: true);
+      emit(FollowerOrFollowingLoaded(_followerOrFollowingList));
+    }
     return _repository.follow(followedUid);
   }
 
   Future<void> unfollow(String followedUid) {
+    if (_followerOrFollowingList.isNotEmpty) {
+      // Update the follow state within _followerOrFollowingList
+      final index = _followerOrFollowingList
+          .indexWhere((profile) => profile.id == followedUid);
+      _followerOrFollowingList[index] =
+          _followerOrFollowingList[index].copyWith(isFollowing: false);
+      emit(FollowerOrFollowingLoaded(_followerOrFollowingList));
+    }
     return _repository.unfollow(followedUid);
+  }
+
+  Future<void> loadFollowers(String uid) async {
+    try {
+      _followerOrFollowingList = await _repository.getFollowers(uid);
+      emit(FollowerOrFollowingLoaded(_followerOrFollowingList));
+    } catch (e) {
+      emit(ProfileError());
+    }
   }
 }
