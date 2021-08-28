@@ -32,6 +32,7 @@ void main() {
               description: 'description',
               userId: 'userId',
               location: const LatLng(45, 45),
+              isFollowing: false,
             ),
           ]);
 
@@ -67,6 +68,7 @@ void main() {
               description: 'description',
               userId: 'userId',
               location: const LatLng(45, 45),
+              isFollowing: false,
             ),
           ]);
 
@@ -81,6 +83,7 @@ void main() {
               description: 'description',
               userId: 'userId',
               location: const LatLng(45, 45),
+              isFollowing: false,
             ),
             Video(
               id: 'id',
@@ -92,6 +95,7 @@ void main() {
               description: 'description',
               userId: 'userId',
               location: const LatLng(45, 45),
+              isFollowing: false,
             ),
           ]);
 

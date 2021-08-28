@@ -400,6 +400,61 @@ alter table public.follow
     add constraint follow_validation
     check (following_user_id != followed_user_id);
 
+drop function public.nearby_videos(text, uuid);
+
+create or replace function public.nearby_videos(location text, user_id uuid)
+returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text, is_following bool)
+as
+$func$
+    select
+        videos.id,
+        videos.url,
+        videos.image_url,
+        videos.thumbnail_url,
+        videos.gif_url,
+        st_astext(videos.location) as location,
+        videos.created_at,
+        videos.description,
+        users.id as user_id,
+        users.name as user_name,
+        users.description as user_description,
+        users.image_url as user_image_url,
+        (select cast(case when EXISTS ( SELECT * FROM follow WHERE follow.followed_user_id = videos.user_id and follow.following_user_id = $2 ) then true else false end as bool)) as is_following
+    from videos
+        join users on videos.user_id = users.id
+        left join follow on videos.user_id = follow.followed_user_id
+    where users.id not in (select blocked_user_id from blocks where user_id = $2)
+    order by location <-> st_geogfromtext($1);
+$func$
+language sql;
+
+drop function videos_in_bouding_box(decimal, decimal, decimal, decimal, uuid);
+
+create or replace function videos_in_bouding_box(min_lng decimal, min_lat decimal, max_lng decimal, max_lat decimal, user_id uuid)
+returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text, is_following bool)
+as
+$func$
+    select
+        videos.id,
+        videos.url,
+        videos.image_url,
+        videos.thumbnail_url,
+        videos.gif_url,
+        st_astext(videos.location) as location,
+        videos.created_at,
+        videos.description,
+        users.id as user_id,
+        users.name as user_name,
+        users.description as user_description,
+        users.image_url as user_image_url,
+        (select cast(case when EXISTS ( SELECT * FROM follow WHERE follow.followed_user_id = videos.user_id and follow.following_user_id = $5 ) then true else false end as bool)) as is_following
+    from videos
+    join users on videos.user_id = users.id
+    where users.id not in (select blocked_user_id from blocks where user_id = user_id)
+    and location && ST_SetSRID(ST_MakeBox2D(ST_Point(min_lng, min_lat), ST_Point(max_lng, max_lat)),4326);
+$func$
+language sql;
+
 ```
 
 ---

@@ -30,6 +30,7 @@ Future<void> main() async {
           commentCount: 0,
           haveLiked: false,
           createdBy: sampleProfile,
+          isFollowing: false,
         ),
       ),
     );

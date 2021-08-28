@@ -12,6 +12,7 @@ class Video {
     required this.createdAt,
     required this.description,
     required this.userId,
+    required this.isFollowing,
     required this.location,
   });
 
@@ -23,6 +24,7 @@ class Video {
   final DateTime createdAt;
   final String description;
   final String userId;
+  final bool isFollowing;
   final LatLng? location;
 
   Future<double> getDistanceInMeter() async {
@@ -47,6 +49,7 @@ class Video {
       description: description,
       userId: creatorUid,
       location: location,
+      isFollowing: false,
       createdAt: DateTime.now(),
     );
   }
@@ -63,6 +66,7 @@ class Video {
       description: description,
       userId: userId,
       location: location,
+      isFollowing: false,
       createdAt: createdAt,
     );
   }
@@ -80,7 +84,10 @@ class Video {
     };
   }
 
-  static List<Video> videosFromData(List<dynamic> data) {
+  static List<Video> videosFromData({
+    required List<dynamic> data,
+    required String? userId,
+  }) {
     return data
         .map<Video>((row) => Video(
               id: row['id'] as String,
@@ -93,6 +100,9 @@ class Video {
               location: row['location'] == null
                   ? null
                   : _locationFromPoint(row['location'] as String),
+              isFollowing: (userId == row['user_id'])
+                  ? true
+                  : (row['is_following'] ?? false) as bool,
               createdAt: DateTime.parse(row['created_at'] as String),
             ))
         .toList();
@@ -116,6 +126,7 @@ class VideoDetail extends Video {
     required String description,
     required LatLng location,
     required String userId,
+    required bool isFollowing,
     required this.likeCount,
     required this.commentCount,
     required this.haveLiked,
@@ -130,6 +141,7 @@ class VideoDetail extends Video {
           createdAt: createdAt,
           userId: userId,
           description: description,
+          isFollowing: isFollowing,
           location: location,
         );
 
@@ -142,7 +154,10 @@ class VideoDetail extends Video {
   /// e.g. NewYork, USA
   final String? locationString;
 
-  static VideoDetail fromData(Map<String, dynamic> data) {
+  static VideoDetail fromData({
+    required Map<String, dynamic> data,
+    required String? userId,
+  }) {
     return VideoDetail(
       id: data['id'] as String,
       url: data['url'] as String,
@@ -151,12 +166,15 @@ class VideoDetail extends Video {
       gifUrl: data['gif_url'] as String,
       description: data['description'] as String,
       userId: data['user_id'] as String,
+      isFollowing: (userId == data['user_id'])
+          ? true
+          : (data['is_following'] ?? false) as bool,
       createdBy: Profile(
         id: data['user_id'] as String,
         name: data['user_name'] as String,
         imageUrl: data['user_image_url'] as String?,
         description: data['user_description'] as String?,
-        isFollowing: false,
+        isFollowing: (data['is_following'] ?? false) as bool,
       ),
       location: Video._locationFromPoint(data['location'] as String),
       createdAt: DateTime.parse(data['created_at'] as String),
@@ -193,6 +211,7 @@ class VideoDetail extends Video {
       gifUrl: gifUrl,
       id: id,
       userId: userId,
+      isFollowing: isFollowing,
       imageUrl: imageUrl,
       location: location!,
       thumbnailUrl: thumbnailUrl,

@@ -36,6 +36,7 @@ void main() {
                   description: 'description',
                   userId: 'userId',
                   location: const LatLng(0, 0),
+                  isFollowing: false,
                 )
               ]));
 
@@ -73,6 +74,7 @@ void main() {
                   description: 'description',
                   userId: 'userId',
                   location: const LatLng(0, 0),
+                  isFollowing: false,
                 )
               ]));
 

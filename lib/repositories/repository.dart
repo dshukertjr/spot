@@ -203,7 +203,7 @@ class Repository {
       throw PlatformException(code: 'getVideosFromLocation error null data');
     }
     final videoIds = _mapVideos.map((video) => video.id);
-    final newVideos = Video.videosFromData(data)
+    final newVideos = Video.videosFromData(data: data, userId: userId)
         .where((video) => !videoIds.contains(video.id));
     _mapVideos.addAll(newVideos);
     _mapVideosStreamConntroller.sink.add(_mapVideos);
@@ -236,7 +236,7 @@ class Repository {
       throw PlatformException(code: 'getVideosFromLocation error null data');
     }
     final videoIds = _mapVideos.map((video) => video.id);
-    final newVideos = Video.videosFromData(data)
+    final newVideos = Video.videosFromData(data: data, userId: userId)
         .where((video) => !videoIds.contains(video.id));
     _mapVideos.addAll(newVideos);
     _mapVideosStreamConntroller.sink.add(_mapVideos);
@@ -257,7 +257,7 @@ class Repository {
     } else if (data == null) {
       throw PlatformException(code: 'getVideosFromUid error');
     }
-    return Video.videosFromData(data);
+    return Video.videosFromData(data: data, userId: userId);
   }
 
   Future<Profile?> getProfile(String uid) async {
@@ -388,7 +388,8 @@ class Repository {
         message: 'No data found for this videoId',
       );
     }
-    var videoDetail = VideoDetail.fromData(Map.from(List.from(data).first));
+    var videoDetail = VideoDetail.fromData(
+        data: Map.from(List.from(data).first), userId: userId);
     if (videoDetail.location != null) {
       final locationString = await _locationToString(videoDetail.location!);
       videoDetail = videoDetail.copyWith(locationString: locationString);
@@ -653,7 +654,7 @@ class Repository {
     }
     final data = res.data as List;
     await _analytics.logSearch(searchTerm: queryString);
-    return Video.videosFromData(data);
+    return Video.videosFromData(data: data, userId: userId);
   }
 
   Future<VideoPlayerController> getVideoPlayerController(String url) async {
@@ -867,7 +868,7 @@ class Repository {
       throw PlatformException(
           code: 'NewVideos', message: 'Error loading new videos');
     }
-    final videos = Video.videosFromData(res.data!);
+    final videos = Video.videosFromData(data: res.data!, userId: userId);
     return videos;
   }
 

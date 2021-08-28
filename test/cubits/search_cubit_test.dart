@@ -49,6 +49,7 @@ Future<void> main() async {
                 description: 'description',
                 userId: 'userId',
                 location: const LatLng(0, 0),
+                isFollowing: false,
               )
             ]));
         return SearchCubit(repository: repository);

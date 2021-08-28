@@ -50,6 +50,7 @@ void main() {
                   commentCount: 0,
                   haveLiked: false,
                   createdBy: sampleProfile,
+                  isFollowing: false,
                 ),
               ));
 
@@ -69,6 +70,7 @@ void main() {
             commentCount: 0,
             haveLiked: false,
             createdBy: sampleProfile,
+            isFollowing: false,
           ),
         ),
       );
@@ -114,6 +116,7 @@ void main() {
                   commentCount: 0,
                   haveLiked: false,
                   createdBy: sampleProfile,
+                  isFollowing: false,
                 ),
               ));
 
@@ -133,6 +136,7 @@ void main() {
             commentCount: 0,
             haveLiked: false,
             createdBy: sampleProfile,
+            isFollowing: false,
           ),
         ),
       );
@@ -184,6 +188,7 @@ void main() {
                   commentCount: 0,
                   haveLiked: false,
                   createdBy: sampleProfile,
+                  isFollowing: false,
                 ),
               ));
 
@@ -203,6 +208,7 @@ void main() {
             commentCount: 0,
             haveLiked: false,
             createdBy: sampleProfile,
+            isFollowing: false,
           ),
         ),
       );
@@ -256,6 +262,7 @@ void main() {
                   commentCount: 0,
                   haveLiked: false,
                   createdBy: sampleProfile,
+                  isFollowing: false,
                 ),
               ));
 
@@ -275,6 +282,7 @@ void main() {
             commentCount: 0,
             haveLiked: false,
             createdBy: otherProfile,
+            isFollowing: false,
           ),
         ]),
       );
@@ -336,6 +344,7 @@ void main() {
                   commentCount: 0,
                   haveLiked: false,
                   createdBy: otherProfile,
+                  isFollowing: false,
                 ),
               ));
 
@@ -355,6 +364,7 @@ void main() {
             commentCount: 0,
             haveLiked: false,
             createdBy: otherProfile,
+            isFollowing: false,
           ),
         ]),
       );
@@ -417,6 +427,7 @@ void main() {
                   commentCount: 0,
                   haveLiked: true,
                   createdBy: otherProfile,
+                  isFollowing: false,
                 ),
               ));
 
@@ -436,6 +447,7 @@ void main() {
             commentCount: 0,
             haveLiked: true,
             createdBy: otherProfile,
+            isFollowing: false,
           ),
         ]),
       );
@@ -493,6 +505,7 @@ void main() {
                   commentCount: 0,
                   haveLiked: false,
                   createdBy: sampleProfile,
+                  isFollowing: false,
                 ),
               ));
 
@@ -512,6 +525,7 @@ void main() {
             commentCount: 0,
             haveLiked: false,
             createdBy: sampleProfile,
+            isFollowing: false,
           ),
         ),
       );
@@ -598,6 +612,7 @@ void main() {
           commentCount: 1,
           haveLiked: false,
           createdBy: sampleProfile,
+          isFollowing: false,
         ),
       ));
       registerFallbackValue<CommentState>(CommentInitial());
@@ -638,6 +653,7 @@ void main() {
               commentCount: 1,
               haveLiked: false,
               createdBy: sampleProfile,
+              isFollowing: false,
             ),
           ),
           VideoPlaying(
@@ -655,6 +671,7 @@ void main() {
               commentCount: 1,
               haveLiked: false,
               createdBy: sampleProfile,
+              isFollowing: false,
             ),
           ),
         ]),
@@ -673,6 +690,7 @@ void main() {
             commentCount: 1,
             haveLiked: false,
             createdBy: sampleProfile,
+            isFollowing: false,
           ),
         ),
       );
