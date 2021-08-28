@@ -455,6 +455,24 @@ $func$
 $func$
 language sql;
 
+create or replace function profile_detail(my_user_id uuid, target_user_id uuid)
+returns table(id uuid, name text, description text, image_url text, follower_count integer, following_count integer, like_count integer, is_following bool)
+as
+$func$
+    select
+        id,
+        name,
+        description,
+        image_url,
+        (select count(*) from follow where followed_user_id = $2) as follower_count,
+        (select count(*) from follow where following_user_id = $2) as following_count,
+        (select count(*) from likes join videos on videos.id = likes.video_id where videos.user_id = $2) as like_count,
+        (select cast(case when EXISTS ( SELECT * FROM follow WHERE follow.followed_user_id = $2 and follow.following_user_id = $1 ) then true else false end as bool)) as is_following
+    from users
+    where id = $2;
+$func$
+language sql;
+
 ```
 
 ---

@@ -11,7 +11,7 @@ class ProfileLoaded extends ProfileState {
     this.errorMessage,
   });
 
-  final Profile profile;
+  final ProfileDetail profile;
   final String? errorMessage;
 }
 

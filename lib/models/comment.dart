@@ -27,7 +27,6 @@ class Comment {
                 name: row['user_name'] as String,
                 description: row['user_description'] as String?,
                 imageUrl: row['user_image_url'] as String?,
-                isFollowing: false,
               ),
             ))
         .toList();

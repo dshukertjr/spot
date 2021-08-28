@@ -17,7 +17,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         super(ProfileLoading());
 
   final Repository _repository;
-  Profile? _profile;
+  ProfileDetail? _profile;
 
   StreamSubscription<Map<String, Profile>>? _subscription;
 
@@ -34,7 +34,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   Future<void> loadProfile(String uid) async {
     try {
-      await _repository.getProfile(uid);
+      await _repository.getProfileDetail(uid);
       _subscription = _repository.profileStream.listen((profiles) {
         _profile = profiles[uid];
         if (_profile == null) {
@@ -79,7 +79,6 @@ class ProfileCubit extends Cubit<ProfileState> {
         name: name,
         description: description,
         imageUrl: imageUrl,
-        isFollowing: false,
       ));
     } catch (err) {
       emit(ProfileError());

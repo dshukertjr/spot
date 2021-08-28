@@ -52,9 +52,10 @@ class Repository {
       _videoDetailStreamController.stream;
 
   @visibleForTesting
-  final Map<String, Profile> profilesCache = {};
-  final _profileStreamController = BehaviorSubject<Map<String, Profile>>();
-  Stream<Map<String, Profile>> get profileStream =>
+  final Map<String, ProfileDetail> profileDetailsCache = {};
+  final _profileStreamController =
+      BehaviorSubject<Map<String, ProfileDetail>>();
+  Stream<Map<String, ProfileDetail>> get profileStream =>
       _profileStreamController.stream;
 
   @visibleForTesting
@@ -77,7 +78,7 @@ class Repository {
   Completer<void> statusKnown = Completer<void>();
 
   /// The user's profile
-  Profile? get myProfile => profilesCache[userId ?? ''];
+  Profile? get myProfile => profileDetailsCache[userId ?? ''];
 
   /// Whether the user has agreed to terms of service or not
   Future<bool> get hasAgreedToTermsOfService =>
@@ -94,17 +95,17 @@ class Repository {
 
   /// Resets all cache upon identifying the user
   void _resetCache() {
-    _getMyProfile();
-    getNotifications();
-    profilesCache.clear();
-    _mapVideos.clear();
+    if (userId != null) {
+      _getMyProfile();
+      getNotifications();
+      profileDetailsCache.clear();
+      _mapVideos.clear();
+    }
   }
 
   void setAuthListenner() {
     _supabaseClient.auth.onAuthStateChange((event, session) {
-      if (session?.user != null && !statusKnown.isCompleted) {
-        _resetCache();
-      }
+      _resetCache();
     });
   }
 
@@ -112,6 +113,9 @@ class Repository {
     final jsonStr = await _localStorage.read(key: _persistantSessionKey);
     if (jsonStr == null) {
       await deleteSession();
+      if (!statusKnown.isCompleted) {
+        statusKnown.complete();
+      }
       return null;
     }
 
@@ -119,16 +123,20 @@ class Repository {
     final error = res.error;
     if (error != null) {
       await deleteSession();
+      if (!statusKnown.isCompleted) {
+        statusKnown.complete();
+      }
       throw PlatformException(code: 'login error', message: error.message);
     }
     final session = res.data;
     if (session == null) {
       await deleteSession();
+      if (!statusKnown.isCompleted) {
+        statusKnown.complete();
+      }
       return null;
     }
-    if (userId != null && !statusKnown.isCompleted) {
-      _resetCache();
-    }
+    _resetCache();
 
     await setSessionString(session.persistSessionString);
   }
@@ -168,7 +176,7 @@ class Repository {
       throw PlatformException(code: 'not signed in ', message: 'Not signed in');
     }
     try {
-      await getProfile(userId);
+      await getProfileDetail(userId);
     } catch (e) {
       print(e.toString());
     }
@@ -260,19 +268,17 @@ class Repository {
     return Video.videosFromData(data: data, userId: userId);
   }
 
-  Future<Profile?> getProfile(String uid) async {
-    final targetProfile = profilesCache[uid];
+  Future<Profile?> getProfileDetail(String uid) async {
+    final targetProfile = profileDetailsCache[uid];
     if (targetProfile != null) {
       return targetProfile;
     }
     late final PostgrestResponse res;
     if (userId != null) {
-      res = await _supabaseClient
-          .from('users')
-          .select('*, follow:fk_followed (*)')
-          .eq('id', uid)
-          .eq('follow.following_user_id', userId)
-          .execute();
+      res = await _supabaseClient.rpc('profile_detail', params: {
+        'my_user_id': userId!,
+        'target_user_id': uid,
+      }).execute();
     } else {
       res =
           await _supabaseClient.from('users').select().eq('id', uid).execute();
@@ -288,13 +294,14 @@ class Repository {
     final data = res.data as List;
 
     if (data.isEmpty) {
-      _profileStreamController.sink.add(profilesCache);
+      profileDetailsCache[userId!] = ProfileDetail.fromData(data[0]);
+      _profileStreamController.add(profileDetailsCache);
       return null;
     }
 
-    final profile = Profile.fromData(data[0]);
-    profilesCache[uid] = profile;
-    _profileStreamController.sink.add(profilesCache);
+    final profile = ProfileDetail.fromData(data[0]);
+    profileDetailsCache[uid] = profile;
+    _profileStreamController.sink.add(profileDetailsCache);
     return profile;
   }
 
@@ -315,10 +322,28 @@ class Repository {
         message: 'Error occured while saving profile',
       );
     }
-
-    final newProfile = Profile.fromData(data[0]);
-    profilesCache[profile.id] = newProfile;
-    _profileStreamController.sink.add(profilesCache);
+    late final ProfileDetail newProfile;
+    if (profileDetailsCache[userId!] != null) {
+      newProfile = profileDetailsCache[userId!]!.copyWith(
+        name: data['name'],
+        description: data['description'],
+        imageUrl: data['image_url'],
+      );
+    } else {
+      // When the user initially registered
+      newProfile = ProfileDetail(
+        id: userId!,
+        name: profile.name,
+        description: profile.description,
+        imageUrl: profile.imageUrl,
+        followerCount: 0,
+        followingCount: 0,
+        likeCount: 0,
+        isFollowing: true,
+      );
+    }
+    profileDetailsCache[userId!] = newProfile;
+    _profileStreamController.add(profileDetailsCache);
   }
 
   /// Uploads the video and returns the download URL
@@ -418,6 +443,9 @@ class Repository {
         message: error.message,
       );
     }
+    profileDetailsCache[userId!]!
+        .copyWith(likeCount: profileDetailsCache[userId!]!.likeCount + 1);
+    _profileStreamController.add(profileDetailsCache);
     await _analytics.logEvent(name: 'like_video', parameters: {
       'video_id': videoId,
     });
@@ -443,6 +471,9 @@ class Repository {
         message: error.message,
       );
     }
+    profileDetailsCache[userId!]!
+        .copyWith(likeCount: profileDetailsCache[userId!]!.likeCount - 1);
+    _profileStreamController.add(profileDetailsCache);
     await _analytics.logEvent(name: 'unlike_video', parameters: {
       'video_id': videoId,
     });
@@ -753,9 +784,6 @@ class Repository {
         .map<Profile>((row) => Profile.fromData(Map<String, dynamic>.from(row)))
         .toList();
     _mentionSuggestionCache[queryString] = profiles;
-    profilesCache.addEntries(profiles.map<MapEntry<String, Profile>>(
-        (profile) => MapEntry(profile.id, profile)));
-    _profileStreamController.sink.add(profilesCache);
     return profiles;
   }
 
@@ -765,8 +793,8 @@ class Repository {
         .where((word) => word.isNotEmpty && word[0] == '@')
         .map((word) => RegExp(r'^\w*').firstMatch(word.substring(1))!.group(0)!)
         .toList();
-    final userNameMap = <String, Profile>{}..addEntries(profilesCache.values
-        .map<MapEntry<String, Profile>>(
+    final userNameMap = <String, Profile>{}..addEntries(
+        profileDetailsCache.values.map<MapEntry<String, Profile>>(
             (profile) => MapEntry(profile.name, profile)));
     final mentionedProfiles = userNames
         .map<Profile?>((userName) => userNameMap[userName])
@@ -814,12 +842,13 @@ class Repository {
   Future<String> replaceMentionsWithUserNames(
     String comment,
   ) async {
-    await Future.wait(getUserIdsInComment(comment).map(getProfile).toList());
+    await Future.wait(
+        getUserIdsInComment(comment).map(getProfileDetail).toList());
     final regExp = RegExp(
         r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
     final replacedComment = comment.replaceAllMapped(regExp, (match) {
       final key = match.group(0)!.substring(1);
-      final name = profilesCache[key]?.name;
+      final name = profileDetailsCache[key]?.name;
 
       /// Return the original id if no profile was found with the id
       return '@${name ?? match.group(0)!.substring(1)}';
@@ -876,25 +905,28 @@ class Repository {
     if (userId == null) {
       return;
     }
-    if (profilesCache[followedUid] != null) {
-      profilesCache[followedUid] =
-          profilesCache[followedUid]!.copyWith(isFollowing: true);
-      _profileStreamController.add(profilesCache);
+    if (profileDetailsCache[followedUid] != null) {
+      profileDetailsCache[followedUid] =
+          profileDetailsCache[followedUid]!.copyWith(isFollowing: true);
+      _profileStreamController.add(profileDetailsCache);
     }
     await _supabaseClient.from('follow').insert({
       'following_user_id': userId,
       'followed_user_id': followedUid,
     }).execute();
+    profileDetailsCache[userId!]!
+        .copyWith(likeCount: profileDetailsCache[userId!]!.followingCount + 1);
+    _profileStreamController.add(profileDetailsCache);
   }
 
   Future<void> unfollow(String followedUid) async {
     if (userId == null) {
       return;
     }
-    if (profilesCache[followedUid] != null) {
-      profilesCache[followedUid] =
-          profilesCache[followedUid]!.copyWith(isFollowing: false);
-      _profileStreamController.add(profilesCache);
+    if (profileDetailsCache[followedUid] != null) {
+      profileDetailsCache[followedUid] =
+          profileDetailsCache[followedUid]!.copyWith(isFollowing: false);
+      _profileStreamController.add(profileDetailsCache);
     }
     await _supabaseClient
         .from('follow')
@@ -902,6 +934,9 @@ class Repository {
         .eq('following_user_id', userId)
         .eq('followed_user_id', followedUid)
         .execute();
+    profileDetailsCache[userId!]!
+        .copyWith(likeCount: profileDetailsCache[userId!]!.followingCount - 1);
+    _profileStreamController.add(profileDetailsCache);
   }
 
   Future<String> _locationToString(LatLng location) async {

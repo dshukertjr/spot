@@ -40,7 +40,7 @@ void main() {
     testWidgets('Agreeing to terms of service takes to loginorsignup dialog',
         (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa'))
+      when(() => repository.getProfileDetail('aaa'))
           .thenAnswer((_) => Future.value(null));
       when(() => repository.hasAgreedToTermsOfService)
           .thenAnswer((_) => Future.value(false));
@@ -71,7 +71,7 @@ void main() {
     testWidgets('Can go back and forth the signIn login dialog',
         (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa'))
+      when(() => repository.getProfileDetail('aaa'))
           .thenAnswer((_) => Future.value(null));
       when(() => repository.hasAgreedToTermsOfService)
           .thenAnswer((_) => Future.value(true));
@@ -131,7 +131,7 @@ void main() {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('aaa');
       when(() => repository.myProfile).thenReturn(null);
-      when(() => repository.getProfile('aaa'))
+      when(() => repository.getProfileDetail('aaa'))
           .thenAnswer((invocation) async => null);
       when(() => repository.statusKnown).thenReturn(Completer()..complete());
       when(() => repository.hasAgreedToTermsOfService)
@@ -178,7 +178,7 @@ void main() {
         (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.getProfile('aaa'))
+      when(() => repository.getProfileDetail('aaa'))
           .thenAnswer((_) => Future.value(null));
       when(() => repository.hasAgreedToTermsOfService)
           .thenAnswer((_) => Future.value(true));
@@ -224,7 +224,7 @@ void main() {
 
     testWidgets('Login fail will show error message', (tester) async {
       final repository = MockRepository();
-      when(() => repository.getProfile('aaa'))
+      when(() => repository.getProfileDetail('aaa'))
           .thenAnswer((_) => Future.value(null));
       when(() => repository.hasAgreedToTermsOfService)
           .thenAnswer((_) => Future.value(true));

@@ -722,8 +722,14 @@ void main() {
               )
             ],
             mentionSuggestions: [
-              Profile(id: 'aaa', name: 'Tyler', isFollowing: false),
-              Profile(id: 'bbb', name: 'Takahiro', isFollowing: false),
+              Profile(
+                id: 'aaa',
+                name: 'Tyler',
+              ),
+              Profile(
+                id: 'bbb',
+                name: 'Takahiro',
+              ),
             ],
             isLoadingMentions: false,
           ),

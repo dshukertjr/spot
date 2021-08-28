@@ -53,7 +53,7 @@ class CommentCubit extends Cubit<CommentState> {
   Future<void> postComment(String text) async {
     try {
       final userId = _repository.userId;
-      final user = await _repository.getProfile(userId!);
+      final user = await _repository.getProfileDetail(userId!);
       final comment = Comment(
         id: 'new',
         text: text,

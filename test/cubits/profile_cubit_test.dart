@@ -27,10 +27,10 @@ void main() {
       'Can load profile',
       build: () {
         final repository = MockRepository();
-        when(() => repository.getProfile('aaa'))
+        when(() => repository.getProfileDetail('aaa'))
             .thenAnswer((_) => Future.value(sampleProfile));
         when(() => repository.profileStream)
-            .thenAnswer((_) => Stream.value({'aaa': sampleProfile}));
+            .thenAnswer((_) => Stream.value({'aaa': sampleProfileDetail}));
         return ProfileCubit(repository: repository);
       },
       act: (cubit) async {
@@ -44,10 +44,10 @@ void main() {
       'Will emit profile not found when the target profile is missing',
       build: () {
         final repository = MockRepository();
-        when(() => repository.getProfile('aaa'))
+        when(() => repository.getProfileDetail('aaa'))
             .thenAnswer((_) => Future.value());
         when(() => repository.profileStream)
-            .thenAnswer((_) => Stream.value({'bbb': otherProfile}));
+            .thenAnswer((_) => Stream.value({'bbb': otherProfileDetail}));
         return ProfileCubit(repository: repository);
       },
       act: (cubit) async {
@@ -61,7 +61,7 @@ void main() {
       'Emits error when profile not found',
       build: () {
         final repository = MockRepository();
-        when(() => repository.getProfile('aaa'))
+        when(() => repository.getProfileDetail('aaa'))
             .thenThrow(PlatformException(code: ''));
         return ProfileCubit(repository: repository);
       },
@@ -86,7 +86,7 @@ void main() {
             .thenAnswer((_) => Future.value(sampleProfile));
         return ProfileCubit(repository: repository);
       },
-      seed: () => ProfileLoaded(sampleProfile),
+      seed: () => ProfileLoaded(sampleProfileDetail),
       act: (cubit) async {
         await cubit.saveProfile(name: '', description: '', imageFile: null);
       },
@@ -108,7 +108,7 @@ void main() {
             )).thenAnswer((invocation) => Future.value(''));
         return ProfileCubit(repository: repository);
       },
-      seed: () => ProfileLoaded(sampleProfile),
+      seed: () => ProfileLoaded(sampleProfileDetail),
       act: (cubit) async {
         await cubit.saveProfile(name: '', description: '', imageFile: testFile);
       },
@@ -123,7 +123,7 @@ void main() {
         when(() => repository.userId).thenReturn(null);
         return ProfileCubit(repository: repository);
       },
-      seed: () => ProfileLoaded(sampleProfile),
+      seed: () => ProfileLoaded(sampleProfileDetail),
       act: (cubit) async {
         await cubit.saveProfile(name: '', description: '', imageFile: null);
       },

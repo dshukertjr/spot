@@ -230,7 +230,7 @@ void main() {
         when(() => repository.myProfile).thenReturn(null);
         when(() => repository.profileStream)
             .thenAnswer((invocation) => Stream.value({}));
-        when(() => repository.getProfile('aaa'))
+        when(() => repository.getProfileDetail('aaa'))
             .thenAnswer((invocation) async => null);
         when(() => repository.hasAgreedToTermsOfService)
             .thenAnswer((invocation) async => true);
@@ -317,7 +317,7 @@ void main() {
         when(() => repository.mapVideosStream)
             .thenAnswer((_) => Stream.value([]));
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.getProfile('aaa'))
+        when(() => repository.getProfileDetail('aaa'))
             .thenAnswer((_) => Future.value(sampleProfile));
         when((() => repository.profileStream))
             .thenAnswer((_) => Stream.value({}));
@@ -383,7 +383,7 @@ void main() {
         when(() => repository.mapVideosStream)
             .thenAnswer((_) => Stream.value([]));
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.getProfile('aaa'))
+        when(() => repository.getProfileDetail('aaa'))
             .thenAnswer((_) => Future.value(sampleProfile));
         when((() => repository.profileStream))
             .thenAnswer((_) => Stream.value({}));
@@ -441,7 +441,7 @@ void main() {
         when(() => repository.mapVideosStream)
             .thenAnswer((_) => Stream.value([]));
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.getProfile('aaa'))
+        when(() => repository.getProfileDetail('aaa'))
             .thenAnswer((_) => Future.value(sampleProfile));
         when((() => repository.profileStream))
             .thenAnswer((_) => Stream.value({}));
@@ -503,7 +503,7 @@ void main() {
       when(() => repository.mapVideosStream)
           .thenAnswer((_) => Stream.value([]));
       when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.getProfile('aaa'))
+      when(() => repository.getProfileDetail('aaa'))
           .thenAnswer((_) => Future.value(sampleProfile));
       when((() => repository.profileStream))
           .thenAnswer((_) => Stream.value({}));
@@ -558,7 +558,7 @@ void main() {
       when(() => repository.mapVideosStream)
           .thenAnswer((_) => Stream.value([]));
       when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.getProfile('aaa'))
+      when(() => repository.getProfileDetail('aaa'))
           .thenAnswer((_) => Future.value(sampleProfile));
       when((() => repository.profileStream))
           .thenAnswer((_) => Stream.value({}));

@@ -29,12 +29,7 @@ class UserProfile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: MediaQuery.of(context).padding.top),
-          BlocProvider<ProfileCubit>(
-            create: (context) => ProfileCubit(
-              repository: RepositoryProvider.of<Repository>(context),
-            )..loadProfile(_userId),
-            child: const _Profile(),
-          ),
+          const _Profile(),
           BlocProvider<VideosCubit>(
             create: (context) => VideosCubit(
                 repository: RepositoryProvider.of<Repository>(context))
@@ -89,61 +84,72 @@ class _Profile extends StatelessWidget {
 
         /// Used to determine if the
         final userId = RepositoryProvider.of<Repository>(context).userId;
+        final verticalSpacing = const SizedBox(height: 24);
+
         return Padding(
           padding: const EdgeInsets.symmetric(
-            vertical: 31,
+            vertical: 12,
             horizontal: 19,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              ProfileImage(
+                size: 120,
+                imageUrl: profile.imageUrl,
+              ),
+              verticalSpacing,
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ProfileImage(
-                    size: 120,
-                    imageUrl: profile.imageUrl,
+                  _StatsText(
+                    onPressed: () {
+                      throw UnimplementedError();
+                    },
+                    number: profile.followerCount,
+                    label: 'Followers',
                   ),
-                  const SizedBox(width: 18),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          profile.name,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 17),
-                        if (userId == profile.id)
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              Navigator.of(context).push(EditProfilePage.route(
-                                  isCreatingAccount: false));
-                            },
-                            icon: const Icon(
-                              FeatherIcons.edit2,
-                              size: 18,
-                            ),
-                            label: const Text('Edit Profile'),
-                          )
-                        else
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: _followButton(
-                              profile: profile,
-                              context: context,
-                            ),
-                          ),
-                      ],
-                    ),
+                  _StatsText(
+                    onPressed: () {
+                      throw UnimplementedError();
+                    },
+                    number: profile.followingCount,
+                    label: 'Following',
+                  ),
+                  _StatsText(
+                    onPressed: () {
+                      throw UnimplementedError();
+                    },
+                    number: profile.likeCount,
+                    label: 'Likes',
                   ),
                 ],
               ),
+              verticalSpacing,
+              if (userId == profile.id)
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(EditProfilePage.route(isCreatingAccount: false));
+                  },
+                  icon: const Icon(
+                    FeatherIcons.edit2,
+                    size: 18,
+                  ),
+                  label: const Text('Edit Profile'),
+                )
+              else
+                _followButton(
+                  profile: profile,
+                  context: context,
+                ),
+              verticalSpacing,
               if (profile.description != null) ...[
                 const SizedBox(height: 16),
                 Text(profile.description!,
                     style: const TextStyle(fontSize: 16)),
-              ]
+                verticalSpacing,
+              ],
             ],
           ),
         );
@@ -158,7 +164,7 @@ class _Profile extends StatelessWidget {
   }
 
   Widget _followButton({
-    required Profile profile,
+    required ProfileDetail profile,
     required BuildContext context,
   }) {
     return GradientButton(
@@ -186,6 +192,48 @@ class _Profile extends StatelessWidget {
           const SizedBox(width: 8),
           Text(profile.isFollowing ? 'Following' : 'Follow'),
         ],
+      ),
+    );
+  }
+}
+
+class _StatsText extends StatelessWidget {
+  const _StatsText({
+    Key? key,
+    required this.label,
+    required this.number,
+    required this.onPressed,
+  }) : super(key: key);
+
+  final String label;
+  final int number;
+  final void Function() onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          children: [
+            Text(
+              '$number',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.white.withOpacity(0.6),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

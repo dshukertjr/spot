@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spot/components/user_profile.dart';
+import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/repositories/repository.dart';
 
 class ProfileTab extends StatelessWidget {
@@ -10,6 +11,11 @@ class ProfileTab extends StatelessWidget {
     if (userId == null) {
       return const Center(child: Text('Not signed in'));
     }
-    return UserProfile(userId: userId);
+    return BlocProvider<ProfileCubit>(
+      create: (context) => ProfileCubit(
+        repository: RepositoryProvider.of<Repository>(context),
+      )..loadProfile(userId),
+      child: UserProfile(userId: userId),
+    );
   }
 }

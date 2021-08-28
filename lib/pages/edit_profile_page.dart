@@ -58,6 +58,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             setState(() {
               _userNameController.text = profile.name;
               _descriptionController.text = profile.description ?? '';
+              _currentProfileImageUrl = profile.imageUrl;
             });
           }
         },

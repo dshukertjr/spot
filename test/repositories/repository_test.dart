@@ -330,7 +330,7 @@ void main() {
 
       await repository.signIn(email: '', password: '');
 
-      final profile = await repository.getProfile('aaa');
+      final profile = await repository.getProfileDetail('aaa');
 
       expect(profile!.id, 'aaa');
     });
@@ -361,9 +361,9 @@ void main() {
             analytics: analytics,
             localStorage: localStorage);
         final comment = 'Email me at sample@example.com';
-        repository.profilesCache.addAll({
-          sampleProfile.id: sampleProfile,
-          otherProfile.id: otherProfile,
+        repository.profileDetailsCache.addAll({
+          sampleProfileDetail.id: sampleProfileDetail,
+          otherProfileDetail.id: otherProfileDetail,
         });
         final profiles = repository.getMentionedProfiles(comment);
 
@@ -375,9 +375,9 @@ void main() {
             analytics: analytics,
             localStorage: localStorage);
         final comment = 'What do you think?';
-        repository.profilesCache.addAll({
-          sampleProfile.id: sampleProfile,
-          otherProfile.id: otherProfile,
+        repository.profileDetailsCache.addAll({
+          sampleProfileDetail.id: sampleProfileDetail,
+          otherProfileDetail.id: otherProfileDetail,
         });
         final profiles = repository.getMentionedProfiles(comment);
 
@@ -389,9 +389,9 @@ void main() {
             analytics: analytics,
             localStorage: localStorage);
         final comment = '@${sampleProfile.name} What do you think?';
-        repository.profilesCache.addAll({
-          sampleProfile.id: sampleProfile,
-          otherProfile.id: otherProfile,
+        repository.profileDetailsCache.addAll({
+          sampleProfileDetail.id: sampleProfileDetail,
+          otherProfileDetail.id: otherProfileDetail,
         });
         final profiles = repository.getMentionedProfiles(comment);
 
@@ -404,9 +404,9 @@ void main() {
             analytics: analytics,
             localStorage: localStorage);
         final comment = 'Hey @${sampleProfile.name} ! How are you?';
-        repository.profilesCache.addAll({
-          sampleProfile.id: sampleProfile,
-          otherProfile.id: otherProfile,
+        repository.profileDetailsCache.addAll({
+          sampleProfileDetail.id: sampleProfileDetail,
+          otherProfileDetail.id: otherProfileDetail,
         });
         final profiles = repository.getMentionedProfiles(comment);
 
@@ -419,9 +419,9 @@ void main() {
             analytics: analytics,
             localStorage: localStorage);
         final comment = 'What do you think @${sampleProfile.name}?';
-        repository.profilesCache.addAll({
-          sampleProfile.id: sampleProfile,
-          otherProfile.id: otherProfile,
+        repository.profileDetailsCache.addAll({
+          sampleProfileDetail.id: sampleProfileDetail,
+          otherProfileDetail.id: otherProfileDetail,
         });
 
         final profiles = repository.getMentionedProfiles(comment);
@@ -436,9 +436,9 @@ void main() {
             localStorage: localStorage);
         final comment =
             'What do you think @${sampleProfile.name}, @${otherProfile.name}?';
-        repository.profilesCache.addAll({
-          sampleProfile.id: sampleProfile,
-          otherProfile.id: otherProfile,
+        repository.profileDetailsCache.addAll({
+          sampleProfileDetail.id: sampleProfileDetail,
+          otherProfileDetail.id: otherProfileDetail,
         });
 
         final profiles = repository.getMentionedProfiles(comment);
@@ -454,17 +454,9 @@ void main() {
             analytics: analytics,
             localStorage: localStorage);
         final comment = 'What do you think @John Tyter?';
-        repository.profilesCache.addAll({
-          'aaa': Profile(
-            id: 'aaa',
-            name: 'John Tyter',
-            isFollowing: false,
-          ),
-          'bbb': Profile(
-            id: 'bbb',
-            name: 'Mary',
-            isFollowing: false,
-          ),
+        repository.profileDetailsCache.addAll({
+          sampleProfileDetail.id: sampleProfileDetail,
+          otherProfileDetail.id: otherProfileDetail,
         });
 
         final profiles = repository.getMentionedProfiles(comment);
