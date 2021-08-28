@@ -126,7 +126,16 @@ class _NotificationCell extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 8),
+            if (_notification.targetVideoThumbnail != null)
+              ClipRRect(
+                child: Image.network(
+                  _notification.targetVideoThumbnail!,
+                  width: 40,
+                  height: 40,
+                ),
+              ),
+            const SizedBox(width: 8),
             SizedBox(
               width: 24,
               height: 24,
