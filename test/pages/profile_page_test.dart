@@ -57,6 +57,7 @@ void main() {
       expect(find.byType(ProfileImage), findsOneWidget);
       expect(find.text('description'), findsOneWidget);
       expect(find.text('Edit Profile'), findsOneWidget);
+      expect(find.text('Follow'), findsOneWidget);
     });
 
     testWidgets('Renders someone else\'s profile correctly', (tester) async {
@@ -85,6 +86,7 @@ void main() {
       expect(find.byType(ProfileImage), findsOneWidget);
       expect(find.text('description'), findsOneWidget);
       expect(find.text('Edit Profile'), findsNothing);
+      expect(find.text('Follow'), findsNothing);
     });
   });
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,6 +26,8 @@ import '../helpers/helpers.dart';
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {
+  /// This will allow http request to be sent within test code
+  setUpAll(() => HttpOverrides.global = null);
   group('TabPage', () {
     group('signed in', () {
       late final Repository repository;
