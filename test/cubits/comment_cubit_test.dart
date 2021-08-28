@@ -2,9 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/cubits/comment/comment_cubit.dart';
 import 'package:spot/models/comment.dart';
-import 'package:spot/models/profile.dart';
 
 import '../helpers/pump_app.dart';
+import '../test_resources/constants.dart';
 
 void main() {
   group('Basic', () {
@@ -22,10 +22,7 @@ void main() {
                     text: 'This is a sample comment',
                     createdAt: DateTime.now(),
                     videoId: 'aaa',
-                    user: Profile(
-                      id: 'abc',
-                      name: 'Tyler',
-                    ),
+                    user: sampleProfile,
                   )
                 ],
               ]));

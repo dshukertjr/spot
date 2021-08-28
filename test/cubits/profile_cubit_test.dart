@@ -9,14 +9,12 @@ import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/models/profile.dart';
 
 import '../helpers/helpers.dart';
+import '../test_resources/constants.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   setUpAll(() {
-    registerFallbackValue<Profile>(Profile(
-      id: '',
-      name: '',
-    ));
+    registerFallbackValue<Profile>(sampleProfile);
   });
 
   test('Initial State', () {
@@ -30,9 +28,9 @@ void main() {
       build: () {
         final repository = MockRepository();
         when(() => repository.getProfile('aaa'))
-            .thenAnswer((_) => Future.value(Profile(id: 'aaa', name: '')));
-        when(() => repository.profileStream).thenAnswer(
-            (_) => Stream.value({'aaa': Profile(id: 'id', name: 'name')}));
+            .thenAnswer((_) => Future.value(sampleProfile));
+        when(() => repository.profileStream)
+            .thenAnswer((_) => Stream.value({'aaa': sampleProfile}));
         return ProfileCubit(repository: repository);
       },
       act: (cubit) async {
@@ -48,8 +46,8 @@ void main() {
         final repository = MockRepository();
         when(() => repository.getProfile('aaa'))
             .thenAnswer((_) => Future.value());
-        when(() => repository.profileStream).thenAnswer(
-            (_) => Stream.value({'bbb': Profile(id: 'id', name: 'name')}));
+        when(() => repository.profileStream)
+            .thenAnswer((_) => Stream.value({'bbb': otherProfile}));
         return ProfileCubit(repository: repository);
       },
       act: (cubit) async {
@@ -85,10 +83,10 @@ void main() {
         final repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
         when(() => repository.saveProfile(profile: any(named: 'profile')))
-            .thenAnswer((_) => Future.value(Profile(id: 'aaa', name: '')));
+            .thenAnswer((_) => Future.value(sampleProfile));
         return ProfileCubit(repository: repository);
       },
-      seed: () => ProfileLoaded(Profile(id: '', name: '')),
+      seed: () => ProfileLoaded(sampleProfile),
       act: (cubit) async {
         await cubit.saveProfile(name: '', description: '', imageFile: null);
       },
@@ -102,7 +100,7 @@ void main() {
         final repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
         when(() => repository.saveProfile(profile: any(named: 'profile')))
-            .thenAnswer((_) => Future.value(Profile(id: 'aaa', name: '')));
+            .thenAnswer((_) => Future.value(sampleProfile));
         when(() => repository.uploadFile(
               bucket: any(named: 'bucket'),
               path: any(named: 'path'),
@@ -110,7 +108,7 @@ void main() {
             )).thenAnswer((invocation) => Future.value(''));
         return ProfileCubit(repository: repository);
       },
-      seed: () => ProfileLoaded(Profile(id: '', name: '')),
+      seed: () => ProfileLoaded(sampleProfile),
       act: (cubit) async {
         await cubit.saveProfile(name: '', description: '', imageFile: testFile);
       },
@@ -125,7 +123,7 @@ void main() {
         when(() => repository.userId).thenReturn(null);
         return ProfileCubit(repository: repository);
       },
-      seed: () => ProfileLoaded(Profile(id: '', name: '')),
+      seed: () => ProfileLoaded(sampleProfile),
       act: (cubit) async {
         await cubit.saveProfile(name: '', description: '', imageFile: null);
       },

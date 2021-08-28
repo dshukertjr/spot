@@ -19,6 +19,7 @@ import 'package:spot/pages/view_video_page.dart';
 import 'package:video_player/video_player.dart';
 
 import '../helpers/helpers.dart';
+import '../test_resources/constants.dart';
 
 class MockVideoCubit extends MockCubit<VideoState> implements VideoCubit {}
 
@@ -48,7 +49,7 @@ void main() {
                   likeCount: 0,
                   commentCount: 0,
                   haveLiked: false,
-                  createdBy: Profile(id: 'aaa', name: 'name'),
+                  createdBy: sampleProfile,
                 ),
               ));
 
@@ -67,7 +68,7 @@ void main() {
             likeCount: 0,
             commentCount: 0,
             haveLiked: false,
-            createdBy: Profile(id: 'aaa', name: 'name'),
+            createdBy: sampleProfile,
           ),
         ),
       );
@@ -112,7 +113,7 @@ void main() {
                   likeCount: 0,
                   commentCount: 0,
                   haveLiked: false,
-                  createdBy: Profile(id: 'aaa', name: 'name'),
+                  createdBy: sampleProfile,
                 ),
               ));
 
@@ -131,7 +132,7 @@ void main() {
             likeCount: 0,
             commentCount: 0,
             haveLiked: false,
-            createdBy: Profile(id: 'aaa', name: 'name'),
+            createdBy: sampleProfile,
           ),
         ),
       );
@@ -182,7 +183,7 @@ void main() {
                   likeCount: 0,
                   commentCount: 0,
                   haveLiked: false,
-                  createdBy: Profile(id: 'myUserId', name: 'name'),
+                  createdBy: sampleProfile,
                 ),
               ));
 
@@ -201,7 +202,7 @@ void main() {
             likeCount: 0,
             commentCount: 0,
             haveLiked: false,
-            createdBy: Profile(id: 'myUserId', name: 'name'),
+            createdBy: sampleProfile,
           ),
         ),
       );
@@ -236,8 +237,7 @@ void main() {
       final repository = MockRepository();
       final statusKnown = Completer<void>();
       when(() => repository.userId).thenReturn('myUserId');
-      when(() => repository.myProfile)
-          .thenReturn(Profile(id: 'myUserId', name: 'myName'));
+      when(() => repository.myProfile).thenReturn(sampleProfile);
       when(() => repository.statusKnown).thenReturn(statusKnown);
       statusKnown.complete();
       when(() => repository.getVideoDetailStream('aaa'))
@@ -255,7 +255,7 @@ void main() {
                   likeCount: 0,
                   commentCount: 0,
                   haveLiked: false,
-                  createdBy: Profile(id: 'otherUser', name: 'name'),
+                  createdBy: sampleProfile,
                 ),
               ));
 
@@ -274,7 +274,7 @@ void main() {
             likeCount: 0,
             commentCount: 0,
             haveLiked: false,
-            createdBy: Profile(id: 'otherUser', name: 'name'),
+            createdBy: otherProfile,
           ),
         ]),
       );
@@ -335,7 +335,7 @@ void main() {
                   likeCount: 0,
                   commentCount: 0,
                   haveLiked: false,
-                  createdBy: Profile(id: 'otherUser', name: 'name'),
+                  createdBy: otherProfile,
                 ),
               ));
 
@@ -354,7 +354,7 @@ void main() {
             likeCount: 0,
             commentCount: 0,
             haveLiked: false,
-            createdBy: Profile(id: 'otherUser', name: 'name'),
+            createdBy: otherProfile,
           ),
         ]),
       );
@@ -398,8 +398,7 @@ void main() {
       final repository = MockRepository();
       final statusKnown = Completer<void>();
       when(() => repository.userId).thenReturn('myUserId');
-      when(() => repository.myProfile)
-          .thenReturn(Profile(id: 'myUserId', name: 'myName'));
+      when(() => repository.myProfile).thenReturn(sampleProfile);
       when(() => repository.statusKnown).thenReturn(statusKnown);
       statusKnown.complete();
       when(() => repository.getVideoDetailStream('aaa'))
@@ -417,7 +416,7 @@ void main() {
                   likeCount: 0,
                   commentCount: 0,
                   haveLiked: true,
-                  createdBy: Profile(id: 'otherUser', name: 'name'),
+                  createdBy: otherProfile,
                 ),
               ));
 
@@ -436,7 +435,7 @@ void main() {
             likeCount: 0,
             commentCount: 0,
             haveLiked: true,
-            createdBy: Profile(id: 'otherUser', name: 'name'),
+            createdBy: otherProfile,
           ),
         ]),
       );
@@ -493,7 +492,7 @@ void main() {
                   likeCount: 0,
                   commentCount: 0,
                   haveLiked: false,
-                  createdBy: Profile(id: 'aaa', name: 'name'),
+                  createdBy: sampleProfile,
                 ),
               ));
 
@@ -512,7 +511,7 @@ void main() {
             likeCount: 0,
             commentCount: 0,
             haveLiked: false,
-            createdBy: Profile(id: 'aaa', name: 'name'),
+            createdBy: sampleProfile,
           ),
         ),
       );
@@ -532,7 +531,7 @@ void main() {
                   text: 'sample comment',
                   createdAt: DateTime.now(),
                   videoId: 'aaa',
-                  user: Profile(id: 'id', name: 'name'),
+                  user: sampleProfile,
                 ),
               ]));
 
@@ -598,7 +597,7 @@ void main() {
           likeCount: 1,
           commentCount: 1,
           haveLiked: false,
-          createdBy: Profile(id: 'id', name: 'name'),
+          createdBy: sampleProfile,
         ),
       ));
       registerFallbackValue<CommentState>(CommentInitial());
@@ -638,7 +637,7 @@ void main() {
               likeCount: 1,
               commentCount: 1,
               haveLiked: false,
-              createdBy: Profile(id: 'id', name: 'name'),
+              createdBy: sampleProfile,
             ),
           ),
           VideoPlaying(
@@ -655,7 +654,7 @@ void main() {
               likeCount: 1,
               commentCount: 1,
               haveLiked: false,
-              createdBy: Profile(id: 'id', name: 'name'),
+              createdBy: sampleProfile,
             ),
           ),
         ]),
@@ -673,7 +672,7 @@ void main() {
             likeCount: 1,
             commentCount: 1,
             haveLiked: false,
-            createdBy: Profile(id: 'id', name: 'name'),
+            createdBy: sampleProfile,
           ),
         ),
       );
@@ -688,7 +687,7 @@ void main() {
                 text: 'text',
                 createdAt: DateTime.now(),
                 videoId: 'videoId',
-                user: Profile(id: 'id', name: 'name'),
+                user: sampleProfile,
               )
             ],
             mentionSuggestions: [],
@@ -701,12 +700,12 @@ void main() {
                 text: 'text',
                 createdAt: DateTime.now(),
                 videoId: 'videoId',
-                user: Profile(id: 'id', name: 'name'),
+                user: sampleProfile,
               )
             ],
             mentionSuggestions: [
-              Profile(id: 'aaa', name: 'Tyler'),
-              Profile(id: 'bbb', name: 'Takahiro'),
+              Profile(id: 'aaa', name: 'Tyler', isFollowing: false),
+              Profile(id: 'bbb', name: 'Takahiro', isFollowing: false),
             ],
             isLoadingMentions: false,
           ),

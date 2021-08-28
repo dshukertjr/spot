@@ -10,6 +10,8 @@ import 'package:spot/models/profile.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';
 
+import '../test_resources/constants.dart';
+
 // ignore_for_file: unawaited_futures
 
 class MockSupabaseClient extends Mock implements SupabaseClient {}
@@ -96,7 +98,8 @@ void main() {
             ..headers.contentType = ContentType.json
             ..write(jsonString)
             ..close();
-        } else if (url == '/rest/v1/users?select=%2A&id=eq.aaa') {
+        } else if (url ==
+            '/rest/v1/users?select=%2A%2Cfollow%3Afk_followed%28%2A%29&id=eq.aaa&follow.following_user_id=eq.aaa') {
           final jsonString = jsonEncode([
             {
               'id': 'aaa',
@@ -340,7 +343,7 @@ void main() {
 
       await repository.signIn(email: '', password: '');
 
-      await repository.saveProfile(profile: Profile(id: 'aaa', name: 'new'));
+      await repository.saveProfile(profile: sampleProfile);
 
       repository.profileStream.listen(
         expectAsync1(
@@ -359,14 +362,8 @@ void main() {
             localStorage: localStorage);
         final comment = 'Email me at sample@example.com';
         repository.profilesCache.addAll({
-          'aaa': Profile(
-            id: 'aaa',
-            name: 'John',
-          ),
-          'bbb': Profile(
-            id: 'bbb',
-            name: 'Mary',
-          ),
+          sampleProfile.id: sampleProfile,
+          otherProfile.id: otherProfile,
         });
         final profiles = repository.getMentionedProfiles(comment);
 
@@ -379,14 +376,8 @@ void main() {
             localStorage: localStorage);
         final comment = 'What do you think?';
         repository.profilesCache.addAll({
-          'aaa': Profile(
-            id: 'aaa',
-            name: 'John',
-          ),
-          'bbb': Profile(
-            id: 'bbb',
-            name: 'Mary',
-          ),
+          sampleProfile.id: sampleProfile,
+          otherProfile.id: otherProfile,
         });
         final profiles = repository.getMentionedProfiles(comment);
 
@@ -397,16 +388,10 @@ void main() {
             supabaseClient: supabaseClient,
             analytics: analytics,
             localStorage: localStorage);
-        final comment = '@John What do you think?';
+        final comment = '@${sampleProfile.name} What do you think?';
         repository.profilesCache.addAll({
-          'aaa': Profile(
-            id: 'aaa',
-            name: 'John',
-          ),
-          'bbb': Profile(
-            id: 'bbb',
-            name: 'Mary',
-          ),
+          sampleProfile.id: sampleProfile,
+          otherProfile.id: otherProfile,
         });
         final profiles = repository.getMentionedProfiles(comment);
 
@@ -418,16 +403,10 @@ void main() {
             supabaseClient: supabaseClient,
             analytics: analytics,
             localStorage: localStorage);
-        final comment = 'Hey @John ! How are you?';
+        final comment = 'Hey @${sampleProfile.name} ! How are you?';
         repository.profilesCache.addAll({
-          'aaa': Profile(
-            id: 'aaa',
-            name: 'John',
-          ),
-          'bbb': Profile(
-            id: 'bbb',
-            name: 'Mary',
-          ),
+          sampleProfile.id: sampleProfile,
+          otherProfile.id: otherProfile,
         });
         final profiles = repository.getMentionedProfiles(comment);
 
@@ -439,16 +418,10 @@ void main() {
             supabaseClient: supabaseClient,
             analytics: analytics,
             localStorage: localStorage);
-        final comment = 'What do you think @John?';
+        final comment = 'What do you think @${sampleProfile.name}?';
         repository.profilesCache.addAll({
-          'aaa': Profile(
-            id: 'aaa',
-            name: 'John',
-          ),
-          'bbb': Profile(
-            id: 'bbb',
-            name: 'Mary',
-          ),
+          sampleProfile.id: sampleProfile,
+          otherProfile.id: otherProfile,
         });
 
         final profiles = repository.getMentionedProfiles(comment);
@@ -461,16 +434,11 @@ void main() {
             supabaseClient: supabaseClient,
             analytics: analytics,
             localStorage: localStorage);
-        final comment = 'What do you think @John, @Mary?';
+        final comment =
+            'What do you think @${sampleProfile.name}, @${otherProfile.name}?';
         repository.profilesCache.addAll({
-          'aaa': Profile(
-            id: 'aaa',
-            name: 'John',
-          ),
-          'bbb': Profile(
-            id: 'bbb',
-            name: 'Mary',
-          ),
+          sampleProfile.id: sampleProfile,
+          otherProfile.id: otherProfile,
         });
 
         final profiles = repository.getMentionedProfiles(comment);
@@ -490,10 +458,12 @@ void main() {
           'aaa': Profile(
             id: 'aaa',
             name: 'John Tyter',
+            isFollowing: false,
           ),
           'bbb': Profile(
             id: 'bbb',
             name: 'Mary',
+            isFollowing: false,
           ),
         });
 
@@ -520,68 +490,66 @@ void main() {
     });
 
     test('user mentioned at the beginning', () {
-      final comment = '@test';
+      final comment = '@${sampleProfile.name}';
       final replacedComment = repository.replaceMentionsInAComment(
         comment: comment,
         mentions: [
-          Profile(id: 'aaa', name: 'test'),
+          sampleProfile,
         ],
       );
-      expect(replacedComment, '@aaa');
+      expect(replacedComment, '@${sampleProfile.id}');
     });
     test('user mentioned multiple times', () {
-      final comment = '@test @test';
+      final comment = '@${sampleProfile.name} @${sampleProfile.name}';
       final replacedComment = repository.replaceMentionsInAComment(
         comment: comment,
-        mentions: [
-          Profile(id: 'aaa', name: 'test'),
-        ],
+        mentions: [sampleProfile],
       );
-      expect(replacedComment, '@aaa @aaa');
+      expect(replacedComment, '@${sampleProfile.id} @${sampleProfile.id}');
     });
     test('multiple user mentions', () {
-      final comment = '@test @some';
+      final comment = '@${sampleProfile.name} @${otherProfile.name}';
       final replacedComment = repository.replaceMentionsInAComment(
         comment: comment,
         mentions: [
-          Profile(id: 'aaa', name: 'test'),
-          Profile(id: 'bbb', name: 'some'),
+          sampleProfile,
+          otherProfile,
         ],
       );
-      expect(replacedComment, '@aaa @bbb');
+      expect(replacedComment, '@${sampleProfile.id} @${otherProfile.id}');
     });
     test('there can be multiple mentions', () {
-      final comment = '@test @some';
+      final comment = '@${sampleProfile.name} @${otherProfile.name}';
       final replacedComment = repository.replaceMentionsInAComment(
         comment: comment,
         mentions: [
-          Profile(id: 'aaa', name: 'test'),
-          Profile(id: 'bbb', name: 'some'),
+          sampleProfile,
+          otherProfile,
         ],
       );
-      expect(replacedComment, '@aaa @bbb');
+      expect(replacedComment, '@${sampleProfile.id} @${otherProfile.id}');
     });
 
     test('mention can be in a sentence', () {
-      final comment = 'some comment @test more words';
+      final comment = 'some comment @${sampleProfile.name} more words';
       final replacedComment = repository.replaceMentionsInAComment(
         comment: comment,
         mentions: [
-          Profile(id: 'aaa', name: 'test'),
+          sampleProfile,
         ],
       );
-      expect(replacedComment, 'some comment @aaa more words');
+      expect(replacedComment, 'some comment @${sampleProfile.id} more words');
     });
 
     test('multiple user mentions', () {
-      final comment = 'some comment @test';
+      final comment = 'some comment @${sampleProfile.name}';
       final replacedComment = repository.replaceMentionsInAComment(
         comment: comment,
         mentions: [
-          Profile(id: 'aaa', name: 'test'),
+          sampleProfile,
         ],
       );
-      expect(replacedComment, 'some comment @aaa');
+      expect(replacedComment, 'some comment @${sampleProfile.id}');
     });
   });
 

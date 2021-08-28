@@ -116,7 +116,7 @@ create table if not exists public.follow (
     following_user_id uuid references public.users on delete cascade not null,
     followed_user_id uuid references public.users on delete cascade not null,
     followed_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    primary key (following_user_id, followed_user_id)
+    primary key (following_user_id, followed_user_id),
 );
 comment on table public.follow is 'Creates follow follower relationships.';
 
@@ -384,6 +384,22 @@ create policy "uid has to be the first element in path_tokens" on storage.object
 -- Needed to use extensions from the app
 grant usage on schema extensions to anon;
 grant usage on schema extensions to authenticated;
+
+-- Migrations
+
+-- 2020/08/28
+alter table public.follow
+    add constraint fk_following
+    foreign key(following_user_id)
+    references users(id);
+alter table public.follow
+    add constraint fk_followed
+    foreign key(followed_user_id)
+    references users(id);
+alter table public.follow
+    add constraint follow_validation
+    check (following_user_id != followed_user_id);
+
 ```
 
 ---

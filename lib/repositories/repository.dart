@@ -92,11 +92,18 @@ class Repository {
   Future<void> deleteSession() =>
       _localStorage.delete(key: _persistantSessionKey);
 
+  /// Resets all cache upon identifying the user
+  void _resetCache() {
+    _getMyProfile();
+    getNotifications();
+    profilesCache.clear();
+    _mapVideos.clear();
+  }
+
   void setAuthListenner() {
     _supabaseClient.auth.onAuthStateChange((event, session) {
       if (session?.user != null && !statusKnown.isCompleted) {
-        _getMyProfile();
-        getNotifications();
+        _resetCache();
       }
     });
   }
@@ -120,10 +127,7 @@ class Repository {
       return null;
     }
     if (userId != null && !statusKnown.isCompleted) {
-      // ignore: unawaited_futures
-      _getMyProfile();
-      // ignore: unawaited_futures
-      getNotifications();
+      _resetCache();
     }
 
     await setSessionString(session.persistSessionString);
@@ -168,7 +172,9 @@ class Repository {
     } catch (e) {
       print(e.toString());
     }
-    statusKnown.complete();
+    if (!statusKnown.isCompleted) {
+      statusKnown.complete();
+    }
   }
 
   Future<void> getVideosFromLocation(LatLng location) async {
@@ -259,9 +265,19 @@ class Repository {
     if (targetProfile != null) {
       return targetProfile;
     }
-    final res =
-        await _supabaseClient.from('users').select().eq('id', uid).execute();
-    final data = res.data as List;
+    late final PostgrestResponse res;
+    if (userId != null) {
+      res = await _supabaseClient
+          .from('users')
+          .select('*, follow:fk_followed (*)')
+          .eq('id', uid)
+          .eq('follow.following_user_id', userId)
+          .execute();
+    } else {
+      res =
+          await _supabaseClient.from('users').select().eq('id', uid).execute();
+    }
+
     final error = res.error;
     if (error != null) {
       throw PlatformException(
@@ -269,6 +285,7 @@ class Repository {
         message: error.message,
       );
     }
+    final data = res.data as List;
 
     if (data.isEmpty) {
       _profileStreamController.sink.add(profilesCache);
@@ -852,6 +869,38 @@ class Repository {
     }
     final videos = Video.videosFromData(res.data!);
     return videos;
+  }
+
+  Future<void> follow(String followedUid) async {
+    if (userId == null) {
+      return;
+    }
+    if (profilesCache[followedUid] != null) {
+      profilesCache[followedUid] =
+          profilesCache[followedUid]!.copyWith(isFollowing: true);
+      _profileStreamController.add(profilesCache);
+    }
+    await _supabaseClient.from('follow').insert({
+      'following_user_id': userId,
+      'followed_user_id': followedUid,
+    }).execute();
+  }
+
+  Future<void> unfollow(String followedUid) async {
+    if (userId == null) {
+      return;
+    }
+    if (profilesCache[followedUid] != null) {
+      profilesCache[followedUid] =
+          profilesCache[followedUid]!.copyWith(isFollowing: false);
+      _profileStreamController.add(profilesCache);
+    }
+    await _supabaseClient
+        .from('follow')
+        .delete()
+        .eq('following_user_id', userId)
+        .eq('followed_user_id', followedUid)
+        .execute();
   }
 
   Future<String> _locationToString(LatLng location) async {

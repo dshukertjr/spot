@@ -79,10 +79,19 @@ class ProfileCubit extends Cubit<ProfileState> {
         name: name,
         description: description,
         imageUrl: imageUrl,
+        isFollowing: false,
       ));
     } catch (err) {
       emit(ProfileError());
       rethrow;
     }
+  }
+
+  Future<void> follow(String followedUid) {
+    return _repository.follow(followedUid);
+  }
+
+  Future<void> unfollow(String followedUid) {
+    return _repository.unfollow(followedUid);
   }
 }

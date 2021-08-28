@@ -3,11 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
-import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:video_player/video_player.dart';
 
 import '../helpers/helpers.dart';
+import '../test_resources/constants.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,10 +29,7 @@ Future<void> main() async {
           likeCount: 0,
           commentCount: 0,
           haveLiked: false,
-          createdBy: Profile(
-            id: 'abc',
-            name: 'test',
-          ),
+          createdBy: sampleProfile,
         ),
       ),
     );

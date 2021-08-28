@@ -156,6 +156,7 @@ class VideoDetail extends Video {
         name: data['user_name'] as String,
         imageUrl: data['user_image_url'] as String?,
         description: data['user_description'] as String?,
+        isFollowing: false,
       ),
       location: Video._locationFromPoint(data['location'] as String),
       createdAt: DateTime.parse(data['created_at'] as String),
