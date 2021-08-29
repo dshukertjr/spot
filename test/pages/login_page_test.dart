@@ -134,6 +134,7 @@ void main() {
       when(() => repository.getProfileDetail('aaa'))
           .thenAnswer((invocation) async => null);
       when(() => repository.statusKnown).thenReturn(Completer()..complete());
+      when(() => repository.uidKnown).thenReturn(Completer()..complete());
       when(() => repository.hasAgreedToTermsOfService)
           .thenAnswer((_) => Future.value(true));
       when(() => repository.signIn(
@@ -168,7 +169,8 @@ void main() {
           find.widgetWithIcon(TextFormField, FeatherIcons.lock),
           'securepassword');
 
-      await tester.tap(find.widgetWithText(GradientButton, 'Sign in'));
+      await tester.runAsync(
+          () => tester.tap(find.widgetWithText(GradientButton, 'Sign in')));
       await tester.pumpAndSettle();
 
       expect(find.byType(EditProfilePage), findsOneWidget);

@@ -369,9 +369,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 email: _emailController.text,
                 password: _passwordController.text);
             // Store current session
-            await RepositoryProvider.of<Repository>(context)
-                .setSessionString(persistSessionString);
-            await repository.statusKnown.future;
+            await repository.setSessionString(persistSessionString);
+            await repository.uidKnown.future;
             final myProfile = repository.myProfile;
             if (myProfile == null) {
               await Navigator.of(context).pushReplacement(

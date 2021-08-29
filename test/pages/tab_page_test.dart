@@ -122,7 +122,7 @@ void main() {
           repository: repository,
         );
 
-        await tester.runAsync(() async => await tester.tap(find.ancestor(
+        await tester.runAsync(() => tester.tap(find.ancestor(
             of: find.text('Notifications'),
             matching: find.byType(InkResponse))));
         expect(
@@ -154,6 +154,7 @@ void main() {
       setUpAll(() {
         repository = MockRepository();
         when(() => repository.userId).thenReturn(null);
+        when(() => repository.statusKnown).thenReturn(Completer()..complete());
         when(() => repository.hasAgreedToTermsOfService)
             .thenAnswer((invocation) async => true);
       });
@@ -170,12 +171,12 @@ void main() {
           ),
           repository: repository,
         );
-        await tester.tap(
-          find.ancestor(
-            of: find.text('Notifications'),
-            matching: find.byType(InkResponse),
-          ),
-        );
+        await tester.runAsync(() async => await tester.tap(
+              find.ancestor(
+                of: find.text('Notifications'),
+                matching: find.byType(InkResponse),
+              ),
+            ));
         await tester.pumpAndSettle();
         expect(find.byType(LoginPage), findsOneWidget);
       });
@@ -192,12 +193,12 @@ void main() {
           ),
           repository: repository,
         );
-        await tester.tap(
-          find.ancestor(
-            of: find.text('Profile'),
-            matching: find.byType(InkResponse),
-          ),
-        );
+        await tester.runAsync(() async => await tester.tap(
+              find.ancestor(
+                of: find.text('Profile'),
+                matching: find.byType(InkResponse),
+              ),
+            ));
         await tester.pumpAndSettle();
         expect(find.byType(LoginPage), findsOneWidget);
       });
@@ -215,7 +216,8 @@ void main() {
           ),
           repository: repository,
         );
-        await tester.tap(find.byType(RecordButton));
+        await tester
+            .runAsync(() async => await tester.tap(find.byType(RecordButton)));
         await tester.pumpAndSettle();
         expect(find.byType(LoginPage), findsOneWidget);
       });

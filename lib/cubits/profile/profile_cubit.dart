@@ -112,9 +112,16 @@ class ProfileCubit extends Cubit<ProfileState> {
     return _repository.unfollow(followedUid);
   }
 
-  Future<void> loadFollowers(String uid) async {
+  Future<void> loadFollowersOrFllowings({
+    required String uid,
+    required bool isLoadingFollowers,
+  }) async {
     try {
-      _followerOrFollowingList = await _repository.getFollowers(uid);
+      if (isLoadingFollowers) {
+        _followerOrFollowingList = await _repository.getFollowers(uid);
+      } else {
+        _followerOrFollowingList = await _repository.getFollowings(uid);
+      }
       emit(FollowerOrFollowingLoaded(_followerOrFollowingList));
     } catch (e) {
       emit(ProfileError());

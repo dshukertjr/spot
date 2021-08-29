@@ -74,8 +74,11 @@ class Repository {
   /// Return userId or null
   String? get userId => _supabaseClient.auth.currentUser?.id;
 
-  /// Completes when auth state and myProfile is loaded
+  /// Completes when auth state is known
   Completer<void> statusKnown = Completer<void>();
+
+  /// Completes when userId is known
+  Completer<void> uidKnown = Completer<void>();
 
   /// The user's profile
   Profile? get myProfile => profileDetailsCache[userId ?? ''];
@@ -96,7 +99,10 @@ class Repository {
   /// Resets all cache upon identifying the user
   void _resetCache() {
     if (userId != null) {
-      _getMyProfile();
+      if (!uidKnown.isCompleted) {
+        uidKnown.complete();
+      }
+      getMyProfile();
       getNotifications();
       profileDetailsCache.clear();
       _mapVideos.clear();
@@ -170,7 +176,7 @@ class Repository {
     return res.data!.persistSessionString;
   }
 
-  Future<Profile?> _getMyProfile() async {
+  Future<Profile?> getMyProfile() async {
     final userId = this.userId;
     if (userId == null) {
       throw PlatformException(code: 'not signed in ', message: 'Not signed in');
@@ -344,9 +350,9 @@ class Repository {
     late final ProfileDetail newProfile;
     if (profileDetailsCache[userId!] != null) {
       newProfile = profileDetailsCache[userId!]!.copyWith(
-        name: data['name'],
-        description: data['description'],
-        imageUrl: data['image_url'],
+        name: profile.name,
+        description: profile.description,
+        imageUrl: profile.imageUrl,
       );
     } else {
       // When the user initially registered
@@ -445,7 +451,8 @@ class Repository {
     });
   }
 
-  Future<void> like(String videoId) async {
+  Future<void> like(Video video) async {
+    final videoId = video.id;
     final currentVideoDetail = _videoDetails[videoId]!;
     _videoDetails[videoId] = currentVideoDetail.copyWith(
         likeCount: (currentVideoDetail.likeCount + 1), haveLiked: true);
@@ -462,15 +469,20 @@ class Repository {
         message: error.message,
       );
     }
-    profileDetailsCache[userId!] = profileDetailsCache[userId!]!
-        .copyWith(likeCount: profileDetailsCache[userId!]!.likeCount + 1);
-    _profileStreamController.add(profileDetailsCache);
+    if (profileDetailsCache[video.userId] != null) {
+      // Increment the like count of liked user by 1
+      profileDetailsCache[userId!] = profileDetailsCache[video.userId]!
+          .copyWith(
+              likeCount: profileDetailsCache[video.userId]!.likeCount + 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
     await _analytics.logEvent(name: 'like_video', parameters: {
       'video_id': videoId,
     });
   }
 
-  Future<void> unlike(String videoId) async {
+  Future<void> unlike(Video video) async {
+    final videoId = video.id;
     final currentVideoDetail = _videoDetails[videoId]!;
     _videoDetails[videoId] = currentVideoDetail.copyWith(
         likeCount: (currentVideoDetail.likeCount - 1), haveLiked: false);
@@ -490,9 +502,13 @@ class Repository {
         message: error.message,
       );
     }
-    profileDetailsCache[userId!] = profileDetailsCache[userId!]!
-        .copyWith(likeCount: profileDetailsCache[userId!]!.likeCount - 1);
-    _profileStreamController.add(profileDetailsCache);
+    if (profileDetailsCache[video.userId] != null) {
+      // Decrement the like count of liked user by 1
+      profileDetailsCache[userId!] = profileDetailsCache[video.userId]!
+          .copyWith(
+              likeCount: profileDetailsCache[video.userId]!.likeCount + 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
     await _analytics.logEvent(name: 'unlike_video', parameters: {
       'video_id': videoId,
     });
@@ -933,9 +949,18 @@ class Repository {
       'following_user_id': userId,
       'followed_user_id': followedUid,
     }).execute();
-    profileDetailsCache[userId!] = profileDetailsCache[userId!]!
-        .copyWith(likeCount: profileDetailsCache[userId!]!.followingCount + 1);
-    _profileStreamController.add(profileDetailsCache);
+    if (profileDetailsCache[userId!] != null) {
+      profileDetailsCache[userId!] = profileDetailsCache[userId!]!.copyWith(
+          followingCount: profileDetailsCache[userId!]!.followingCount + 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
+    if (profileDetailsCache[followedUid] != null) {
+      profileDetailsCache[followedUid] = profileDetailsCache[followedUid]!
+          .copyWith(
+              followerCount:
+                  profileDetailsCache[followedUid]!.followerCount + 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
   }
 
   Future<void> unfollow(String followedUid) async {
@@ -953,9 +978,18 @@ class Repository {
         .eq('following_user_id', userId)
         .eq('followed_user_id', followedUid)
         .execute();
-    profileDetailsCache[userId!] = profileDetailsCache[userId!]!
-        .copyWith(likeCount: profileDetailsCache[userId!]!.followingCount - 1);
-    _profileStreamController.add(profileDetailsCache);
+    if (profileDetailsCache[userId!] != null) {
+      profileDetailsCache[userId!] = profileDetailsCache[userId!]!.copyWith(
+          followingCount: profileDetailsCache[userId!]!.followingCount - 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
+    if (profileDetailsCache[followedUid] != null) {
+      profileDetailsCache[followedUid] = profileDetailsCache[followedUid]!
+          .copyWith(
+              followerCount:
+                  profileDetailsCache[followedUid]!.followerCount - 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
   }
 
   Future<String> _locationToString(LatLng location) async {
@@ -989,6 +1023,29 @@ class Repository {
     if (error != null) {
       throw PlatformException(
         code: error.code ?? 'getFollowers',
+        message: error.message,
+      );
+    }
+    final data = res.data! as List;
+    final profiles = Profile.fromList(List<Map<String, dynamic>>.from(data));
+    return profiles;
+  }
+
+  Future<List<Profile>> getFollowings(String uid) async {
+    late final PostgrestResponse res;
+    if (userId == null) {
+      res = await _supabaseClient.rpc('').execute();
+    } else {
+      // get followers of uid with is_following
+      res = await _supabaseClient.rpc('followings', params: {
+        'my_user_id': userId,
+        'target_user_id': uid,
+      }).execute();
+    }
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'getFollowings',
         message: error.message,
       );
     }

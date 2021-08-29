@@ -84,7 +84,6 @@ class _Profile extends StatelessWidget {
         /// Used to determine if the
         final isMyProfile =
             RepositoryProvider.of<Repository>(context).userId == profile.id;
-        final verticalSpacing = const SizedBox(height: 24);
 
         return Padding(
           padding: const EdgeInsets.symmetric(
@@ -92,61 +91,84 @@ class _Profile extends StatelessWidget {
             horizontal: 19,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ProfileImage(
-                size: 120,
-                imageUrl: profile.imageUrl,
-              ),
-              verticalSpacing,
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _StatsText(
-                    onPressed: () {
-                      Navigator.of(context).push(FollowsPage.route(
-                        uid: profile.id,
-                        isDisplayingFollowers: true,
-                      ));
-                    },
-                    number: profile.followerCount,
-                    label: 'Followers',
+                  ProfileImage(
+                    size: 120,
+                    imageUrl: profile.imageUrl,
                   ),
-                  _StatsText(
-                    onPressed: () {
-                      throw UnimplementedError();
-                    },
-                    number: profile.followingCount,
-                    label: 'Following',
-                  ),
-                  _StatsText(
-                    number: profile.likeCount,
-                    label: 'Likes',
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            _StatsText(
+                              onPressed: () {
+                                Navigator.of(context).push(FollowsPage.route(
+                                  uid: profile.id,
+                                  isDisplayingFollowers: true,
+                                ));
+                              },
+                              number: profile.followerCount,
+                              label: 'Followers',
+                            ),
+                            const SizedBox(width: 8),
+                            _StatsText(
+                              onPressed: () {
+                                Navigator.of(context).push(FollowsPage.route(
+                                  uid: profile.id,
+                                  isDisplayingFollowers: false,
+                                ));
+                              },
+                              number: profile.followingCount,
+                              label: 'Following',
+                            ),
+                            const SizedBox(width: 8),
+                            _StatsText(
+                              number: profile.likeCount,
+                              label: 'Likes',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        if (isMyProfile)
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(
+                                  width: 1.0, color: Colors.white),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).push(EditProfilePage.route(
+                                  isCreatingAccount: false));
+                            },
+                            icon: const Icon(
+                              FeatherIcons.edit2,
+                              size: 16,
+                            ),
+                            label: const Text('Edit Profile'),
+                          )
+                        else
+                          FollowButton(profile: profile),
+                      ],
+                    ),
                   ),
                 ],
               ),
-              verticalSpacing,
-              if (isMyProfile)
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context)
-                        .push(EditProfilePage.route(isCreatingAccount: false));
-                  },
-                  icon: const Icon(
-                    FeatherIcons.edit2,
-                    size: 18,
-                  ),
-                  label: const Text('Edit Profile'),
-                )
-              else
-                FollowButton(profile: profile),
-              verticalSpacing,
+              const SizedBox(height: 16),
+              Text(
+                profile.name,
+                style: const TextStyle(fontSize: 22),
+              ),
               if (profile.description != null) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Text(profile.description!,
                     style: const TextStyle(fontSize: 16)),
-                verticalSpacing,
               ],
+              const SizedBox(height: 24)
             ],
           ),
         );
@@ -175,10 +197,9 @@ class _StatsText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+    return Expanded(
+      child: InkWell(
+        onTap: onPressed,
         child: Column(
           children: [
             Text(

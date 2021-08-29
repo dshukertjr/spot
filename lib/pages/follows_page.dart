@@ -26,7 +26,10 @@ class FollowsPage extends StatelessWidget {
       builder: (context) => BlocProvider(
         create: (context) => ProfileCubit(
           repository: RepositoryProvider.of<Repository>(context),
-        )..loadFollowers(uid),
+        )..loadFollowersOrFllowings(
+            uid: uid,
+            isLoadingFollowers: isDisplayingFollowers,
+          ),
         child: FollowsPage(
           isDisplayingFollowers: isDisplayingFollowers,
         ),

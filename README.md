@@ -499,10 +499,28 @@ $func$
         users.name,
         users.description,
         users.image_url,
-        (select cast(case when EXISTS ( SELECT * FROM follow WHERE follow.followed_user_id = $2 and follow.following_user_id = $1 ) then true else false end as bool)) as is_following
+        (select cast(case when EXISTS ( SELECT * FROM follow WHERE followed_user_id = p_follow.following_user_id and following_user_id = $1 ) then true else false end as bool)) as is_following
     from users
-    join follow on users.id = follow.following_user_id
-    where follow.followed_user_id = $2;
+    join follow p_follow on users.id = p_follow.following_user_id
+    where p_follow.followed_user_id = $2
+    order by p_follow.followed_at desc;
+$func$
+language sql;
+
+create or replace function followings(my_user_id uuid, target_user_id uuid)
+returns table(id uuid, name text, description text, image_url text, is_following bool)
+as
+$func$
+    select
+        users.id,
+        users.name,
+        users.description,
+        users.image_url,
+        (select cast(case when EXISTS ( SELECT * FROM follow WHERE followed_user_id = p_follow.followed_user_id and following_user_id = $1 ) then true else false end as bool)) as is_following
+    from users
+    join follow p_follow on users.id = p_follow.followed_user_id
+    where p_follow.following_user_id = $2
+    order by p_follow.followed_at desc;
 $func$
 language sql;
 

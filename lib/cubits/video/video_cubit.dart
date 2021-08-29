@@ -60,7 +60,7 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> like() {
     try {
-      return _repository.like(_videoId);
+      return _repository.like(_videoDetail!);
     } catch (err) {
       emit(VideoError(message: 'Error liking the video'));
       return Future.error(err);
@@ -69,7 +69,7 @@ class VideoCubit extends Cubit<VideoState> {
 
   Future<void> unlike() {
     try {
-      return _repository.unlike(_videoId);
+      return _repository.unlike(_videoDetail!);
     } catch (err) {
       emit(VideoError(message: 'Error unliking the video.'));
       return Future.error(err);

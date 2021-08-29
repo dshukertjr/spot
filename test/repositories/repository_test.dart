@@ -112,6 +112,19 @@ void main() {
             ..headers.contentType = ContentType.json
             ..write(jsonString)
             ..close();
+        } else if (url == '/rest/v1/rpc/profile_detail') {
+          final jsonString = jsonEncode([
+            {
+              'id': 'aaa',
+              'name': 'tyler',
+              'description': 'Hi',
+            },
+          ]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
         } else if (url == '/rest/v1/rpc/nearby_videos?limit=5') {
           final jsonString = jsonEncode([
             {
@@ -348,7 +361,7 @@ void main() {
       repository.profileStream.listen(
         expectAsync1(
           (profiles) {
-            expect(profiles['aaa']!.name, 'new');
+            expect(profiles[sampleProfile.id]!.name, sampleProfile.name);
           },
         ),
       );
