@@ -83,7 +83,7 @@ class ProfileDetail extends Profile {
       followerCount: (data['follower_count'] ?? 0) as int,
       followingCount: (data['following_count'] ?? 0) as int,
       likeCount: (data['like_count'] ?? 0) as int,
-      isFollowing: ((data['follow'] ?? []) as List).isNotEmpty,
+      isFollowing: (data['is_following'] ?? false) as bool,
     );
   }
 

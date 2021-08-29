@@ -296,21 +296,15 @@ class Repository {
     return Video.videosFromData(data: data, userId: userId);
   }
 
-  Future<Profile?> getProfileDetail(String uid) async {
-    final targetProfile = profileDetailsCache[uid];
-    if (targetProfile != null) {
-      return targetProfile;
+  Future<Profile?> getProfileDetail(String targetUid) async {
+    if (profileDetailsCache[targetUid] != null) {
+      return profileDetailsCache[targetUid];
     }
     late final PostgrestResponse res;
-    if (userId != null) {
-      res = await _supabaseClient.rpc('profile_detail', params: {
-        'my_user_id': userId!,
-        'target_user_id': uid,
-      }).execute();
-    } else {
-      res =
-          await _supabaseClient.from('users').select().eq('id', uid).execute();
-    }
+    res = await _supabaseClient.rpc('profile_detail', params: {
+      'my_user_id': userId ?? _anonymousUUID,
+      'target_user_id': targetUid,
+    }).execute();
 
     final error = res.error;
     if (error != null) {
@@ -322,13 +316,13 @@ class Repository {
     final data = res.data as List;
 
     if (data.isEmpty) {
-      profileDetailsCache[userId!] = ProfileDetail.fromData(data[0]);
-      _profileStreamController.add(profileDetailsCache);
-      return null;
+      throw PlatformException(
+          code: error?.code ?? 'No User',
+          message: error?.message ?? 'Could not find the user. ');
     }
 
     final profile = ProfileDetail.fromData(data[0]);
-    profileDetailsCache[uid] = profile;
+    profileDetailsCache[targetUid] = profile;
     _profileStreamController.sink.add(profileDetailsCache);
     return profile;
   }

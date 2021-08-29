@@ -34,11 +34,11 @@ class ProfileCubit extends Cubit<ProfileState> {
     await loadProfile(uid);
   }
 
-  Future<void> loadProfile(String uid) async {
+  Future<void> loadProfile(String targetUid) async {
     try {
-      await _repository.getProfileDetail(uid);
+      await _repository.getProfileDetail(targetUid);
       _subscription = _repository.profileStream.listen((profiles) {
-        _profile = profiles[uid];
+        _profile = profiles[targetUid];
         if (_profile == null) {
           emit(ProfileNotFound());
         } else {

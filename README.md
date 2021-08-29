@@ -456,7 +456,7 @@ $func$
 language sql;
 
 create or replace function profile_detail(my_user_id uuid, target_user_id uuid)
-returns table(id uuid, name text, description text, image_url text, follower_count integer, following_count integer, like_count integer, is_following bool)
+returns table(id uuid, name text, description text, image_url text, follower_count bigint, following_count bigint, like_count bigint, is_following bool)
 as
 $func$
     select
