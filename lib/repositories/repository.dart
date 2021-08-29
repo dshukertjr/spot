@@ -41,6 +41,9 @@ class Repository {
   static const _timestampOfLastSeenNotification =
       'timestampOfLastSeenNotification';
 
+  /// Used as a placeholder for myUserId when loading data that requires myUserID but not signed in
+  static const _anonymousUUID = '00000000-0000-0000-0000-000000000000';
+
   // Local Cache
   final List<Video> _mapVideos = [];
   final _mapVideosStreamConntroller = BehaviorSubject<List<Video>>();
@@ -458,6 +461,14 @@ class Repository {
         likeCount: (currentVideoDetail.likeCount + 1), haveLiked: true);
     _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
 
+    if (profileDetailsCache[video.userId] != null) {
+      // Increment the like count of liked user by 1
+      profileDetailsCache[video.userId] = profileDetailsCache[video.userId]!
+          .copyWith(
+              likeCount: profileDetailsCache[video.userId]!.likeCount + 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
+
     final uid = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient.from('likes').insert([
       VideoDetail.like(videoId: videoId, uid: uid),
@@ -468,13 +479,6 @@ class Repository {
         code: error.code ?? 'Like Video',
         message: error.message,
       );
-    }
-    if (profileDetailsCache[video.userId] != null) {
-      // Increment the like count of liked user by 1
-      profileDetailsCache[userId!] = profileDetailsCache[video.userId]!
-          .copyWith(
-              likeCount: profileDetailsCache[video.userId]!.likeCount + 1);
-      _profileStreamController.add(profileDetailsCache);
     }
     await _analytics.logEvent(name: 'like_video', parameters: {
       'video_id': videoId,
@@ -487,6 +491,14 @@ class Repository {
     _videoDetails[videoId] = currentVideoDetail.copyWith(
         likeCount: (currentVideoDetail.likeCount - 1), haveLiked: false);
     _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
+
+    if (profileDetailsCache[video.userId] != null) {
+      // Decrement the like count of liked user by 1
+      profileDetailsCache[video.userId] = profileDetailsCache[video.userId]!
+          .copyWith(
+              likeCount: profileDetailsCache[video.userId]!.likeCount - 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
 
     final uid = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient
@@ -502,13 +514,7 @@ class Repository {
         message: error.message,
       );
     }
-    if (profileDetailsCache[video.userId] != null) {
-      // Decrement the like count of liked user by 1
-      profileDetailsCache[userId!] = profileDetailsCache[video.userId]!
-          .copyWith(
-              likeCount: profileDetailsCache[video.userId]!.likeCount + 1);
-      _profileStreamController.add(profileDetailsCache);
-    }
+
     await _analytics.logEvent(name: 'unlike_video', parameters: {
       'video_id': videoId,
     });
@@ -943,24 +949,24 @@ class Repository {
     if (profileDetailsCache[followedUid] != null) {
       profileDetailsCache[followedUid] =
           profileDetailsCache[followedUid]!.copyWith(isFollowing: true);
-      _profileStreamController.add(profileDetailsCache);
     }
-    await _supabaseClient.from('follow').insert({
-      'following_user_id': userId,
-      'followed_user_id': followedUid,
-    }).execute();
     if (profileDetailsCache[userId!] != null) {
+      // Update your own follow count
       profileDetailsCache[userId!] = profileDetailsCache[userId!]!.copyWith(
           followingCount: profileDetailsCache[userId!]!.followingCount + 1);
-      _profileStreamController.add(profileDetailsCache);
     }
     if (profileDetailsCache[followedUid] != null) {
+      // Update the follow count of the user who have been followed
       profileDetailsCache[followedUid] = profileDetailsCache[followedUid]!
           .copyWith(
               followerCount:
                   profileDetailsCache[followedUid]!.followerCount + 1);
-      _profileStreamController.add(profileDetailsCache);
     }
+    _profileStreamController.add(profileDetailsCache);
+    await _supabaseClient.from('follow').insert({
+      'following_user_id': userId,
+      'followed_user_id': followedUid,
+    }).execute();
   }
 
   Future<void> unfollow(String followedUid) async {
@@ -970,26 +976,26 @@ class Repository {
     if (profileDetailsCache[followedUid] != null) {
       profileDetailsCache[followedUid] =
           profileDetailsCache[followedUid]!.copyWith(isFollowing: false);
-      _profileStreamController.add(profileDetailsCache);
     }
+    if (profileDetailsCache[userId!] != null) {
+      // Update the user's follow count
+      profileDetailsCache[userId!] = profileDetailsCache[userId!]!.copyWith(
+          followingCount: profileDetailsCache[userId!]!.followingCount - 1);
+    }
+    if (profileDetailsCache[followedUid] != null) {
+      // update the follow count of the user who have been followed
+      profileDetailsCache[followedUid] = profileDetailsCache[followedUid]!
+          .copyWith(
+              followerCount:
+                  profileDetailsCache[followedUid]!.followerCount - 1);
+    }
+    _profileStreamController.add(profileDetailsCache);
     await _supabaseClient
         .from('follow')
         .delete()
         .eq('following_user_id', userId)
         .eq('followed_user_id', followedUid)
         .execute();
-    if (profileDetailsCache[userId!] != null) {
-      profileDetailsCache[userId!] = profileDetailsCache[userId!]!.copyWith(
-          followingCount: profileDetailsCache[userId!]!.followingCount - 1);
-      _profileStreamController.add(profileDetailsCache);
-    }
-    if (profileDetailsCache[followedUid] != null) {
-      profileDetailsCache[followedUid] = profileDetailsCache[followedUid]!
-          .copyWith(
-              followerCount:
-                  profileDetailsCache[followedUid]!.followerCount - 1);
-      _profileStreamController.add(profileDetailsCache);
-    }
   }
 
   Future<String> _locationToString(LatLng location) async {
@@ -1010,15 +1016,12 @@ class Repository {
 
   Future<List<Profile>> getFollowers(String uid) async {
     late final PostgrestResponse res;
-    if (userId == null) {
-      res = await _supabaseClient.rpc('').execute();
-    } else {
-      // get followers of uid with is_following
-      res = await _supabaseClient.rpc('followers', params: {
-        'my_user_id': userId,
-        'target_user_id': uid,
-      }).execute();
-    }
+    // get followers of uid with is_following
+    res = await _supabaseClient.rpc('followers', params: {
+      'my_user_id': userId ?? _anonymousUUID,
+      'target_user_id': uid,
+    }).execute();
+
     final error = res.error;
     if (error != null) {
       throw PlatformException(
@@ -1033,15 +1036,12 @@ class Repository {
 
   Future<List<Profile>> getFollowings(String uid) async {
     late final PostgrestResponse res;
-    if (userId == null) {
-      res = await _supabaseClient.rpc('').execute();
-    } else {
-      // get followers of uid with is_following
-      res = await _supabaseClient.rpc('followings', params: {
-        'my_user_id': userId,
-        'target_user_id': uid,
-      }).execute();
-    }
+    // get followers of uid with is_following
+    res = await _supabaseClient.rpc('followings', params: {
+      'my_user_id': userId ?? _anonymousUUID,
+      'target_user_id': uid,
+    }).execute();
+
     final error = res.error;
     if (error != null) {
       throw PlatformException(

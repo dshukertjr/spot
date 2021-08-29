@@ -87,6 +87,7 @@ class ProfileDetail extends Profile {
     );
   }
 
+  @override
   ProfileDetail copyWith({
     String? id,
     String? name,
