@@ -58,21 +58,21 @@ class ProfileDetail extends Profile {
     required String name,
     String? description,
     String? imageUrl,
+    required bool isFollowing,
     required this.followerCount,
     required this.followingCount,
     required this.likeCount,
-    required this.isFollowing,
   }) : super(
           id: id,
           name: name,
           description: description,
           imageUrl: imageUrl,
+          isFollowing: isFollowing,
         );
 
   final int followerCount;
   final int followingCount;
   final int likeCount;
-  final bool isFollowing;
 
   static ProfileDetail fromData(Map<String, dynamic> data) {
     return ProfileDetail(

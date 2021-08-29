@@ -6,7 +6,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:spot/models/profile.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';
 
