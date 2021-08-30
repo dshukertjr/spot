@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -7,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/data_profiders/location_provider.dart';
+import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';
 
@@ -49,6 +51,7 @@ void main() {
   group('repository', () {
     late SupabaseClient supabaseClient;
     late HttpServer mockServer;
+    StreamSubscription<List<Video>>? videosListener;
 
     Future<void> handleRequests(HttpServer server) async {
       await for (final HttpRequest request in server) {
@@ -242,6 +245,10 @@ void main() {
       await mockServer.close();
     });
 
+    tearDown(() {
+      videosListener?.cancel();
+    });
+
     test('signUp', () async {
       final repository = Repository(
           supabaseClient: supabaseClient,
@@ -293,7 +300,7 @@ void main() {
 
       await repository.getVideosFromLocation(const LatLng(45.0, 45.0));
 
-      repository.mapVideosStream.listen(
+      videosListener = repository.mapVideosStream.listen(
         expectAsync1(
           (videos) {
             expect(videos.length, 1);
@@ -314,7 +321,7 @@ void main() {
       await repository.getVideosInBoundingBox(LatLngBounds(
           southwest: const LatLng(0, 0), northeast: const LatLng(45, 45)));
 
-      repository.mapVideosStream.listen(
+      videosListener = repository.mapVideosStream.listen(
         expectAsync1(
           (videos) {
             expect(videos.length, 2);
