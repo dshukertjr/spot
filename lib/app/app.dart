@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
+import 'package:spot/data_profiders/location_provider.dart';
 import 'package:spot/pages/tab_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:supabase/supabase.dart';
@@ -17,6 +18,7 @@ class App extends StatelessWidget {
   final _supabaseClient = SupabaseClient(_supabaseUrl, _supabaseannonKey);
   final _analytics = FirebaseAnalytics();
   final _localStorage = const FlutterSecureStorage();
+  final _locationProvider = LocationProvider();
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +29,7 @@ class App extends StatelessWidget {
             supabaseClient: _supabaseClient,
             analytics: _analytics,
             localStorage: _localStorage,
+            locationProvider: _locationProvider,
           ),
         ),
       ],

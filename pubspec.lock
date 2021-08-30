@@ -580,7 +580,7 @@ packages:
       name: postgrest
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.5"
+    version: "0.1.6"
   process:
     dependency: transitive
     description:
@@ -615,7 +615,7 @@ packages:
       name: realtime_client
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.8"
+    version: "0.1.9"
   rxdart:
     dependency: "direct main"
     description:
@@ -781,7 +781,7 @@ packages:
       name: supabase
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0"
+    version: "0.2.4"
   synchronized:
     dependency: transitive
     description:

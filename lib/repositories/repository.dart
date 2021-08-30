@@ -13,6 +13,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:share/share.dart';
+import 'package:spot/data_profiders/location_provider.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
@@ -26,15 +27,18 @@ class Repository {
     required SupabaseClient supabaseClient,
     required FirebaseAnalytics analytics,
     required FlutterSecureStorage localStorage,
+    required LocationProvider locationProvider,
   })  : _supabaseClient = supabaseClient,
         _analytics = analytics,
-        _localStorage = localStorage {
+        _localStorage = localStorage,
+        _locationProvider = locationProvider {
     setAuthListenner();
   }
 
   final SupabaseClient _supabaseClient;
   final FirebaseAnalytics _analytics;
   final FlutterSecureStorage _localStorage;
+  final LocationProvider _locationProvider;
   // static const _localStorage = FlutterSecureStorage();
   static const _persistantSessionKey = 'supabase_session';
   static const _termsOfServiceAgreementKey = 'agreed';
@@ -80,9 +84,6 @@ class Repository {
   /// Completes when auth state is known
   Completer<void> statusKnown = Completer<void>();
 
-  /// Completes when userId is known
-  Completer<void> uidKnown = Completer<void>();
-
   /// The user's profile
   Profile? get myProfile => profileDetailsCache[userId ?? ''];
 
@@ -99,16 +100,20 @@ class Repository {
   Future<void> deleteSession() =>
       _localStorage.delete(key: _persistantSessionKey);
 
+  bool _hasRefreshedSession = false;
+
   /// Resets all cache upon identifying the user
-  void _resetCache() {
-    if (userId != null) {
-      if (!uidKnown.isCompleted) {
-        uidKnown.complete();
-      }
-      getMyProfile();
-      getNotifications();
+  Future<void> _resetCache() async {
+    if (userId != null && !_hasRefreshedSession) {
+      _hasRefreshedSession = true;
       profileDetailsCache.clear();
       _mapVideos.clear();
+      await getMyProfile();
+      // ignore: unawaited_futures
+      getNotifications();
+      _mapVideosStreamConntroller.add(_mapVideos);
+      final searchLocation = await _locationProvider.determinePosition();
+      await getVideosFromLocation(searchLocation);
     }
   }
 
@@ -145,9 +150,9 @@ class Repository {
       }
       return null;
     }
-    _resetCache();
 
     await setSessionString(session.persistSessionString);
+    await _resetCache();
   }
 
   /// Returns Persist Session String
@@ -733,41 +738,6 @@ class Repository {
         result != LocationPermission.deniedForever;
   }
 
-  Future<bool> openLocationSettingsPage() {
-    return Geolocator.openLocationSettings();
-  }
-
-  Future<LatLng> determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    final result = await Geolocator.requestPermission();
-    if (result == LocationPermission.denied ||
-        result == LocationPermission.deniedForever) {
-      return const LatLng(37.43296265331129, -122.08832357078792);
-    }
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return const LatLng(37.43296265331129, -122.08832357078792);
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.deniedForever) {
-        return const LatLng(37.43296265331129, -122.08832357078792);
-      }
-
-      if (permission == LocationPermission.denied) {
-        return const LatLng(37.43296265331129, -122.08832357078792);
-      }
-    }
-    final position = await Geolocator.getCurrentPosition();
-    return LatLng(position.latitude, position.longitude);
-  }
-
   Future<void> updateTimestampOfLastSeenNotification(DateTime time) async {
     await _localStorage.write(
         key: _timestampOfLastSeenNotification, value: time.toIso8601String());
@@ -1046,5 +1016,13 @@ class Repository {
     final data = res.data! as List;
     final profiles = Profile.fromList(List<Map<String, dynamic>>.from(data));
     return profiles;
+  }
+
+  Future<LatLng> determinePosition() {
+    return _locationProvider.determinePosition();
+  }
+
+  Future<bool> openLocationSettingsPage() {
+    return _locationProvider.openLocationSettingsPage();
   }
 }

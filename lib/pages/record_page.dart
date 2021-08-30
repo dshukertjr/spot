@@ -8,7 +8,6 @@ import 'package:spot/components/gradient_border.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/record/record_cubit.dart';
 import 'package:spot/pages/confirm_recording_page.dart';
-import 'package:spot/pages/tab_page.dart';
 import 'package:spot/repositories/repository.dart';
 
 import '../components/app_scaffold.dart';
@@ -296,8 +295,8 @@ class _RecordPreviewState extends State<RecordPreview> {
                                 const SizedBox(width: 8),
                                 GradientButton(
                                   onPressed: () {
-                                    Navigator.of(context).popUntil((route) =>
-                                        route.settings.name == TabPage.name);
+                                    Navigator.of(context)
+                                        .popUntil((route) => route.isFirst);
                                   },
                                   child: const Text('Exit Recording'),
                                 ),

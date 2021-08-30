@@ -134,7 +134,6 @@ void main() {
       when(() => repository.getProfileDetail('aaa'))
           .thenAnswer((invocation) async => null);
       when(() => repository.statusKnown).thenReturn(Completer()..complete());
-      when(() => repository.uidKnown).thenReturn(Completer()..complete());
       when(() => repository.hasAgreedToTermsOfService)
           .thenAnswer((_) => Future.value(true));
       when(() => repository.signIn(

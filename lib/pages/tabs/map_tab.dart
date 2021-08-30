@@ -423,9 +423,7 @@ class MapState extends State<Map> {
     required double markerSize,
   }) async {
     var onTap = () {
-      Navigator.of(context).push(
-        ViewVideoPage.route(video.id),
-      );
+      Navigator.of(context).push(ViewVideoPage.route(video.id));
     };
 
     final imagePadding = borderWidth * factor;

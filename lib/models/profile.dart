@@ -78,7 +78,7 @@ class ProfileDetail extends Profile {
     return ProfileDetail(
       id: data['id'] as String,
       name: data['name'] as String,
-      description: data['description'] as String,
+      description: data['description'] as String?,
       imageUrl: data['image_url'] as String?,
       followerCount: (data['follower_count'] ?? 0) as int,
       followingCount: (data['following_count'] ?? 0) as int,
