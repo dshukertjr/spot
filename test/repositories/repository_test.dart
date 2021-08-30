@@ -214,6 +214,13 @@ void main() {
             ..headers.contentType = ContentType.json
             ..write(jsonString)
             ..close();
+        } else if (url.contains('nearby_videos')) {
+          final jsonString = jsonEncode([]);
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(jsonString)
+            ..close();
         } else {
           request.response
             ..statusCode = HttpStatus.ok

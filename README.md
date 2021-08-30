@@ -192,28 +192,7 @@ $func$
 $func$
 language sql;
 
-create or replace function anonymous_nearby_videos(location text)
-returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text)
-as
-$func$
-    select
-        videos.id,
-        videos.url,
-        videos.image_url,
-        videos.thumbnail_url,
-        videos.gif_url,
-        st_astext(videos.location) as location,
-        videos.created_at,
-        videos.description,
-        users.id as user_id,
-        users.name as user_name,
-        users.description as user_description,
-        users.image_url as user_image_url
-    from videos
-    join users on videos.user_id = users.id
-    order by location <-> st_geogfromtext($1);
-$func$
-language sql;
+
 
 create or replace function videos_in_bouding_box(min_lng decimal, min_lat decimal, max_lng decimal, max_lat decimal, user_id uuid)
 returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text)
@@ -239,28 +218,7 @@ $func$
 $func$
 language sql;
 
-create or replace function anonymous_videos_in_bouding_box(min_lng decimal, min_lat decimal, max_lng decimal, max_lat decimal)
-returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, location text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text)
-as
-$func$
-    select
-        videos.id,
-        videos.url,
-        videos.image_url,
-        videos.thumbnail_url,
-        videos.gif_url,
-        st_astext(videos.location) as location,
-        videos.created_at,
-        videos.description,
-        users.id as user_id,
-        users.name as user_name,
-        users.description as user_description,
-        users.image_url as user_image_url
-    from videos
-    join users on videos.user_id = users.id
-    and location && ST_SetSRID(ST_MakeBox2D(ST_Point(min_lng, min_lat), ST_Point(max_lng, max_lat)),4326);
-$func$
-language sql;
+
 
 create or replace function get_video_detail(video_id uuid, user_id uuid)
 returns table(id uuid, url text, image_url text, thumbnail_url text, gif_url text, created_at timestamptz, description text, user_id uuid, user_name text, user_description text, user_image_url text, location text, like_count int, comment_count int, have_liked int)

@@ -201,22 +201,14 @@ class Repository {
 
   Future<void> getVideosFromLocation(LatLng location) async {
     late final PostgrestResponse res;
-    if (userId != null) {
-      res = await _supabaseClient
-          .rpc('nearby_videos', params: {
-            'location': 'POINT(${location.longitude} ${location.latitude})',
-            'user_id': userId!,
-          })
-          .limit(5)
-          .execute();
-    } else {
-      res = await _supabaseClient
-          .rpc('anonymous_nearby_videos', params: {
-            'location': 'POINT(${location.longitude} ${location.latitude})'
-          })
-          .limit(5)
-          .execute();
-    }
+    res = await _supabaseClient
+        .rpc('nearby_videos', params: {
+          'location': 'POINT(${location.longitude} ${location.latitude})',
+          'user_id': userId ?? _anonymousUUID,
+        })
+        .limit(5)
+        .execute();
+
     final error = res.error;
     final data = res.data;
     if (error != null) {
@@ -233,23 +225,15 @@ class Repository {
 
   Future<void> getVideosInBoundingBox(LatLngBounds bounds) async {
     late final PostgrestResponse res;
-    if (userId != null) {
-      res = await _supabaseClient.rpc('videos_in_bouding_box', params: {
-        'min_lng': '${bounds.southwest.longitude}',
-        'min_lat': '${bounds.southwest.latitude}',
-        'max_lng': '${bounds.northeast.longitude}',
-        'max_lat': '${bounds.northeast.latitude}',
-        'user_id': userId!,
-      }).execute();
-    } else {
-      res =
-          await _supabaseClient.rpc('anonymous_videos_in_bouding_box', params: {
-        'min_lng': '${bounds.southwest.longitude}',
-        'min_lat': '${bounds.southwest.latitude}',
-        'max_lng': '${bounds.northeast.longitude}',
-        'max_lat': '${bounds.northeast.latitude}',
-      }).execute();
-    }
+
+    res = await _supabaseClient.rpc('videos_in_bouding_box', params: {
+      'min_lng': '${bounds.southwest.longitude}',
+      'min_lat': '${bounds.southwest.latitude}',
+      'max_lng': '${bounds.northeast.longitude}',
+      'max_lat': '${bounds.northeast.latitude}',
+      'user_id': userId ?? _anonymousUUID,
+    }).execute();
+
     final error = res.error;
     final data = res.data;
     if (error != null) {
