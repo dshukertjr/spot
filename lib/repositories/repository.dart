@@ -84,6 +84,8 @@ class Repository {
   /// Completes when auth state is known
   Completer<void> statusKnown = Completer<void>();
 
+  Completer<void> myProfileHasLoaded = Completer<void>();
+
   /// The user's profile
   Profile? get myProfile => profileDetailsCache[userId ?? ''];
 
@@ -191,6 +193,9 @@ class Repository {
     }
     try {
       await getProfileDetail(userId);
+      if (!myProfileHasLoaded.isCompleted) {
+        myProfileHasLoaded.complete();
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -285,9 +290,9 @@ class Repository {
     return Video.videosFromData(data: data, userId: userId);
   }
 
-  Future<Profile?> getProfileDetail(String targetUid) async {
+  Future<void> getProfileDetail(String targetUid) async {
     if (profileDetailsCache[targetUid] != null) {
-      return profileDetailsCache[targetUid];
+      return;
     }
     late final PostgrestResponse res;
     res = await _supabaseClient.rpc('profile_detail', params: {
@@ -313,7 +318,6 @@ class Repository {
     final profile = ProfileDetail.fromData(data[0]);
     profileDetailsCache[targetUid] = profile;
     _profileStreamController.sink.add(profileDetailsCache);
-    return profile;
   }
 
   Future<void> saveProfile({required Profile profile}) async {
@@ -342,6 +346,9 @@ class Repository {
       );
     } else {
       // When the user initially registered
+      _hasRefreshedSession = false;
+      // ignore: unawaited_futures
+      _resetCache();
       newProfile = ProfileDetail(
         id: userId!,
         name: profile.name,
@@ -915,6 +922,10 @@ class Repository {
       'following_user_id': userId,
       'followed_user_id': followedUid,
     }).execute();
+    await _analytics.logEvent(name: 'follow', parameters: {
+      'following_user_id': userId,
+      'followed_user_id': followedUid,
+    });
   }
 
   Future<void> unfollow(String followedUid) async {
@@ -944,6 +955,10 @@ class Repository {
         .eq('following_user_id', userId)
         .eq('followed_user_id', followedUid)
         .execute();
+    await _analytics.logEvent(name: 'unfollow', parameters: {
+      'following_user_id': userId,
+      'followed_user_id': followedUid,
+    });
   }
 
   Future<String> _locationToString(LatLng location) async {

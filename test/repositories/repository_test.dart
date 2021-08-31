@@ -355,7 +355,9 @@ void main() {
 
       await repository.signIn(email: '', password: '');
 
-      final profile = await repository.getProfileDetail('aaa');
+      await repository.getProfileDetail('aaa');
+      final profiles = await repository.profileStream.first;
+      final profile = profiles['aaa'];
 
       expect(profile!.id, 'aaa');
     });

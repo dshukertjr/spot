@@ -28,7 +28,7 @@ class EditProfilePage extends StatefulWidget {
       builder: (context) => BlocProvider<ProfileCubit>(
         create: (context) => ProfileCubit(
           repository: RepositoryProvider.of<Repository>(context),
-        )..loadMyProfile(),
+        )..loadMyProfileIfExists(),
         child: EditProfilePage(
           isCreatingAccount: isCreatingAccount,
         ),

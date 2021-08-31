@@ -30,6 +30,13 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   Future<void> loadMyProfile() async {
+    await _repository.myProfileHasLoaded.future;
+    final uid = _repository.userId!;
+    await loadProfile(uid);
+  }
+
+  /// Used in EditProfilePage to get profile if it's available
+  Future<void> loadMyProfileIfExists() async {
     final uid = _repository.userId!;
     await loadProfile(uid);
   }
