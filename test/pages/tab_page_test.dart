@@ -36,6 +36,8 @@ void main() {
         when(() => repository.userId).thenReturn('aaa');
         when(() => repository.myProfile).thenReturn(sampleProfile);
         when(() => repository.statusKnown).thenReturn(Completer()..complete());
+        when(() => repository.myProfileHasLoaded)
+            .thenReturn(Completer()..complete());
       });
       testWidgets('Every tab gets rendered', (tester) async {
         final tabPage = TabPage();
@@ -229,6 +231,8 @@ void main() {
         repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
         when(() => repository.statusKnown).thenReturn(Completer()..complete());
+        when(() => repository.myProfileHasLoaded)
+            .thenReturn(Completer()..complete());
         when(() => repository.myProfile).thenReturn(null);
         when(() => repository.profileStream)
             .thenAnswer((invocation) => Stream.value({}));
@@ -268,6 +272,8 @@ void main() {
       setUpAll(() {
         repository = MockRepository();
         when(() => repository.statusKnown)
+            .thenReturn(Completer<void>()..complete());
+        when(() => repository.myProfileHasLoaded)
             .thenReturn(Completer<void>()..complete());
 
         when(() => repository.myProfile).thenReturn(sampleProfile);
@@ -425,6 +431,8 @@ void main() {
         final repository = MockRepository();
         when(() => repository.statusKnown)
             .thenReturn(Completer<void>()..complete());
+        when(() => repository.myProfileHasLoaded)
+            .thenReturn(Completer<void>()..complete());
 
         when(() => repository.myProfile).thenReturn(sampleProfile);
         when(repository.getNotifications).thenAnswer(
@@ -489,6 +497,8 @@ void main() {
       when(() => repository.myProfile).thenReturn(sampleProfile);
       when(() => repository.statusKnown)
           .thenReturn(Completer<void>()..complete());
+      when(() => repository.myProfileHasLoaded)
+          .thenReturn(Completer<void>()..complete());
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([]),
       );
@@ -543,6 +553,8 @@ void main() {
       when(() => repository.userId).thenReturn('aaa');
       when(() => repository.myProfile).thenReturn(sampleProfile);
       when(() => repository.statusKnown)
+          .thenReturn(Completer<void>()..complete());
+      when(() => repository.myProfileHasLoaded)
           .thenReturn(Completer<void>()..complete());
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([]),
