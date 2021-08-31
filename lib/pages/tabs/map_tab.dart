@@ -92,6 +92,9 @@ class MapState extends State<Map> {
   final TextEditingController _citySearchQueryController =
       TextEditingController();
 
+  BitmapDescriptor? _notFollowingLoadingMarker;
+  BitmapDescriptor? _followingLoadingMarker;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -123,8 +126,7 @@ class MapState extends State<Map> {
           onMapCreated: (GoogleMapController mapController) {
             try {
               controller.complete(mapController);
-              mapController.setMapStyle(
-                  '[{"elementType":"geometry","stylers":[{"color":"#202c3e"}]},{"elementType":"labels","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#ffffff"},{"saturation":10},{"weight":1.5}]},{"elementType":"labels.text.stroke","stylers":[{"visibility":"off"},{"weight":1}]},{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"visibility":"on"}]},{"featureType":"administrative.land_parcel","stylers":[{"visibility":"off"}]},{"featureType":"administrative.neighborhood","stylers":[{"visibility":"off"}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#273556"},{"saturation":10}]},{"featureType":"landscape.man_made","elementType":"labels.text","stylers":[{"color":"#ffffff"},{"visibility":"off"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"saturation":20}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"saturation":-20},{"lightness":20}]},{"featureType":"road","elementType":"geometry","stylers":[{"saturation":-30},{"lightness":10}]},{"featureType":"road","elementType":"geometry.fill","stylers":[{"color":"#3f499d"}]},{"featureType":"road","elementType":"geometry.stroke","stylers":[{"saturation":25},{"lightness":25},{"weight":"0.01"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#ff0000"}]},{"featureType":"water","stylers":[{"lightness":-20}]}]');
+              mapController.setMapStyle(mapTheme);
             } catch (e) {
               context.showErrorSnackbar('Error setting map style');
             }
@@ -298,14 +300,26 @@ class MapState extends State<Map> {
     final factor = _getMapFactor();
     final markerSize = _getMarkerSize(factor);
 
-    final loadingMarkerImage =
-        await _createLoadingMarkerImage(factor: factor, markerSize: markerSize);
+    if (_notFollowingLoadingMarker == null || _followingLoadingMarker == null) {
+      _notFollowingLoadingMarker = await _createLoadingMarkerImage(
+        isFollowing: false,
+        factor: factor,
+        markerSize: markerSize,
+      );
+      _followingLoadingMarker = await _createLoadingMarkerImage(
+        isFollowing: true,
+        factor: factor,
+        markerSize: markerSize,
+      );
+    }
 
     final loadingNewMarkers = newVideos.map((video) => Marker(
           anchor: const Offset(0.5, 0.5),
           markerId: MarkerId(video.id),
           position: video.location!,
-          icon: loadingMarkerImage,
+          icon: video.isFollowing
+              ? _followingLoadingMarker!
+              : _notFollowingLoadingMarker!,
           zIndex: RepositoryProvider.of<Repository>(context)
               .getZIndex(video.createdAt),
         ));
@@ -346,6 +360,7 @@ class MapState extends State<Map> {
   Future<BitmapDescriptor> _createLoadingMarkerImage({
     required int factor,
     required double markerSize,
+    required bool isFollowing,
   }) async {
     final imagePadding = borderWidth * factor;
     final imageSize = markerSize - imagePadding * 2;
@@ -354,10 +369,16 @@ class MapState extends State<Map> {
     final canvas = Canvas(pictureRecorder);
     final boundingRect = Rect.fromLTWH(0.0, 0.0, markerSize, markerSize);
 
-    final paint = Paint()
-      ..shader = redOrangeGradient.createShader(
+    final paint = Paint();
+    if (isFollowing) {
+      paint.shader = redOrangeGradient.createShader(
         boundingRect,
       );
+    } else {
+      paint.shader = blueGradient.createShader(
+        boundingRect,
+      );
+    }
 
     final centerOffset = Offset(markerSize / 2, markerSize / 2);
 
@@ -402,9 +423,7 @@ class MapState extends State<Map> {
     required double markerSize,
   }) async {
     var onTap = () {
-      Navigator.of(context).push(
-        ViewVideoPage.route(video.id),
-      );
+      Navigator.of(context).push(ViewVideoPage.route(video.id));
     };
 
     final imagePadding = borderWidth * factor;
@@ -417,12 +436,12 @@ class MapState extends State<Map> {
 
     /// Adding gradient to the background of the marker
     final paint = Paint();
-    if (video.id == 'aaa') {
-      paint.shader = blueGradient.createShader(
+    if (video.isFollowing) {
+      paint.shader = redOrangeGradient.createShader(
         boundingRect,
       );
     } else {
-      paint.shader = redOrangeGradient.createShader(
+      paint.shader = blueGradient.createShader(
         boundingRect,
       );
     }

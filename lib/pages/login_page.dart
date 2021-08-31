@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -364,13 +365,13 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             setState(() {
               _isLoading = true;
             });
-            final repository = RepositoryProvider.of<Repository>(context);
+            final repository = RepositoryProvider.of<Repository>(context)
+              ..statusKnown = Completer<void>();
             final persistSessionString = await repository.signIn(
                 email: _emailController.text,
                 password: _passwordController.text);
             // Store current session
-            await RepositoryProvider.of<Repository>(context)
-                .setSessionString(persistSessionString);
+            await repository.setSessionString(persistSessionString);
             await repository.statusKnown.future;
             final myProfile = repository.myProfile;
             if (myProfile == null) {

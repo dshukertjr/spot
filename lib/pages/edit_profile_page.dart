@@ -28,7 +28,7 @@ class EditProfilePage extends StatefulWidget {
       builder: (context) => BlocProvider<ProfileCubit>(
         create: (context) => ProfileCubit(
           repository: RepositoryProvider.of<Repository>(context),
-        )..loadMyProfile(),
+        )..loadMyProfileIfExists(),
         child: EditProfilePage(
           isCreatingAccount: isCreatingAccount,
         ),
@@ -58,6 +58,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             setState(() {
               _userNameController.text = profile.name;
               _descriptionController.text = profile.description ?? '';
+              _currentProfileImageUrl = profile.imageUrl;
             });
           }
         },

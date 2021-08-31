@@ -55,4 +55,13 @@ class VideosCubit extends Cubit<VideosState> {
       emit(VideosError(message: 'Error loading videos. Please refresh.'));
     }
   }
+
+  Future<void> loadLikedPosts(String uid) async {
+    try {
+      final videos = await _repository.getLikedPostsFromUid(uid);
+      emit(VideosLoaded(videos));
+    } catch (e) {
+      emit(VideosError(message: 'Error loading videos. Please refresh.'));
+    }
+  }
 }

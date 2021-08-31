@@ -36,20 +36,23 @@ Future<void> main() async {
                 description: 'description',
                 userId: 'userId',
                 location: const LatLng(0, 0),
+                isFollowing: false,
               ),
             ]));
         when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
             .thenAnswer((_) => Future.value([
                   Video(
-                      id: 'id',
-                      url: 'url',
-                      imageUrl: 'imageUrl',
-                      thumbnailUrl: 'thumbnailUrl',
-                      gifUrl: 'gifUrl',
-                      createdAt: DateTime.now(),
-                      description: 'description',
-                      userId: 'userId',
-                      location: const LatLng(0, 0)),
+                    id: 'id',
+                    url: 'url',
+                    imageUrl: 'imageUrl',
+                    thumbnailUrl: 'thumbnailUrl',
+                    gifUrl: 'gifUrl',
+                    createdAt: DateTime.now(),
+                    description: 'description',
+                    userId: 'userId',
+                    location: const LatLng(0, 0),
+                    isFollowing: false,
+                  ),
                 ]));
         return VideosCubit(repository: repository);
       },
@@ -72,29 +75,33 @@ Future<void> main() async {
             .thenAnswer(
           (_) => Future.value([
             Video(
-                id: 'id',
-                url: 'url',
-                imageUrl: 'imageUrl',
-                thumbnailUrl: 'thumbnailUrl',
-                gifUrl: 'gifUrl',
-                createdAt: DateTime.now(),
-                description: 'description',
-                userId: 'userId',
-                location: const LatLng(0, 0)),
+              id: 'id',
+              url: 'url',
+              imageUrl: 'imageUrl',
+              thumbnailUrl: 'thumbnailUrl',
+              gifUrl: 'gifUrl',
+              createdAt: DateTime.now(),
+              description: 'description',
+              userId: 'userId',
+              location: const LatLng(0, 0),
+              isFollowing: false,
+            ),
           ]),
         );
         when(() => repository.mapVideosStream)
             .thenAnswer((invocation) => Stream.value([
                   Video(
-                      id: 'id',
-                      url: 'url',
-                      imageUrl: 'imageUrl',
-                      thumbnailUrl: 'thumbnailUrl',
-                      gifUrl: 'gifUrl',
-                      createdAt: DateTime.now(),
-                      description: 'description',
-                      userId: 'userId',
-                      location: const LatLng(0, 0)),
+                    id: 'id',
+                    url: 'url',
+                    imageUrl: 'imageUrl',
+                    thumbnailUrl: 'thumbnailUrl',
+                    gifUrl: 'gifUrl',
+                    createdAt: DateTime.now(),
+                    description: 'description',
+                    userId: 'userId',
+                    location: const LatLng(0, 0),
+                    isFollowing: false,
+                  ),
                 ]));
         return VideosCubit(repository: repository);
       },
@@ -113,15 +120,17 @@ Future<void> main() async {
         when(() => repository.getVideosFromUid(''))
             .thenAnswer((_) => Future.value([
                   Video(
-                      id: 'id',
-                      url: 'url',
-                      imageUrl: 'imageUrl',
-                      thumbnailUrl: 'thumbnailUrl',
-                      gifUrl: 'gifUrl',
-                      createdAt: DateTime.now(),
-                      description: 'description',
-                      userId: 'userId',
-                      location: const LatLng(0, 0)),
+                    id: 'id',
+                    url: 'url',
+                    imageUrl: 'imageUrl',
+                    thumbnailUrl: 'thumbnailUrl',
+                    gifUrl: 'gifUrl',
+                    createdAt: DateTime.now(),
+                    description: 'description',
+                    userId: 'userId',
+                    location: const LatLng(0, 0),
+                    isFollowing: false,
+                  ),
                 ]));
         return VideosCubit(repository: repository);
       },
@@ -149,33 +158,38 @@ Future<void> main() async {
                 description: 'description',
                 userId: 'userId',
                 location: const LatLng(0, 0),
+                isFollowing: false,
               ),
             ]));
         when(() => repository.getVideosFromLocation(const LatLng(0, 0)))
             .thenAnswer((_) => Future.value([
                   Video(
-                      id: 'id',
-                      url: 'url',
-                      imageUrl: 'imageUrl',
-                      thumbnailUrl: 'thumbnailUrl',
-                      gifUrl: 'gifUrl',
-                      createdAt: DateTime.now(),
-                      description: 'description',
-                      userId: 'userId',
-                      location: const LatLng(0, 0)),
+                    id: 'id',
+                    url: 'url',
+                    imageUrl: 'imageUrl',
+                    thumbnailUrl: 'thumbnailUrl',
+                    gifUrl: 'gifUrl',
+                    createdAt: DateTime.now(),
+                    description: 'description',
+                    userId: 'userId',
+                    location: const LatLng(0, 0),
+                    isFollowing: false,
+                  ),
                 ]));
         when(() => repository.getVideosInBoundingBox(any<LatLngBounds>()))
             .thenAnswer((_) => Future.value([
                   Video(
-                      id: 'id',
-                      url: 'url',
-                      imageUrl: 'imageUrl',
-                      thumbnailUrl: 'thumbnailUrl',
-                      gifUrl: 'gifUrl',
-                      createdAt: DateTime.now(),
-                      description: 'description',
-                      userId: 'userId',
-                      location: const LatLng(0, 0)),
+                    id: 'id',
+                    url: 'url',
+                    imageUrl: 'imageUrl',
+                    thumbnailUrl: 'thumbnailUrl',
+                    gifUrl: 'gifUrl',
+                    createdAt: DateTime.now(),
+                    description: 'description',
+                    userId: 'userId',
+                    location: const LatLng(0, 0),
+                    isFollowing: false,
+                  ),
                 ]));
         return VideosCubit(repository: repository);
       },

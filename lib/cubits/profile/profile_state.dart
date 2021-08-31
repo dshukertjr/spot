@@ -11,10 +11,16 @@ class ProfileLoaded extends ProfileState {
     this.errorMessage,
   });
 
-  final Profile profile;
+  final ProfileDetail profile;
   final String? errorMessage;
 }
 
 class ProfileNotFound extends ProfileState {}
 
 class ProfileError extends ProfileState {}
+
+class FollowerOrFollowingLoaded extends ProfileState {
+  FollowerOrFollowingLoaded(this.followingOrFollower);
+
+  final List<Profile> followingOrFollower;
+}

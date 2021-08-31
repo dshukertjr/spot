@@ -17,9 +17,11 @@ class ProfileCubit extends Cubit<ProfileState> {
         super(ProfileLoading());
 
   final Repository _repository;
-  Profile? _profile;
+  ProfileDetail? _profile;
 
   StreamSubscription<Map<String, Profile>>? _subscription;
+
+  List<Profile> _followerOrFollowingList = [];
 
   @override
   Future<void> close() {
@@ -28,15 +30,22 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   Future<void> loadMyProfile() async {
+    await _repository.myProfileHasLoaded.future;
     final uid = _repository.userId!;
     await loadProfile(uid);
   }
 
-  Future<void> loadProfile(String uid) async {
+  /// Used in EditProfilePage to get profile if it's available
+  Future<void> loadMyProfileIfExists() async {
+    final uid = _repository.userId!;
+    await loadProfile(uid);
+  }
+
+  Future<void> loadProfile(String targetUid) async {
     try {
-      await _repository.getProfile(uid);
+      await _repository.getProfileDetail(targetUid);
       _subscription = _repository.profileStream.listen((profiles) {
-        _profile = profiles[uid];
+        _profile = profiles[targetUid];
         if (_profile == null) {
           emit(ProfileNotFound());
         } else {
@@ -83,6 +92,46 @@ class ProfileCubit extends Cubit<ProfileState> {
     } catch (err) {
       emit(ProfileError());
       rethrow;
+    }
+  }
+
+  Future<void> follow(String followedUid) {
+    if (_followerOrFollowingList.isNotEmpty) {
+      // Update the follow state within _followerOrFollowingList
+      final index = _followerOrFollowingList
+          .indexWhere((profile) => profile.id == followedUid);
+      _followerOrFollowingList[index] =
+          _followerOrFollowingList[index].copyWith(isFollowing: true);
+      emit(FollowerOrFollowingLoaded(_followerOrFollowingList));
+    }
+    return _repository.follow(followedUid);
+  }
+
+  Future<void> unfollow(String followedUid) {
+    if (_followerOrFollowingList.isNotEmpty) {
+      // Update the follow state within _followerOrFollowingList
+      final index = _followerOrFollowingList
+          .indexWhere((profile) => profile.id == followedUid);
+      _followerOrFollowingList[index] =
+          _followerOrFollowingList[index].copyWith(isFollowing: false);
+      emit(FollowerOrFollowingLoaded(_followerOrFollowingList));
+    }
+    return _repository.unfollow(followedUid);
+  }
+
+  Future<void> loadFollowersOrFllowings({
+    required String uid,
+    required bool isLoadingFollowers,
+  }) async {
+    try {
+      if (isLoadingFollowers) {
+        _followerOrFollowingList = await _repository.getFollowers(uid);
+      } else {
+        _followerOrFollowingList = await _repository.getFollowings(uid);
+      }
+      emit(FollowerOrFollowingLoaded(_followerOrFollowingList));
+    } catch (e) {
+      emit(ProfileError());
     }
   }
 }

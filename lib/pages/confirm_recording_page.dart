@@ -9,7 +9,6 @@ import 'package:spot/components/full_screen_video_player.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/confirm_video/confirm_video_cubit.dart';
 import 'package:spot/pages/record_page.dart';
-import 'package:spot/pages/tab_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:video_player/video_player.dart';
 
@@ -35,9 +34,7 @@ class ConfirmRecordingPage extends StatelessWidget {
       body: BlocConsumer<ConfirmVideoCubit, ConfirmVideoState>(
         listener: (context, state) {
           if (state is ConfirmVideoUploaded) {
-            Navigator.of(context).popUntil(
-              (route) => route.settings.name == TabPage.name,
-            );
+            Navigator.of(context).popUntil((route) => route.isFirst);
           }
         },
         builder: (context, state) {

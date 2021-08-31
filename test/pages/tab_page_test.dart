@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +10,6 @@ import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/notification_dot.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
 import 'package:spot/models/notification.dart';
-import 'package:spot/models/profile.dart';
 import 'package:spot/pages/edit_profile_page.dart';
 import 'package:spot/pages/login_page.dart';
 import 'package:spot/pages/record_page.dart';
@@ -21,19 +21,23 @@ import 'package:spot/pages/tabs/search_tab.dart';
 import 'package:spot/repositories/repository.dart';
 
 import '../helpers/helpers.dart';
+import '../test_resources/constants.dart';
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {
+  /// This will allow http request to be sent within test code
+  setUpAll(() => HttpOverrides.global = null);
   group('TabPage', () {
     group('signed in', () {
       late final Repository repository;
       setUpAll(() {
         repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.myProfile)
-            .thenReturn(Profile(id: 'aaa', name: ''));
+        when(() => repository.myProfile).thenReturn(sampleProfile);
         when(() => repository.statusKnown).thenReturn(Completer()..complete());
+        when(() => repository.myProfileHasLoaded)
+            .thenReturn(Completer()..complete());
       });
       testWidgets('Every tab gets rendered', (tester) async {
         final tabPage = TabPage();
@@ -120,7 +124,7 @@ void main() {
           repository: repository,
         );
 
-        await tester.runAsync(() async => await tester.tap(find.ancestor(
+        await tester.runAsync(() => tester.tap(find.ancestor(
             of: find.text('Notifications'),
             matching: find.byType(InkResponse))));
         expect(
@@ -152,6 +156,7 @@ void main() {
       setUpAll(() {
         repository = MockRepository();
         when(() => repository.userId).thenReturn(null);
+        when(() => repository.statusKnown).thenReturn(Completer()..complete());
         when(() => repository.hasAgreedToTermsOfService)
             .thenAnswer((invocation) async => true);
       });
@@ -168,12 +173,12 @@ void main() {
           ),
           repository: repository,
         );
-        await tester.tap(
-          find.ancestor(
-            of: find.text('Notifications'),
-            matching: find.byType(InkResponse),
-          ),
-        );
+        await tester.runAsync(() async => await tester.tap(
+              find.ancestor(
+                of: find.text('Notifications'),
+                matching: find.byType(InkResponse),
+              ),
+            ));
         await tester.pumpAndSettle();
         expect(find.byType(LoginPage), findsOneWidget);
       });
@@ -190,12 +195,12 @@ void main() {
           ),
           repository: repository,
         );
-        await tester.tap(
-          find.ancestor(
-            of: find.text('Profile'),
-            matching: find.byType(InkResponse),
-          ),
-        );
+        await tester.runAsync(() async => await tester.tap(
+              find.ancestor(
+                of: find.text('Profile'),
+                matching: find.byType(InkResponse),
+              ),
+            ));
         await tester.pumpAndSettle();
         expect(find.byType(LoginPage), findsOneWidget);
       });
@@ -213,7 +218,8 @@ void main() {
           ),
           repository: repository,
         );
-        await tester.tap(find.byType(RecordButton));
+        await tester
+            .runAsync(() async => await tester.tap(find.byType(RecordButton)));
         await tester.pumpAndSettle();
         expect(find.byType(LoginPage), findsOneWidget);
       });
@@ -225,10 +231,12 @@ void main() {
         repository = MockRepository();
         when(() => repository.userId).thenReturn('aaa');
         when(() => repository.statusKnown).thenReturn(Completer()..complete());
+        when(() => repository.myProfileHasLoaded)
+            .thenReturn(Completer()..complete());
         when(() => repository.myProfile).thenReturn(null);
         when(() => repository.profileStream)
             .thenAnswer((invocation) => Stream.value({}));
-        when(() => repository.getProfile('aaa'))
+        when(() => repository.getProfileDetail('aaa'))
             .thenAnswer((invocation) async => null);
         when(() => repository.hasAgreedToTermsOfService)
             .thenAnswer((invocation) async => true);
@@ -265,9 +273,10 @@ void main() {
         repository = MockRepository();
         when(() => repository.statusKnown)
             .thenReturn(Completer<void>()..complete());
+        when(() => repository.myProfileHasLoaded)
+            .thenReturn(Completer<void>()..complete());
 
-        when(() => repository.myProfile)
-            .thenReturn(Profile(id: 'aaa', name: 'aaa'));
+        when(() => repository.myProfile).thenReturn(sampleProfile);
         when(repository.getNotifications).thenAnswer((_) => Future.value());
       });
       testWidgets('Notification dots are shown properly', (tester) async {
@@ -316,8 +325,8 @@ void main() {
         when(() => repository.mapVideosStream)
             .thenAnswer((_) => Stream.value([]));
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.getProfile('aaa'))
-            .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+        when(() => repository.getProfileDetail('aaa'))
+            .thenAnswer((_) => Future.value(sampleProfile));
         when((() => repository.profileStream))
             .thenAnswer((_) => Stream.value({}));
         when(() => repository.getVideosFromUid('aaa'))
@@ -382,8 +391,8 @@ void main() {
         when(() => repository.mapVideosStream)
             .thenAnswer((_) => Stream.value([]));
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.getProfile('aaa'))
-            .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+        when(() => repository.getProfileDetail('aaa'))
+            .thenAnswer((_) => Future.value(sampleProfile));
         when((() => repository.profileStream))
             .thenAnswer((_) => Stream.value({}));
         when(() => repository.getVideosFromUid('aaa'))
@@ -422,9 +431,10 @@ void main() {
         final repository = MockRepository();
         when(() => repository.statusKnown)
             .thenReturn(Completer<void>()..complete());
+        when(() => repository.myProfileHasLoaded)
+            .thenReturn(Completer<void>()..complete());
 
-        when(() => repository.myProfile)
-            .thenReturn(Profile(id: 'aaa', name: 'aaa'));
+        when(() => repository.myProfile).thenReturn(sampleProfile);
         when(repository.getNotifications).thenAnswer(
           (_) => Future.value([]),
         );
@@ -441,8 +451,8 @@ void main() {
         when(() => repository.mapVideosStream)
             .thenAnswer((_) => Stream.value([]));
         when(() => repository.userId).thenReturn('aaa');
-        when(() => repository.getProfile('aaa'))
-            .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+        when(() => repository.getProfileDetail('aaa'))
+            .thenAnswer((_) => Future.value(sampleProfile));
         when((() => repository.profileStream))
             .thenAnswer((_) => Stream.value({}));
         when(() => repository.getVideosFromUid('aaa'))
@@ -484,9 +494,10 @@ void main() {
         (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.myProfile)
-          .thenReturn(Profile(id: 'aaa', name: 'abd'));
+      when(() => repository.myProfile).thenReturn(sampleProfile);
       when(() => repository.statusKnown)
+          .thenReturn(Completer<void>()..complete());
+      when(() => repository.myProfileHasLoaded)
           .thenReturn(Completer<void>()..complete());
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([]),
@@ -504,8 +515,8 @@ void main() {
       when(() => repository.mapVideosStream)
           .thenAnswer((_) => Stream.value([]));
       when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.getProfile('aaa'))
-          .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+      when(() => repository.getProfileDetail('aaa'))
+          .thenAnswer((_) => Future.value(sampleProfile));
       when((() => repository.profileStream))
           .thenAnswer((_) => Stream.value({}));
       when(() => repository.getVideosFromUid('aaa'))
@@ -540,9 +551,10 @@ void main() {
         (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.myProfile)
-          .thenReturn(Profile(id: 'aaa', name: 'abd'));
+      when(() => repository.myProfile).thenReturn(sampleProfile);
       when(() => repository.statusKnown)
+          .thenReturn(Completer<void>()..complete());
+      when(() => repository.myProfileHasLoaded)
           .thenReturn(Completer<void>()..complete());
       when(repository.getNotifications).thenAnswer(
         (_) => Future.value([]),
@@ -560,8 +572,8 @@ void main() {
       when(() => repository.mapVideosStream)
           .thenAnswer((_) => Stream.value([]));
       when(() => repository.userId).thenReturn('aaa');
-      when(() => repository.getProfile('aaa'))
-          .thenAnswer((_) => Future.value(Profile(id: 'id', name: 'name')));
+      when(() => repository.getProfileDetail('aaa'))
+          .thenAnswer((_) => Future.value(sampleProfile));
       when((() => repository.profileStream))
           .thenAnswer((_) => Stream.value({}));
       when(() => repository.getVideosFromUid('aaa'))

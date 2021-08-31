@@ -13,6 +13,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:share/share.dart';
+import 'package:spot/data_profiders/location_provider.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
@@ -26,20 +27,26 @@ class Repository {
     required SupabaseClient supabaseClient,
     required FirebaseAnalytics analytics,
     required FlutterSecureStorage localStorage,
+    required LocationProvider locationProvider,
   })  : _supabaseClient = supabaseClient,
         _analytics = analytics,
-        _localStorage = localStorage {
+        _localStorage = localStorage,
+        _locationProvider = locationProvider {
     setAuthListenner();
   }
 
   final SupabaseClient _supabaseClient;
   final FirebaseAnalytics _analytics;
   final FlutterSecureStorage _localStorage;
+  final LocationProvider _locationProvider;
   // static const _localStorage = FlutterSecureStorage();
   static const _persistantSessionKey = 'supabase_session';
   static const _termsOfServiceAgreementKey = 'agreed';
   static const _timestampOfLastSeenNotification =
       'timestampOfLastSeenNotification';
+
+  /// Used as a placeholder for myUserId when loading data that requires myUserID but not signed in
+  static const _anonymousUUID = '00000000-0000-0000-0000-000000000000';
 
   // Local Cache
   final List<Video> _mapVideos = [];
@@ -52,9 +59,10 @@ class Repository {
       _videoDetailStreamController.stream;
 
   @visibleForTesting
-  final Map<String, Profile> profilesCache = {};
-  final _profileStreamController = BehaviorSubject<Map<String, Profile>>();
-  Stream<Map<String, Profile>> get profileStream =>
+  final Map<String, ProfileDetail> profileDetailsCache = {};
+  final _profileStreamController =
+      BehaviorSubject<Map<String, ProfileDetail>>();
+  Stream<Map<String, ProfileDetail>> get profileStream =>
       _profileStreamController.stream;
 
   @visibleForTesting
@@ -73,11 +81,13 @@ class Repository {
   /// Return userId or null
   String? get userId => _supabaseClient.auth.currentUser?.id;
 
-  /// Completes when auth state and myProfile is loaded
+  /// Completes when auth state is known
   Completer<void> statusKnown = Completer<void>();
 
+  Completer<void> myProfileHasLoaded = Completer<void>();
+
   /// The user's profile
-  Profile? get myProfile => profilesCache[userId ?? ''];
+  Profile? get myProfile => profileDetailsCache[userId ?? ''];
 
   /// Whether the user has agreed to terms of service or not
   Future<bool> get hasAgreedToTermsOfService =>
@@ -92,12 +102,26 @@ class Repository {
   Future<void> deleteSession() =>
       _localStorage.delete(key: _persistantSessionKey);
 
+  bool _hasRefreshedSession = false;
+
+  /// Resets all cache upon identifying the user
+  Future<void> _resetCache() async {
+    if (userId != null && !_hasRefreshedSession) {
+      _hasRefreshedSession = true;
+      profileDetailsCache.clear();
+      _mapVideos.clear();
+      await getMyProfile();
+      // ignore: unawaited_futures
+      getNotifications();
+      _mapVideosStreamConntroller.add(_mapVideos);
+      final searchLocation = await _locationProvider.determinePosition();
+      await getVideosFromLocation(searchLocation);
+    }
+  }
+
   void setAuthListenner() {
     _supabaseClient.auth.onAuthStateChange((event, session) {
-      if (session?.user != null && !statusKnown.isCompleted) {
-        _getMyProfile();
-        getNotifications();
-      }
+      _resetCache();
     });
   }
 
@@ -105,6 +129,9 @@ class Repository {
     final jsonStr = await _localStorage.read(key: _persistantSessionKey);
     if (jsonStr == null) {
       await deleteSession();
+      if (!statusKnown.isCompleted) {
+        statusKnown.complete();
+      }
       return null;
     }
 
@@ -112,21 +139,22 @@ class Repository {
     final error = res.error;
     if (error != null) {
       await deleteSession();
+      if (!statusKnown.isCompleted) {
+        statusKnown.complete();
+      }
       throw PlatformException(code: 'login error', message: error.message);
     }
     final session = res.data;
     if (session == null) {
       await deleteSession();
+      if (!statusKnown.isCompleted) {
+        statusKnown.complete();
+      }
       return null;
-    }
-    if (userId != null && !statusKnown.isCompleted) {
-      // ignore: unawaited_futures
-      _getMyProfile();
-      // ignore: unawaited_futures
-      getNotifications();
     }
 
     await setSessionString(session.persistSessionString);
+    await _resetCache();
   }
 
   /// Returns Persist Session String
@@ -158,37 +186,34 @@ class Repository {
     return res.data!.persistSessionString;
   }
 
-  Future<Profile?> _getMyProfile() async {
+  Future<Profile?> getMyProfile() async {
     final userId = this.userId;
     if (userId == null) {
       throw PlatformException(code: 'not signed in ', message: 'Not signed in');
     }
     try {
-      await getProfile(userId);
+      await getProfileDetail(userId);
+      if (!myProfileHasLoaded.isCompleted) {
+        myProfileHasLoaded.complete();
+      }
     } catch (e) {
       print(e.toString());
     }
-    statusKnown.complete();
+    if (!statusKnown.isCompleted) {
+      statusKnown.complete();
+    }
   }
 
   Future<void> getVideosFromLocation(LatLng location) async {
     late final PostgrestResponse res;
-    if (userId != null) {
-      res = await _supabaseClient
-          .rpc('nearby_videos', params: {
-            'location': 'POINT(${location.longitude} ${location.latitude})',
-            'user_id': userId!,
-          })
-          .limit(5)
-          .execute();
-    } else {
-      res = await _supabaseClient
-          .rpc('anonymous_nearby_videos', params: {
-            'location': 'POINT(${location.longitude} ${location.latitude})'
-          })
-          .limit(5)
-          .execute();
-    }
+    res = await _supabaseClient
+        .rpc('nearby_videos', params: {
+          'location': 'POINT(${location.longitude} ${location.latitude})',
+          'user_id': userId ?? _anonymousUUID,
+        })
+        .limit(5)
+        .execute();
+
     final error = res.error;
     final data = res.data;
     if (error != null) {
@@ -197,7 +222,7 @@ class Repository {
       throw PlatformException(code: 'getVideosFromLocation error null data');
     }
     final videoIds = _mapVideos.map((video) => video.id);
-    final newVideos = Video.videosFromData(data)
+    final newVideos = Video.videosFromData(data: data, userId: userId)
         .where((video) => !videoIds.contains(video.id));
     _mapVideos.addAll(newVideos);
     _mapVideosStreamConntroller.sink.add(_mapVideos);
@@ -205,23 +230,15 @@ class Repository {
 
   Future<void> getVideosInBoundingBox(LatLngBounds bounds) async {
     late final PostgrestResponse res;
-    if (userId != null) {
-      res = await _supabaseClient.rpc('videos_in_bouding_box', params: {
-        'min_lng': '${bounds.southwest.longitude}',
-        'min_lat': '${bounds.southwest.latitude}',
-        'max_lng': '${bounds.northeast.longitude}',
-        'max_lat': '${bounds.northeast.latitude}',
-        'user_id': userId!,
-      }).execute();
-    } else {
-      res =
-          await _supabaseClient.rpc('anonymous_videos_in_bouding_box', params: {
-        'min_lng': '${bounds.southwest.longitude}',
-        'min_lat': '${bounds.southwest.latitude}',
-        'max_lng': '${bounds.northeast.longitude}',
-        'max_lat': '${bounds.northeast.latitude}',
-      }).execute();
-    }
+
+    res = await _supabaseClient.rpc('videos_in_bouding_box', params: {
+      'min_lng': '${bounds.southwest.longitude}',
+      'min_lat': '${bounds.southwest.latitude}',
+      'max_lng': '${bounds.northeast.longitude}',
+      'max_lat': '${bounds.northeast.latitude}',
+      'user_id': userId ?? _anonymousUUID,
+    }).execute();
+
     final error = res.error;
     final data = res.data;
     if (error != null) {
@@ -230,7 +247,7 @@ class Repository {
       throw PlatformException(code: 'getVideosFromLocation error null data');
     }
     final videoIds = _mapVideos.map((video) => video.id);
-    final newVideos = Video.videosFromData(data)
+    final newVideos = Video.videosFromData(data: data, userId: userId)
         .where((video) => !videoIds.contains(video.id));
     _mapVideos.addAll(newVideos);
     _mapVideosStreamConntroller.sink.add(_mapVideos);
@@ -245,23 +262,44 @@ class Repository {
         .order('created_at')
         .execute();
     final error = res.error;
-    final data = res.data;
     if (error != null) {
       throw PlatformException(code: 'getVideosFromUid error');
-    } else if (data == null) {
+    }
+    final data = res.data;
+    if (data == null) {
       throw PlatformException(code: 'getVideosFromUid error');
     }
-    return Video.videosFromData(data);
+    return Video.videosFromData(data: data, userId: userId);
   }
 
-  Future<Profile?> getProfile(String uid) async {
-    final targetProfile = profilesCache[uid];
-    if (targetProfile != null) {
-      return targetProfile;
+  Future<List<Video>> getLikedPostsFromUid(String uid) async {
+    final res = await _supabaseClient
+        .from('liked_videos')
+        .select()
+        .eq('liked_by', uid)
+        .order('liked_at')
+        .execute();
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(code: 'getLikedPostsFromUid error');
     }
-    final res =
-        await _supabaseClient.from('users').select().eq('id', uid).execute();
-    final data = res.data as List;
+    final data = res.data;
+    if (data == null) {
+      throw PlatformException(code: 'getLikedPostsFromUid error');
+    }
+    return Video.videosFromData(data: data, userId: userId);
+  }
+
+  Future<void> getProfileDetail(String targetUid) async {
+    if (profileDetailsCache[targetUid] != null) {
+      return;
+    }
+    late final PostgrestResponse res;
+    res = await _supabaseClient.rpc('profile_detail', params: {
+      'my_user_id': userId ?? _anonymousUUID,
+      'target_user_id': targetUid,
+    }).execute();
+
     final error = res.error;
     if (error != null) {
       throw PlatformException(
@@ -269,16 +307,17 @@ class Repository {
         message: error.message,
       );
     }
+    final data = res.data as List;
 
     if (data.isEmpty) {
-      _profileStreamController.sink.add(profilesCache);
-      return null;
+      throw PlatformException(
+          code: error?.code ?? 'No User',
+          message: error?.message ?? 'Could not find the user. ');
     }
 
-    final profile = Profile.fromData(data[0]);
-    profilesCache[uid] = profile;
-    _profileStreamController.sink.add(profilesCache);
-    return profile;
+    final profile = ProfileDetail.fromData(data[0]);
+    profileDetailsCache[targetUid] = profile;
+    _profileStreamController.sink.add(profileDetailsCache);
   }
 
   Future<void> saveProfile({required Profile profile}) async {
@@ -298,10 +337,31 @@ class Repository {
         message: 'Error occured while saving profile',
       );
     }
-
-    final newProfile = Profile.fromData(data[0]);
-    profilesCache[profile.id] = newProfile;
-    _profileStreamController.sink.add(profilesCache);
+    late final ProfileDetail newProfile;
+    if (profileDetailsCache[userId!] != null) {
+      newProfile = profileDetailsCache[userId!]!.copyWith(
+        name: profile.name,
+        description: profile.description,
+        imageUrl: profile.imageUrl,
+      );
+    } else {
+      // When the user initially registered
+      _hasRefreshedSession = false;
+      // ignore: unawaited_futures
+      _resetCache();
+      newProfile = ProfileDetail(
+        id: userId!,
+        name: profile.name,
+        description: profile.description,
+        imageUrl: profile.imageUrl,
+        followerCount: 0,
+        followingCount: 0,
+        likeCount: 0,
+        isFollowing: true,
+      );
+    }
+    profileDetailsCache[userId!] = newProfile;
+    _profileStreamController.add(profileDetailsCache);
   }
 
   /// Uploads the video and returns the download URL
@@ -371,7 +431,8 @@ class Repository {
         message: 'No data found for this videoId',
       );
     }
-    var videoDetail = VideoDetail.fromData(Map.from(List.from(data).first));
+    var videoDetail = VideoDetail.fromData(
+        data: Map.from(List.from(data).first), userId: userId);
     if (videoDetail.location != null) {
       final locationString = await _locationToString(videoDetail.location!);
       videoDetail = videoDetail.copyWith(locationString: locationString);
@@ -383,11 +444,20 @@ class Repository {
     });
   }
 
-  Future<void> like(String videoId) async {
+  Future<void> like(Video video) async {
+    final videoId = video.id;
     final currentVideoDetail = _videoDetails[videoId]!;
     _videoDetails[videoId] = currentVideoDetail.copyWith(
         likeCount: (currentVideoDetail.likeCount + 1), haveLiked: true);
     _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
+
+    if (profileDetailsCache[video.userId] != null) {
+      // Increment the like count of liked user by 1
+      profileDetailsCache[video.userId] = profileDetailsCache[video.userId]!
+          .copyWith(
+              likeCount: profileDetailsCache[video.userId]!.likeCount + 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
 
     final uid = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient.from('likes').insert([
@@ -405,11 +475,20 @@ class Repository {
     });
   }
 
-  Future<void> unlike(String videoId) async {
+  Future<void> unlike(Video video) async {
+    final videoId = video.id;
     final currentVideoDetail = _videoDetails[videoId]!;
     _videoDetails[videoId] = currentVideoDetail.copyWith(
         likeCount: (currentVideoDetail.likeCount - 1), haveLiked: false);
     _videoDetailStreamController.sink.add(_videoDetails[videoId]!);
+
+    if (profileDetailsCache[video.userId] != null) {
+      // Decrement the like count of liked user by 1
+      profileDetailsCache[video.userId] = profileDetailsCache[video.userId]!
+          .copyWith(
+              likeCount: profileDetailsCache[video.userId]!.likeCount - 1);
+      _profileStreamController.add(profileDetailsCache);
+    }
 
     final uid = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient
@@ -425,6 +504,7 @@ class Repository {
         message: error.message,
       );
     }
+
     await _analytics.logEvent(name: 'unlike_video', parameters: {
       'video_id': videoId,
     });
@@ -636,7 +716,7 @@ class Repository {
     }
     final data = res.data as List;
     await _analytics.logSearch(searchTerm: queryString);
-    return Video.videosFromData(data);
+    return Video.videosFromData(data: data, userId: userId);
   }
 
   Future<VideoPlayerController> getVideoPlayerController(String url) async {
@@ -647,41 +727,6 @@ class Repository {
     final result = await Geolocator.requestPermission();
     return result != LocationPermission.denied &&
         result != LocationPermission.deniedForever;
-  }
-
-  Future<bool> openLocationSettingsPage() {
-    return Geolocator.openLocationSettings();
-  }
-
-  Future<LatLng> determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    final result = await Geolocator.requestPermission();
-    if (result == LocationPermission.denied ||
-        result == LocationPermission.deniedForever) {
-      return const LatLng(37.43296265331129, -122.08832357078792);
-    }
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return const LatLng(37.43296265331129, -122.08832357078792);
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.deniedForever) {
-        return const LatLng(37.43296265331129, -122.08832357078792);
-      }
-
-      if (permission == LocationPermission.denied) {
-        return const LatLng(37.43296265331129, -122.08832357078792);
-      }
-    }
-    final position = await Geolocator.getCurrentPosition();
-    return LatLng(position.latitude, position.longitude);
   }
 
   Future<void> updateTimestampOfLastSeenNotification(DateTime time) async {
@@ -735,9 +780,6 @@ class Repository {
         .map<Profile>((row) => Profile.fromData(Map<String, dynamic>.from(row)))
         .toList();
     _mentionSuggestionCache[queryString] = profiles;
-    profilesCache.addEntries(profiles.map<MapEntry<String, Profile>>(
-        (profile) => MapEntry(profile.id, profile)));
-    _profileStreamController.sink.add(profilesCache);
     return profiles;
   }
 
@@ -747,8 +789,8 @@ class Repository {
         .where((word) => word.isNotEmpty && word[0] == '@')
         .map((word) => RegExp(r'^\w*').firstMatch(word.substring(1))!.group(0)!)
         .toList();
-    final userNameMap = <String, Profile>{}..addEntries(profilesCache.values
-        .map<MapEntry<String, Profile>>(
+    final userNameMap = <String, Profile>{}..addEntries(
+        profileDetailsCache.values.map<MapEntry<String, Profile>>(
             (profile) => MapEntry(profile.name, profile)));
     final mentionedProfiles = userNames
         .map<Profile?>((userName) => userNameMap[userName])
@@ -796,12 +838,13 @@ class Repository {
   Future<String> replaceMentionsWithUserNames(
     String comment,
   ) async {
-    await Future.wait(getUserIdsInComment(comment).map(getProfile).toList());
+    await Future.wait(
+        getUserIdsInComment(comment).map(getProfileDetail).toList());
     final regExp = RegExp(
         r'@[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b');
     final replacedComment = comment.replaceAllMapped(regExp, (match) {
       final key = match.group(0)!.substring(1);
-      final name = profilesCache[key]?.name;
+      final name = profileDetailsCache[key]?.name;
 
       /// Return the original id if no profile was found with the id
       return '@${name ?? match.group(0)!.substring(1)}';
@@ -850,8 +893,72 @@ class Repository {
       throw PlatformException(
           code: 'NewVideos', message: 'Error loading new videos');
     }
-    final videos = Video.videosFromData(res.data!);
+    final videos = Video.videosFromData(data: res.data!, userId: userId);
     return videos;
+  }
+
+  Future<void> follow(String followedUid) async {
+    if (userId == null) {
+      return;
+    }
+    if (profileDetailsCache[followedUid] != null) {
+      profileDetailsCache[followedUid] =
+          profileDetailsCache[followedUid]!.copyWith(isFollowing: true);
+    }
+    if (profileDetailsCache[userId!] != null) {
+      // Update your own follow count
+      profileDetailsCache[userId!] = profileDetailsCache[userId!]!.copyWith(
+          followingCount: profileDetailsCache[userId!]!.followingCount + 1);
+    }
+    if (profileDetailsCache[followedUid] != null) {
+      // Update the follow count of the user who have been followed
+      profileDetailsCache[followedUid] = profileDetailsCache[followedUid]!
+          .copyWith(
+              followerCount:
+                  profileDetailsCache[followedUid]!.followerCount + 1);
+    }
+    _profileStreamController.add(profileDetailsCache);
+    await _supabaseClient.from('follow').insert({
+      'following_user_id': userId,
+      'followed_user_id': followedUid,
+    }).execute();
+    await _analytics.logEvent(name: 'follow', parameters: {
+      'following_user_id': userId,
+      'followed_user_id': followedUid,
+    });
+  }
+
+  Future<void> unfollow(String followedUid) async {
+    if (userId == null) {
+      return;
+    }
+    if (profileDetailsCache[followedUid] != null) {
+      profileDetailsCache[followedUid] =
+          profileDetailsCache[followedUid]!.copyWith(isFollowing: false);
+    }
+    if (profileDetailsCache[userId!] != null) {
+      // Update the user's follow count
+      profileDetailsCache[userId!] = profileDetailsCache[userId!]!.copyWith(
+          followingCount: profileDetailsCache[userId!]!.followingCount - 1);
+    }
+    if (profileDetailsCache[followedUid] != null) {
+      // update the follow count of the user who have been followed
+      profileDetailsCache[followedUid] = profileDetailsCache[followedUid]!
+          .copyWith(
+              followerCount:
+                  profileDetailsCache[followedUid]!.followerCount - 1);
+    }
+    _profileStreamController.add(profileDetailsCache);
+    await _supabaseClient
+        .from('follow')
+        .delete()
+        .eq('following_user_id', userId)
+        .eq('followed_user_id', followedUid)
+        .execute();
+    await _analytics.logEvent(name: 'unfollow', parameters: {
+      'following_user_id': userId,
+      'followed_user_id': followedUid,
+    });
   }
 
   Future<String> _locationToString(LatLng location) async {
@@ -868,5 +975,53 @@ class Repository {
     } catch (e) {
       return 'Unknown';
     }
+  }
+
+  Future<List<Profile>> getFollowers(String uid) async {
+    late final PostgrestResponse res;
+    // get followers of uid with is_following
+    res = await _supabaseClient.rpc('followers', params: {
+      'my_user_id': userId ?? _anonymousUUID,
+      'target_user_id': uid,
+    }).execute();
+
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'getFollowers',
+        message: error.message,
+      );
+    }
+    final data = res.data! as List;
+    final profiles = Profile.fromList(List<Map<String, dynamic>>.from(data));
+    return profiles;
+  }
+
+  Future<List<Profile>> getFollowings(String uid) async {
+    late final PostgrestResponse res;
+    // get followers of uid with is_following
+    res = await _supabaseClient.rpc('followings', params: {
+      'my_user_id': userId ?? _anonymousUUID,
+      'target_user_id': uid,
+    }).execute();
+
+    final error = res.error;
+    if (error != null) {
+      throw PlatformException(
+        code: error.code ?? 'getFollowings',
+        message: error.message,
+      );
+    }
+    final data = res.data! as List;
+    final profiles = Profile.fromList(List<Map<String, dynamic>>.from(data));
+    return profiles;
+  }
+
+  Future<LatLng> determinePosition() {
+    return _locationProvider.determinePosition();
+  }
+
+  Future<bool> openLocationSettingsPage() {
+    return _locationProvider.openLocationSettingsPage();
   }
 }
