@@ -102,7 +102,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -168,7 +168,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -240,7 +240,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -319,7 +319,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -402,7 +402,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -483,7 +483,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) => VideoCubit(repository: repository)
             ..initialize(likedVideoDetail.id),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -582,7 +582,7 @@ void main() {
                     ..loadComments(),
             ),
           ],
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -761,7 +761,7 @@ void main() {
             BlocProvider<CommentCubit>(
                 create: (BuildContext context) => mockCommentCubit),
           ],
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );

@@ -25,7 +25,8 @@ class VideoList extends StatelessWidget {
               aspectRatio: 1,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(ViewVideoPage.route(video.id));
+                  Navigator.of(context)
+                      .push(ViewVideoPage.route(videoId: video.id));
                 },
                 child: Image.network(
                   video.thumbnailUrl,

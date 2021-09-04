@@ -80,7 +80,8 @@ class Map extends StatefulWidget {
 @visibleForTesting
 class MapState extends State<Map> {
   @visibleForTesting
-  final Completer<GoogleMapController> controller = Completer();
+  final Completer<GoogleMapController> _mapController =
+      Completer<GoogleMapController>();
 
   /// Holds all the markers for the map
   Set<Marker> _markers = <Marker>{};
@@ -94,6 +95,9 @@ class MapState extends State<Map> {
 
   final TextEditingController _citySearchQueryController =
       TextEditingController();
+
+  Video? _tappedVideo;
+  Offset? _tappedVideoCordinates;
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +122,7 @@ class MapState extends State<Map> {
             }
             _loading = true;
             // Finds the center of the map and load videos around that location
-            final mapController = await controller.future;
+            final mapController = await _mapController.future;
             final bounds = await mapController.getVisibleRegion();
             await BlocProvider.of<VideosCubit>(context)
                 .loadVideosWithinBoundingBox(bounds);
@@ -126,7 +130,7 @@ class MapState extends State<Map> {
           },
           onMapCreated: (GoogleMapController mapController) {
             try {
-              controller.complete(mapController);
+              _mapController.complete(mapController);
               mapController.setMapStyle(mapTheme);
               _clusterManager.setMapId(mapController.mapId);
             } catch (e) {
@@ -152,6 +156,21 @@ class MapState extends State<Map> {
                 width: 30,
                 height: 30,
                 child: preloader,
+              ),
+            ),
+          ),
+        if (_tappedVideo != null)
+          Positioned(
+            left: _tappedVideoCordinates!.dx,
+            top: _tappedVideoCordinates!.dy,
+            child: Hero(
+              tag: _tappedVideo!.id,
+              child: ClipOval(
+                child: Image.network(
+                  _tappedVideo!.thumbnailUrl,
+                  width: defaultMarkerSize,
+                  height: defaultMarkerSize,
+                ),
               ),
             ),
           ),
@@ -197,7 +216,7 @@ class MapState extends State<Map> {
                     context.showSnackbar('Could not find the location');
                     return;
                   }
-                  final mapController = await controller.future;
+                  final mapController = await _mapController.future;
                   await mapController
                       .moveCamera(CameraUpdate.newLatLng(location));
                 },
@@ -274,7 +293,7 @@ class MapState extends State<Map> {
       return;
     }
     _hasLoadedMarkers = true;
-    final mapController = await controller.future;
+    final mapController = await _mapController.future;
     if (_markers.length == 1) {
       // If there is only 1 marker, move camera to centre that marker
       return mapController
@@ -327,8 +346,26 @@ class MapState extends State<Map> {
     required int factor,
     required int clusterCount,
   }) async {
-    var onTap = () {
-      Navigator.of(context).push(ViewVideoPage.route(video.id));
+    final onTap = () async {
+      final controller = await _mapController.future;
+      final screenCordinate =
+          await controller.getScreenCoordinate(video.position!);
+      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+      setState(() {
+        _tappedVideo = video;
+        _tappedVideoCordinates = Offset(
+          screenCordinate.x / pixelRatio - defaultMarkerSize / 2,
+          screenCordinate.y / pixelRatio - defaultMarkerSize / 2,
+        );
+      });
+      await Navigator.of(context).push(ViewVideoPage.route(
+        videoId: video.id,
+        video: video,
+      ));
+      setState(() {
+        _tappedVideo = null;
+        _tappedVideoCordinates = null;
+      });
     };
     final markerSize = _getMarkerSize(_getMapFactor());
 

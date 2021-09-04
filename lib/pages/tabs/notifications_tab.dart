@@ -67,16 +67,16 @@ class _NotificationCell extends StatelessWidget {
       onTap: () {
         switch (_notification.type) {
           case NotificationType.like:
-            Navigator.of(context)
-                .push(ViewVideoPage.route(_notification.targetVideoId!));
+            Navigator.of(context).push(
+                ViewVideoPage.route(videoId: _notification.targetVideoId!));
             break;
           case NotificationType.comment:
-            Navigator.of(context)
-                .push(ViewVideoPage.route(_notification.targetVideoId!));
+            Navigator.of(context).push(
+                ViewVideoPage.route(videoId: _notification.targetVideoId!));
             break;
           case NotificationType.mentioned:
-            Navigator.of(context)
-                .push(ViewVideoPage.route(_notification.targetVideoId!));
+            Navigator.of(context).push(
+                ViewVideoPage.route(videoId: _notification.targetVideoId!));
             break;
           case NotificationType.follow:
             Navigator.of(context)

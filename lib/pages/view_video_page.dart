@@ -31,9 +31,21 @@ enum VideoMenu {
 }
 
 class ViewVideoPage extends StatelessWidget {
+  const ViewVideoPage({
+    Key? key,
+    required this.videoId,
+    this.video,
+  }) : super(key: key);
+
   static const name = 'ViewVideoPage';
 
-  static Route<void> route(String videoId) {
+  final String videoId;
+  final Video? video;
+
+  static Route<void> route({
+    required String videoId,
+    Video? video,
+  }) {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
       builder: (context) => MultiBlocProvider(
@@ -45,11 +57,12 @@ class ViewVideoPage extends StatelessWidget {
           ),
           BlocProvider<CommentCubit>(
             create: (context) => CommentCubit(
-                repository: RepositoryProvider.of<Repository>(context),
-                videoId: videoId),
+              repository: RepositoryProvider.of<Repository>(context),
+              videoId: videoId,
+            ),
           ),
         ],
-        child: ViewVideoPage(),
+        child: ViewVideoPage(videoId: videoId, video: video),
       ),
     );
   }
@@ -60,6 +73,28 @@ class ViewVideoPage extends StatelessWidget {
       body: BlocBuilder<VideoCubit, VideoState>(
         builder: (context, state) {
           if (state is VideoInitial) {
+            if (video != null) {
+              return Hero(
+                tag: video!.id,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(
+                      video!.thumbnailUrl,
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned.fill(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          color: Colors.black.withOpacity(0.05),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
             return preloader;
           } else if (state is VideoLoading) {
             final video = state.videoDetail;
