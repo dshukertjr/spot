@@ -68,7 +68,7 @@ class CommentCubit extends Cubit<CommentState> {
       final mentions = _repository.getMentionedProfiles(comment.text);
       final mentionReplacedText = _repository.replaceMentionsInAComment(
           comment: text, mentions: mentions);
-      await _repository.comment(
+      await _repository.submitComment(
           text: mentionReplacedText, videoId: _videoId, mentions: mentions);
     } catch (err) {
       emit(CommentError(message: 'Error commenting.'));

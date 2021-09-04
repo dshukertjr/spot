@@ -540,7 +540,7 @@ class Repository {
     });
   }
 
-  Future<void> comment({
+  Future<void> submitComment({
     required String text,
     required String videoId,
     required List<Profile> mentions,
@@ -783,15 +783,19 @@ class Repository {
     return profiles;
   }
 
+  /// Get all of the mentioned profiles in a comment
   List<Profile> getMentionedProfiles(String commentText) {
     final userNames = commentText
         .split(' ')
         .where((word) => word.isNotEmpty && word[0] == '@')
         .map((word) => RegExp(r'^\w*').firstMatch(word.substring(1))!.group(0)!)
         .toList();
-    final userNameMap = <String, Profile>{}..addEntries(
-        profileDetailsCache.values.map<MapEntry<String, Profile>>(
-            (profile) => MapEntry(profile.name, profile)));
+    final userNameMap = Map<String, Profile>.from(profileDetailsCache)
+      ..addEntries(_mentionSuggestionCache.values
+          .expand((i) => i)
+          .toList()
+          .map<MapEntry<String, Profile>>(
+              (profile) => MapEntry(profile.name, profile)));
     final mentionedProfiles = userNames
         .map<Profile?>((userName) => userNameMap[userName])
         .where((profile) => profile != null)
