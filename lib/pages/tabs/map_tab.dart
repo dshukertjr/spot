@@ -238,8 +238,11 @@ class MapState extends State<Map> {
         });
       },
       markerBuilder: (cluster) {
+        final items = cluster.items.toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        final target = items.first.copyWith(position: cluster.location);
         return _createMarkerFromVideo(
-          video: cluster.items.first.copyWith(position: cluster.location),
+          video: target,
           factor: _getMapFactor(),
           clusterCount: cluster.items.length,
         );
