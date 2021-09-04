@@ -394,7 +394,8 @@ void main() {
           sampleProfileDetail.id: sampleProfileDetail,
           otherProfileDetail.id: otherProfileDetail,
         });
-        final profiles = repository.getMentionedProfiles(comment);
+        final profiles = repository
+            .getMentionedProfiles(commentText: comment, profilesInComments: []);
 
         expect(profiles.length, 0);
       });
@@ -409,7 +410,8 @@ void main() {
           sampleProfileDetail.id: sampleProfileDetail,
           otherProfileDetail.id: otherProfileDetail,
         });
-        final profiles = repository.getMentionedProfiles(comment);
+        final profiles = repository
+            .getMentionedProfiles(commentText: comment, profilesInComments: []);
 
         expect(profiles.length, 0);
       });
@@ -424,7 +426,8 @@ void main() {
           sampleProfileDetail.id: sampleProfileDetail,
           otherProfileDetail.id: otherProfileDetail,
         });
-        final profiles = repository.getMentionedProfiles(comment);
+        final profiles = repository
+            .getMentionedProfiles(commentText: comment, profilesInComments: []);
 
         expect(profiles.length, 1);
         expect(profiles.first.id, 'aaa');
@@ -440,7 +443,8 @@ void main() {
           sampleProfileDetail.id: sampleProfileDetail,
           otherProfileDetail.id: otherProfileDetail,
         });
-        final profiles = repository.getMentionedProfiles(comment);
+        final profiles = repository
+            .getMentionedProfiles(commentText: comment, profilesInComments: []);
 
         expect(profiles.length, 1);
         expect(profiles.first.id, 'aaa');
@@ -457,7 +461,8 @@ void main() {
           otherProfileDetail.id: otherProfileDetail,
         });
 
-        final profiles = repository.getMentionedProfiles(comment);
+        final profiles = repository
+            .getMentionedProfiles(commentText: comment, profilesInComments: []);
 
         expect(profiles.length, 1);
         expect(profiles.first.id, 'aaa');
@@ -475,7 +480,8 @@ void main() {
           otherProfileDetail.id: otherProfileDetail,
         });
 
-        final profiles = repository.getMentionedProfiles(comment);
+        final profiles = repository
+            .getMentionedProfiles(commentText: comment, profilesInComments: []);
 
         expect(profiles.length, 2);
         expect(profiles.first.id, 'aaa');
@@ -494,9 +500,30 @@ void main() {
           otherProfileDetail.id: otherProfileDetail,
         });
 
-        final profiles = repository.getMentionedProfiles(comment);
+        final profiles = repository
+            .getMentionedProfiles(commentText: comment, profilesInComments: []);
 
         expect(profiles.length, 0);
+      });
+
+      test('getMentionedProfiles returns profiles from comments profiles', () {
+        final repository = Repository(
+            supabaseClient: supabaseClient,
+            analytics: analytics,
+            localStorage: localStorage,
+            locationProvider: locationProvider);
+        final comment =
+            'What do you think @${sampleProfile.name}, @${otherProfile.name}?';
+        repository.profileDetailsCache.addAll({
+          sampleProfileDetail.id: sampleProfileDetail,
+        });
+
+        final profiles = repository.getMentionedProfiles(
+            commentText: comment, profilesInComments: [otherProfile]);
+
+        expect(profiles.length, 2);
+        expect(profiles.first.id, 'aaa');
+        expect(profiles[1].id, 'bbb');
       });
     });
   });
