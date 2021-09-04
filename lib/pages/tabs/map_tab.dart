@@ -339,7 +339,6 @@ class MapState extends State<Map> {
     final canvas = Canvas(pictureRecorder);
     final boundingRect = Rect.fromLTWH(0.0, 0.0, markerSize, markerSize);
     final centerOffset = Offset(markerSize / 2, markerSize / 2);
-    final counterOffset = Offset(markerSize * 7 / 8, markerSize / 8);
 
     /// Adding gradient to the background of the marker
     final paint = Paint();
@@ -348,9 +347,6 @@ class MapState extends State<Map> {
     } else {
       paint.shader = blueGradient.createShader(boundingRect);
     }
-
-    final clusterCountBackgroundPaint = Paint()
-      ..shader = redOrangeGradient.createShader(boundingRect);
 
     // start adding images
     final imageFile = await RepositoryProvider.of<Repository>(context)
@@ -383,13 +379,19 @@ class MapState extends State<Map> {
       ..restore();
 
     if (clusterCount > 1) {
+      final counterOffset = Offset(markerSize * 7 / 8, markerSize / 8);
+      final boundingRect = Rect.fromCenter(
+          center: counterOffset, width: markerSize / 4, height: markerSize / 4);
+      final clusterCountBackgroundPaint = Paint()
+        ..shader = redOrangeGradient.createShader(boundingRect);
       final span = TextSpan(
-          style: TextStyle(
-            color: const Color(0xFFFFFFFF),
-            fontSize: 12.0 * factor,
-            letterSpacing: -1.0 * factor,
-          ),
-          text: '$clusterCount');
+        style: TextStyle(
+          color: const Color(0xFFFFFFFF),
+          fontSize: 12.0 * factor,
+          letterSpacing: -1.0 * factor,
+        ),
+        text: '$clusterCount',
+      );
       final textPainter = TextPainter(
         text: span,
         textAlign: TextAlign.center,
