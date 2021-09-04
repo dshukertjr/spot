@@ -1,6 +1,2 @@
-You can now follow your favorite video creators! You will see a orange ring around the thumbnail of a post posted by users you are following and blue ring around those you haven't followed. 
-
-- Follow feature is added
-- Number of followers, followings, and likes received can be viewed on profile page
-- Thubmnail of the video is displayed in the notifications
-- Fixed a bug where the app turns black after posting a new video
+- Nearby videos will be clustered together
+- Added a little animation when opening a video from the map
