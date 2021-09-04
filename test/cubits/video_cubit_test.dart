@@ -24,7 +24,7 @@ Future<void> main() async {
           gifUrl: '',
           createdAt: DateTime.now(),
           description: '',
-          location: const LatLng(0, 0),
+          position: const LatLng(0, 0),
           userId: '',
           likeCount: 0,
           commentCount: 0,

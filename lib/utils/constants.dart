@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 /// Size of each markers on a map
-const markerSize = 100.0;
+const defaultMarkerSize = 75.0;
 
 /// Width of the border of markers on maps
-const borderWidth = 6.0;
+const borderWidth = 5.0;
 
 const appRed = Color(0xFFD73763);
 const appOrange = Color(0xFFF6935C);

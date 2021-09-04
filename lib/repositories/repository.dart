@@ -433,8 +433,8 @@ class Repository {
     }
     var videoDetail = VideoDetail.fromData(
         data: Map.from(List.from(data).first), userId: userId);
-    if (videoDetail.location != null) {
-      final locationString = await _locationToString(videoDetail.location!);
+    if (videoDetail.position != null) {
+      final locationString = await _locationToString(videoDetail.position!);
       videoDetail = videoDetail.copyWith(locationString: locationString);
     }
     _videoDetails[videoId] = videoDetail;

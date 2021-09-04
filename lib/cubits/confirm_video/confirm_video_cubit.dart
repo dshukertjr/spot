@@ -119,7 +119,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
         gifUrl: videoGifUrl,
         description: description,
         creatorUid: userId,
-        location: _videoLocation!,
+        position: _videoLocation!,
       );
 
       await _repository.saveVideo(creatingVideo);
