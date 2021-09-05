@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -34,17 +35,17 @@ class ViewVideoPage extends StatelessWidget {
   const ViewVideoPage({
     Key? key,
     required this.videoId,
-    this.video,
+    this.videoThubmnailFile,
   }) : super(key: key);
 
   static const name = 'ViewVideoPage';
 
   final String videoId;
-  final Video? video;
+  final File? videoThubmnailFile;
 
   static Route<void> route({
     required String videoId,
-    Video? video,
+    File? videoThubmnailFile,
   }) {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
@@ -62,7 +63,8 @@ class ViewVideoPage extends StatelessWidget {
             ),
           ),
         ],
-        child: ViewVideoPage(videoId: videoId, video: video),
+        child: ViewVideoPage(
+            videoId: videoId, videoThubmnailFile: videoThubmnailFile),
       ),
     );
   }
@@ -73,14 +75,14 @@ class ViewVideoPage extends StatelessWidget {
       body: BlocBuilder<VideoCubit, VideoState>(
         builder: (context, state) {
           if (state is VideoInitial) {
-            if (video != null) {
+            if (videoThubmnailFile != null) {
               return Hero(
-                tag: video!.id,
+                tag: videoId,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.network(
-                      video!.thumbnailUrl,
+                    Image.file(
+                      videoThubmnailFile!,
                       fit: BoxFit.cover,
                     ),
                     Positioned.fill(
@@ -94,8 +96,9 @@ class ViewVideoPage extends StatelessWidget {
                   ],
                 ),
               );
+            } else {
+              return preloader;
             }
-            return preloader;
           } else if (state is VideoLoading) {
             final video = state.videoDetail;
             return VideoScreen(

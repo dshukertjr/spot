@@ -96,7 +96,8 @@ class MapState extends State<Map> {
   final TextEditingController _citySearchQueryController =
       TextEditingController();
 
-  Video? _tappedVideo;
+  String? _tappedVideoId;
+  File? _tappedVideoThubmanilFile;
   Offset? _tappedVideoCordinates;
 
   @override
@@ -159,15 +160,15 @@ class MapState extends State<Map> {
               ),
             ),
           ),
-        if (_tappedVideo != null)
+        if (_tappedVideoId != null)
           Positioned(
             left: _tappedVideoCordinates!.dx,
             top: _tappedVideoCordinates!.dy,
             child: Hero(
-              tag: _tappedVideo!.id,
+              tag: _tappedVideoId!,
               child: ClipOval(
-                child: Image.network(
-                  _tappedVideo!.thumbnailUrl,
+                child: Image.file(
+                  _tappedVideoThubmanilFile!,
                   width: defaultMarkerSize,
                   height: defaultMarkerSize,
                 ),
@@ -350,10 +351,15 @@ class MapState extends State<Map> {
       final controller = await _mapController.future;
       final screenCordinate =
           await controller.getScreenCoordinate(video.position!);
+
       final pixelRatio =
           Platform.isAndroid ? MediaQuery.of(context).devicePixelRatio : 1.0;
+      final imageFile = await RepositoryProvider.of<Repository>(context)
+          .getCachedFile(video.thumbnailUrl);
+
       setState(() {
-        _tappedVideo = video;
+        _tappedVideoId = video.id;
+        _tappedVideoThubmanilFile = imageFile;
         _tappedVideoCordinates = Offset(
           screenCordinate.x / pixelRatio - defaultMarkerSize / 2,
           screenCordinate.y / pixelRatio - defaultMarkerSize / 2,
@@ -361,10 +367,10 @@ class MapState extends State<Map> {
       });
       await Navigator.of(context).push(ViewVideoPage.route(
         videoId: video.id,
-        video: video,
+        videoThubmnailFile: imageFile,
       ));
       setState(() {
-        _tappedVideo = null;
+        _tappedVideoId = null;
         _tappedVideoCordinates = null;
       });
     };
