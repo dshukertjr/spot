@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -349,7 +350,8 @@ class MapState extends State<Map> {
       final controller = await _mapController.future;
       final screenCordinate =
           await controller.getScreenCoordinate(video.position!);
-      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+      final pixelRatio =
+          Platform.isAndroid ? MediaQuery.of(context).devicePixelRatio : 1.0;
       setState(() {
         _tappedVideo = video;
         _tappedVideoCordinates = Offset(
