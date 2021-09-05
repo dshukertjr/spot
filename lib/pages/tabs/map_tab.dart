@@ -79,7 +79,6 @@ class Map extends StatefulWidget {
 
 @visibleForTesting
 class MapState extends State<Map> {
-  @visibleForTesting
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
 
