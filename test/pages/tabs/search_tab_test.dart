@@ -31,7 +31,7 @@ void main() {
               createdAt: DateTime.now(),
               description: 'description',
               userId: 'userId',
-              location: const LatLng(45, 45),
+              position: const LatLng(45, 45),
               isFollowing: false,
             ),
           ]);
@@ -67,7 +67,7 @@ void main() {
               createdAt: DateTime.now(),
               description: 'description',
               userId: 'userId',
-              location: const LatLng(45, 45),
+              position: const LatLng(45, 45),
               isFollowing: false,
             ),
           ]);
@@ -82,7 +82,7 @@ void main() {
               createdAt: DateTime.now(),
               description: 'description',
               userId: 'userId',
-              location: const LatLng(45, 45),
+              position: const LatLng(45, 45),
               isFollowing: false,
             ),
             Video(
@@ -94,7 +94,7 @@ void main() {
               createdAt: DateTime.now(),
               description: 'description',
               userId: 'userId',
-              location: const LatLng(45, 45),
+              position: const LatLng(45, 45),
               isFollowing: false,
             ),
           ]);

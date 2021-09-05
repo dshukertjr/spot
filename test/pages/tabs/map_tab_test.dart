@@ -35,7 +35,7 @@ void main() {
                   createdAt: DateTime.now(),
                   description: 'description',
                   userId: 'userId',
-                  location: const LatLng(0, 0),
+                  position: const LatLng(0, 0),
                   isFollowing: false,
                 )
               ]));
@@ -73,7 +73,7 @@ void main() {
                   createdAt: DateTime.now(),
                   description: 'description',
                   userId: 'userId',
-                  location: const LatLng(0, 0),
+                  position: const LatLng(0, 0),
                   isFollowing: false,
                 )
               ]));

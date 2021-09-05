@@ -65,10 +65,19 @@ class CommentCubit extends Cubit<CommentState> {
       );
       _comments.insert(0, comment);
       emit(CommentsLoaded(_comments));
-      final mentions = _repository.getMentionedProfiles(comment.text);
+      final myUserId = _repository.userId;
+      final profilesInComments = _comments
+          .where((comment) => comment.user.id != myUserId)
+          .map((comment) => comment.user)
+          .toList();
+
+      final mentions = _repository.getMentionedProfiles(
+        commentText: comment.text,
+        profilesInComments: profilesInComments,
+      );
       final mentionReplacedText = _repository.replaceMentionsInAComment(
           comment: text, mentions: mentions);
-      await _repository.comment(
+      await _repository.postComment(
           text: mentionReplacedText, videoId: _videoId, mentions: mentions);
     } catch (err) {
       emit(CommentError(message: 'Error commenting.'));

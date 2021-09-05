@@ -1,8 +1,9 @@
+import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:spot/models/profile.dart';
 
-class Video {
+class Video with ClusterItem {
   Video({
     required this.id,
     required this.url,
@@ -13,7 +14,7 @@ class Video {
     required this.description,
     required this.userId,
     required this.isFollowing,
-    required this.location,
+    required this.position,
   });
 
   final String id;
@@ -25,7 +26,7 @@ class Video {
   final String description;
   final String userId;
   final bool isFollowing;
-  final LatLng? location;
+  final LatLng? position;
 
   Future<double> getDistanceInMeter() async {
     return 1000;
@@ -38,7 +39,7 @@ class Video {
     required String gifUrl,
     required String description,
     required String creatorUid,
-    required LatLng location,
+    required LatLng position,
   }) {
     return Video(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -48,7 +49,7 @@ class Video {
       gifUrl: gifUrl,
       description: description,
       userId: creatorUid,
-      location: location,
+      position: position,
       isFollowing: false,
       createdAt: DateTime.now(),
     );
@@ -65,7 +66,7 @@ class Video {
       gifUrl: gifUrl,
       description: description,
       userId: userId,
-      location: location,
+      position: position,
       isFollowing: false,
       createdAt: createdAt,
     );
@@ -79,8 +80,8 @@ class Video {
       'gif_url': gifUrl,
       'description': description,
       'user_id': userId,
-      if (location != null)
-        'location': 'POINT(${location!.longitude} ${location!.latitude})',
+      if (position != null)
+        'location': 'POINT(${position!.longitude} ${position!.latitude})',
     };
   }
 
@@ -97,7 +98,7 @@ class Video {
               gifUrl: row['gif_url'] as String,
               description: row['description'] as String,
               userId: row['user_id'] as String,
-              location: row['location'] == null
+              position: row['location'] == null
                   ? null
                   : _locationFromPoint(row['location'] as String),
               isFollowing: (userId == row['user_id'])
@@ -113,6 +114,35 @@ class Video {
         point.replaceAll('POINT(', '').replaceAll(')', '').split(' ');
     return LatLng(double.parse(splits.last), double.parse(splits.first));
   }
+
+  @override
+  LatLng get location => position!;
+
+  Video copyWith({
+    String? id,
+    String? url,
+    String? imageUrl,
+    String? thumbnailUrl,
+    String? gifUrl,
+    DateTime? createdAt,
+    String? description,
+    String? userId,
+    bool? isFollowing,
+    LatLng? position,
+  }) {
+    return Video(
+      id: id ?? this.id,
+      url: url ?? this.url,
+      imageUrl: imageUrl ?? this.imageUrl,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      gifUrl: gifUrl ?? this.gifUrl,
+      createdAt: createdAt ?? this.createdAt,
+      description: description ?? this.description,
+      userId: userId ?? this.userId,
+      isFollowing: isFollowing ?? this.isFollowing,
+      position: position ?? this.position,
+    );
+  }
 }
 
 class VideoDetail extends Video {
@@ -124,7 +154,7 @@ class VideoDetail extends Video {
     required String gifUrl,
     required DateTime createdAt,
     required String description,
-    required LatLng location,
+    required LatLng position,
     required String userId,
     required bool isFollowing,
     required this.likeCount,
@@ -142,7 +172,7 @@ class VideoDetail extends Video {
           userId: userId,
           description: description,
           isFollowing: isFollowing,
-          location: location,
+          position: position,
         );
 
   final int likeCount;
@@ -175,7 +205,7 @@ class VideoDetail extends Video {
         imageUrl: data['user_image_url'] as String?,
         description: data['user_description'] as String?,
       ),
-      location: Video._locationFromPoint(data['location'] as String),
+      position: Video._locationFromPoint(data['location'] as String),
       createdAt: DateTime.parse(data['created_at'] as String),
       likeCount: data['like_count'] as int,
       commentCount: data['comment_count'] as int,
@@ -193,7 +223,19 @@ class VideoDetail extends Video {
     };
   }
 
+  @override
   VideoDetail copyWith({
+    String? id,
+    String? url,
+    String? imageUrl,
+    String? thumbnailUrl,
+    String? gifUrl,
+    DateTime? createdAt,
+    Profile? createdBy,
+    String? description,
+    String? userId,
+    bool? isFollowing,
+    LatLng? position,
     int? likeCount,
     int? commentCount,
     bool? haveLiked,
@@ -204,17 +246,17 @@ class VideoDetail extends Video {
       commentCount: commentCount ?? this.commentCount,
       haveLiked: haveLiked ?? this.haveLiked,
       locationString: locationString ?? this.locationString,
-      createdAt: createdAt,
-      createdBy: createdBy,
-      description: description,
-      gifUrl: gifUrl,
-      id: id,
-      userId: userId,
-      isFollowing: isFollowing,
-      imageUrl: imageUrl,
-      location: location!,
-      thumbnailUrl: thumbnailUrl,
-      url: url,
+      createdAt: createdAt ?? this.createdAt,
+      createdBy: createdBy ?? this.createdBy,
+      description: description ?? this.description,
+      gifUrl: gifUrl ?? this.gifUrl,
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      position: position ?? this.position!,
+      isFollowing: isFollowing ?? this.isFollowing,
+      imageUrl: imageUrl ?? this.imageUrl,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      url: url ?? this.url,
     );
   }
 }

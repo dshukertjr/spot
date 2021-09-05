@@ -38,7 +38,7 @@ void main() {
       gifUrl: 'gifUrl',
       createdAt: DateTime.now(),
       description: 'description',
-      location: const LatLng(0, 0),
+      position: const LatLng(0, 0),
       userId: 'userId',
       isFollowing: false,
       likeCount: 0,
@@ -62,7 +62,7 @@ void main() {
                   gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
                   createdAt: DateTime.now().subtract(const Duration(hours: 1)),
                   description: 'description',
-                  location: const LatLng(0, 0),
+                  position: const LatLng(0, 0),
                   userId: 'otherUser',
                   likeCount: 0,
                   commentCount: 0,
@@ -82,7 +82,7 @@ void main() {
             gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
             createdAt: DateTime.now().subtract(const Duration(hours: 1)),
             description: 'description',
-            location: const LatLng(0, 0),
+            position: const LatLng(0, 0),
             userId: 'otherUser',
             likeCount: 0,
             commentCount: 0,
@@ -102,7 +102,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -128,7 +128,7 @@ void main() {
                   gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
                   createdAt: DateTime.now().subtract(const Duration(hours: 1)),
                   description: 'description',
-                  location: const LatLng(0, 0),
+                  position: const LatLng(0, 0),
                   userId: 'otherUser',
                   likeCount: 0,
                   commentCount: 0,
@@ -148,7 +148,7 @@ void main() {
             gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
             createdAt: DateTime.now().subtract(const Duration(hours: 1)),
             description: 'description',
-            location: const LatLng(0, 0),
+            position: const LatLng(0, 0),
             userId: 'otherUser',
             likeCount: 0,
             commentCount: 0,
@@ -168,7 +168,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -200,7 +200,7 @@ void main() {
                   gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
                   createdAt: DateTime.now().subtract(const Duration(hours: 1)),
                   description: 'description',
-                  location: const LatLng(0, 0),
+                  position: const LatLng(0, 0),
                   userId: 'myUserId',
                   likeCount: 0,
                   commentCount: 0,
@@ -220,7 +220,7 @@ void main() {
             gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
             createdAt: DateTime.now().subtract(const Duration(hours: 1)),
             description: 'description',
-            location: const LatLng(0, 0),
+            position: const LatLng(0, 0),
             userId: 'myUserId',
             likeCount: 0,
             commentCount: 0,
@@ -240,7 +240,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -274,7 +274,7 @@ void main() {
                   gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
                   createdAt: DateTime.now().subtract(const Duration(hours: 1)),
                   description: 'description',
-                  location: const LatLng(0, 0),
+                  position: const LatLng(0, 0),
                   userId: 'otherUser',
                   likeCount: 0,
                   commentCount: 0,
@@ -294,7 +294,7 @@ void main() {
             gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
             createdAt: DateTime.now().subtract(const Duration(hours: 1)),
             description: 'description',
-            location: const LatLng(0, 0),
+            position: const LatLng(0, 0),
             userId: 'otherUser',
             likeCount: 0,
             commentCount: 0,
@@ -319,7 +319,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -357,7 +357,7 @@ void main() {
                   gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
                   createdAt: DateTime.now().subtract(const Duration(hours: 1)),
                   description: 'description',
-                  location: const LatLng(0, 0),
+                  position: const LatLng(0, 0),
                   userId: 'otherUser',
                   likeCount: 0,
                   commentCount: 0,
@@ -377,7 +377,7 @@ void main() {
             gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
             createdAt: DateTime.now().subtract(const Duration(hours: 1)),
             description: 'description',
-            location: const LatLng(0, 0),
+            position: const LatLng(0, 0),
             userId: 'otherUser',
             likeCount: 0,
             commentCount: 0,
@@ -402,7 +402,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -438,7 +438,7 @@ void main() {
                   gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
                   createdAt: DateTime.now().subtract(const Duration(hours: 1)),
                   description: 'description',
-                  location: const LatLng(0, 0),
+                  position: const LatLng(0, 0),
                   userId: 'otherUser',
                   likeCount: 0,
                   commentCount: 0,
@@ -458,7 +458,7 @@ void main() {
             gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
             createdAt: DateTime.now().subtract(const Duration(hours: 1)),
             description: 'description',
-            location: const LatLng(0, 0),
+            position: const LatLng(0, 0),
             userId: 'otherUser',
             likeCount: 0,
             commentCount: 0,
@@ -483,7 +483,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) => VideoCubit(repository: repository)
             ..initialize(likedVideoDetail.id),
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -516,7 +516,7 @@ void main() {
                   gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
                   createdAt: DateTime.now().subtract(const Duration(hours: 1)),
                   description: 'description',
-                  location: const LatLng(0, 0),
+                  position: const LatLng(0, 0),
                   userId: 'otherUser',
                   likeCount: 0,
                   commentCount: 0,
@@ -536,7 +536,7 @@ void main() {
             gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
             createdAt: DateTime.now().subtract(const Duration(hours: 1)),
             description: 'description',
-            location: const LatLng(0, 0),
+            position: const LatLng(0, 0),
             userId: 'otherUser',
             likeCount: 0,
             commentCount: 0,
@@ -582,7 +582,7 @@ void main() {
                     ..loadComments(),
             ),
           ],
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );
@@ -623,7 +623,7 @@ void main() {
           gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
           createdAt: DateTime.now(),
           description: 'description',
-          location: const LatLng(0, 0),
+          position: const LatLng(0, 0),
           userId: 'userId',
           likeCount: 1,
           commentCount: 1,
@@ -664,7 +664,7 @@ void main() {
               gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
               createdAt: DateTime.now(),
               description: 'description',
-              location: const LatLng(0, 0),
+              position: const LatLng(0, 0),
               userId: 'userId',
               likeCount: 1,
               commentCount: 1,
@@ -682,7 +682,7 @@ void main() {
               gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
               createdAt: DateTime.now(),
               description: 'description',
-              location: const LatLng(0, 0),
+              position: const LatLng(0, 0),
               userId: 'userId',
               likeCount: 1,
               commentCount: 1,
@@ -701,7 +701,7 @@ void main() {
             gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
             createdAt: DateTime.now(),
             description: 'description',
-            location: const LatLng(0, 0),
+            position: const LatLng(0, 0),
             userId: 'userId',
             likeCount: 1,
             commentCount: 1,
@@ -761,7 +761,7 @@ void main() {
             BlocProvider<CommentCubit>(
                 create: (BuildContext context) => mockCommentCubit),
           ],
-          child: ViewVideoPage(),
+          child: const ViewVideoPage(videoId: 'aaa'),
         ),
         repository: repository,
       );

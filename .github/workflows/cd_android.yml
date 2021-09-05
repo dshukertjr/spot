@@ -1,12 +1,6 @@
 name: CD_Android
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'pubspec.yaml'
-
   pull_request:
     paths:
       - 'pubspec.yaml'

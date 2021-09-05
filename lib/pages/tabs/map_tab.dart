@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spot/utils/constants.dart';
 import 'package:spot/components/gradient_border.dart';
@@ -78,11 +79,13 @@ class Map extends StatefulWidget {
 
 @visibleForTesting
 class MapState extends State<Map> {
-  @visibleForTesting
-  final Completer<GoogleMapController> controller = Completer();
+  final Completer<GoogleMapController> _mapController =
+      Completer<GoogleMapController>();
 
   /// Holds all the markers for the map
-  final _markers = <Marker>{};
+  Set<Marker> _markers = <Marker>{};
+
+  late final ClusterManager<Video> _clusterManager;
 
   /// false if there hasn't been marker being loaded yet
   var _hasLoadedMarkers = false;
@@ -92,8 +95,8 @@ class MapState extends State<Map> {
   final TextEditingController _citySearchQueryController =
       TextEditingController();
 
-  BitmapDescriptor? _notFollowingLoadingMarker;
-  BitmapDescriptor? _followingLoadingMarker;
+  Video? _tappedVideo;
+  Offset? _tappedVideoCordinates;
 
   @override
   Widget build(BuildContext context) {
@@ -112,12 +115,13 @@ class MapState extends State<Map> {
             zoom: 16,
           ),
           onCameraIdle: () async {
+            _clusterManager.updateMap();
             if (_loading) {
               return;
             }
             _loading = true;
             // Finds the center of the map and load videos around that location
-            final mapController = await controller.future;
+            final mapController = await _mapController.future;
             final bounds = await mapController.getVisibleRegion();
             await BlocProvider.of<VideosCubit>(context)
                 .loadVideosWithinBoundingBox(bounds);
@@ -125,12 +129,14 @@ class MapState extends State<Map> {
           },
           onMapCreated: (GoogleMapController mapController) {
             try {
-              controller.complete(mapController);
+              _mapController.complete(mapController);
               mapController.setMapStyle(mapTheme);
+              _clusterManager.setMapId(mapController.mapId);
             } catch (e) {
               context.showErrorSnackbar('Error setting map style');
             }
           },
+          onCameraMove: _clusterManager.onCameraMove,
         ),
         Positioned(
           top: 10 + MediaQuery.of(context).padding.top,
@@ -149,6 +155,21 @@ class MapState extends State<Map> {
                 width: 30,
                 height: 30,
                 child: preloader,
+              ),
+            ),
+          ),
+        if (_tappedVideo != null)
+          Positioned(
+            left: _tappedVideoCordinates!.dx,
+            top: _tappedVideoCordinates!.dy,
+            child: Hero(
+              tag: _tappedVideo!.id,
+              child: ClipOval(
+                child: Image.network(
+                  _tappedVideo!.thumbnailUrl,
+                  width: defaultMarkerSize,
+                  height: defaultMarkerSize,
+                ),
               ),
             ),
           ),
@@ -194,7 +215,7 @@ class MapState extends State<Map> {
                     context.showSnackbar('Could not find the location');
                     return;
                   }
-                  final mapController = await controller.future;
+                  final mapController = await _mapController.future;
                   await mapController
                       .moveCamera(CameraUpdate.newLatLng(location));
                 },
@@ -227,6 +248,26 @@ class MapState extends State<Map> {
 
   @override
   void initState() {
+    _clusterManager = ClusterManager<Video>(
+      widget._videos,
+      (markers) {
+        setState(() {
+          _markers = markers;
+        });
+      },
+      markerBuilder: (cluster) {
+        final items = cluster.items.toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        final target = items.first.copyWith(position: cluster.location);
+        return _createMarkerFromVideo(
+          video: target,
+          factor: _getMapFactor(),
+          clusterCount: cluster.items.length,
+        );
+      },
+      stopClusteringZoom: 18,
+    );
+
     _citySearchQueryController.addListener(updateUI);
     super.initState();
   }
@@ -251,7 +292,7 @@ class MapState extends State<Map> {
       return;
     }
     _hasLoadedMarkers = true;
-    final mapController = await controller.future;
+    final mapController = await _mapController.future;
     if (_markers.length == 1) {
       // If there is only 1 marker, move camera to centre that marker
       return mapController
@@ -279,152 +320,53 @@ class MapState extends State<Map> {
     required List<Video> videos,
     required BuildContext context,
   }) async {
-    /// Only create markers for videos that the marker does not exist yet.
-    final markerIds =
-        _markers.toList().map((marker) => marker.markerId.value).toList();
-    final newVideos = videos.where((video) => !markerIds.contains(video.id));
-
-    if (videos.length < _markers.length) {
-      /// Delete marker for videos that is not included in videos
-      final videoIds = videos.map((video) => video.id).toList();
-
-      setState(() {
-        _markers
-            .removeWhere((marker) => !videoIds.contains(marker.markerId.value));
-      });
-      return;
-    }
-    if (newVideos.isEmpty) {
-      return;
-    }
-    final factor = _getMapFactor();
-    final markerSize = _getMarkerSize(factor);
-
-    if (_notFollowingLoadingMarker == null || _followingLoadingMarker == null) {
-      _notFollowingLoadingMarker = await _createLoadingMarkerImage(
-        isFollowing: false,
-        factor: factor,
-        markerSize: markerSize,
-      );
-      _followingLoadingMarker = await _createLoadingMarkerImage(
-        isFollowing: true,
-        factor: factor,
-        markerSize: markerSize,
-      );
-    }
-
-    final loadingNewMarkers = newVideos.map((video) => Marker(
-          anchor: const Offset(0.5, 0.5),
-          markerId: MarkerId(video.id),
-          position: video.location!,
-          icon: video.isFollowing
-              ? _followingLoadingMarker!
-              : _notFollowingLoadingMarker!,
-          zIndex: RepositoryProvider.of<Repository>(context)
-              .getZIndex(video.createdAt),
-        ));
-
-    setState(() {
-      _markers.addAll(loadingNewMarkers.toSet());
-    });
-
-    await Future.wait(
-      newVideos.map<Future<void>>(
-        (video) => _createMarkerFromVideo(
-          video: video,
-          context: context,
-          factor: factor,
-          markerSize: markerSize,
-        ),
-      ),
-    );
+    _clusterManager.setItems(videos);
   }
 
   /// Get factor of marker size depending on device's pixel ratio
   int _getMapFactor() {
     final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
     var factor = 1;
-    if (devicePixelRatio >= 1.5) {
-      factor = 2;
+    if (devicePixelRatio >= 3.5) {
+      factor = 4;
     } else if (devicePixelRatio >= 2.5) {
       factor = 3;
-    } else if (devicePixelRatio >= 3.5) {
-      factor = 4;
+    } else if (devicePixelRatio >= 1.5) {
+      factor = 2;
     }
     return factor;
   }
 
   /// Get markers' actual size
-  double _getMarkerSize(int factor) => factor * markerSize;
+  double _getMarkerSize(int factor) => factor * defaultMarkerSize;
 
-  Future<BitmapDescriptor> _createLoadingMarkerImage({
-    required int factor,
-    required double markerSize,
-    required bool isFollowing,
-  }) async {
-    final imagePadding = borderWidth * factor;
-    final imageSize = markerSize - imagePadding * 2;
-
-    final pictureRecorder = ui.PictureRecorder();
-    final canvas = Canvas(pictureRecorder);
-    final boundingRect = Rect.fromLTWH(0.0, 0.0, markerSize, markerSize);
-
-    final paint = Paint();
-    if (isFollowing) {
-      paint.shader = redOrangeGradient.createShader(
-        boundingRect,
-      );
-    } else {
-      paint.shader = blueGradient.createShader(
-        boundingRect,
-      );
-    }
-
-    final centerOffset = Offset(markerSize / 2, markerSize / 2);
-
-    canvas
-      ..drawCircle(centerOffset, markerSize / 2, paint)
-      ..drawCircle(
-          centerOffset, imageSize / 2, paint..blendMode = BlendMode.srcOut)
-      ..restore();
-
-    final span = const TextSpan(
-        style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 36),
-        text: 'Loading');
-    final textPainter = TextPainter(
-      text: span,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    )..layout();
-    textPainter.paint(
-        canvas,
-        centerOffset.translate(
-            -textPainter.width / 2, -textPainter.height / 2));
-
-    final img = await pictureRecorder
-        .endRecording()
-        .toImage(markerSize.toInt(), markerSize.toInt());
-
-    final data = await img.toByteData(format: ui.ImageByteFormat.png);
-    if (data == null) {
-      throw PlatformException(
-        code: 'marker error',
-        message: 'Error while creating byteData',
-      );
-    }
-    final markerIcon = data.buffer.asUint8List();
-    return BitmapDescriptor.fromBytes(markerIcon);
-  }
-
-  Future<void> _createMarkerFromVideo({
+  Future<Marker> _createMarkerFromVideo({
     required Video video,
-    required BuildContext context,
     required int factor,
-    required double markerSize,
+    required int clusterCount,
   }) async {
-    var onTap = () {
-      Navigator.of(context).push(ViewVideoPage.route(video.id));
+    final onTap = () async {
+      final controller = await _mapController.future;
+      final screenCordinate =
+          await controller.getScreenCoordinate(video.position!);
+      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+      setState(() {
+        _tappedVideo = video;
+        _tappedVideoCordinates = Offset(
+          screenCordinate.x / pixelRatio - defaultMarkerSize / 2,
+          screenCordinate.y / pixelRatio - defaultMarkerSize / 2,
+        );
+      });
+      await Navigator.of(context).push(ViewVideoPage.route(
+        videoId: video.id,
+        video: video,
+      ));
+      setState(() {
+        _tappedVideo = null;
+        _tappedVideoCordinates = null;
+      });
     };
+    final markerSize = _getMarkerSize(_getMapFactor());
 
     final imagePadding = borderWidth * factor;
     final imageSize = markerSize - imagePadding * 2;
@@ -437,13 +379,9 @@ class MapState extends State<Map> {
     /// Adding gradient to the background of the marker
     final paint = Paint();
     if (video.isFollowing) {
-      paint.shader = redOrangeGradient.createShader(
-        boundingRect,
-      );
+      paint.shader = redOrangeGradient.createShader(boundingRect);
     } else {
-      paint.shader = blueGradient.createShader(
-        boundingRect,
-      );
+      paint.shader = blueGradient.createShader(boundingRect);
     }
 
     // start adding images
@@ -476,6 +414,33 @@ class MapState extends State<Map> {
           paint..blendMode = BlendMode.srcIn)
       ..restore();
 
+    if (clusterCount > 1) {
+      final counterOffset = Offset(markerSize * 7 / 8, markerSize / 8);
+      final boundingRect = Rect.fromCenter(
+          center: counterOffset, width: markerSize / 4, height: markerSize / 4);
+      final clusterCountBackgroundPaint = Paint()
+        ..shader = redOrangeGradient.createShader(boundingRect);
+      final span = TextSpan(
+        style: TextStyle(
+          color: const Color(0xFFFFFFFF),
+          fontSize: 12.0 * factor,
+          letterSpacing: -1.0 * factor,
+        ),
+        text: '$clusterCount',
+      );
+      final textPainter = TextPainter(
+        text: span,
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      )..layout();
+      canvas.drawCircle(
+          counterOffset, markerSize / 8, clusterCountBackgroundPaint);
+      textPainter.paint(
+          canvas,
+          counterOffset.translate(
+              -textPainter.width / 2, -textPainter.height / 2));
+    }
+
     final img = await pictureRecorder
         .endRecording()
         .toImage(markerSize.toInt(), markerSize.toInt());
@@ -494,17 +459,13 @@ class MapState extends State<Map> {
       onTap: onTap,
       consumeTapEvents: true,
       markerId: MarkerId(video.id),
-      position: video.location!,
+      position: video.position!,
       icon: BitmapDescriptor.fromBytes(markerIcon),
       zIndex:
           RepositoryProvider.of<Repository>(context).getZIndex(video.createdAt),
     );
 
-    _markers.removeWhere(
-        (targetMarker) => targetMarker.markerId == marker.markerId);
-    setState(() {
-      _markers.add(marker);
-    });
+    return marker;
   }
 
   Future<ui.Image> _loadImage(Uint8List img) async {

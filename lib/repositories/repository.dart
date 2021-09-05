@@ -433,8 +433,8 @@ class Repository {
     }
     var videoDetail = VideoDetail.fromData(
         data: Map.from(List.from(data).first), userId: userId);
-    if (videoDetail.location != null) {
-      final locationString = await _locationToString(videoDetail.location!);
+    if (videoDetail.position != null) {
+      final locationString = await _locationToString(videoDetail.position!);
       videoDetail = videoDetail.copyWith(locationString: locationString);
     }
     _videoDetails[videoId] = videoDetail;
@@ -540,7 +540,7 @@ class Repository {
     });
   }
 
-  Future<void> comment({
+  Future<void> postComment({
     required String text,
     required String videoId,
     required List<Profile> mentions,
@@ -783,15 +783,28 @@ class Repository {
     return profiles;
   }
 
-  List<Profile> getMentionedProfiles(String commentText) {
+  /// Get all of the mentioned profiles in a comment
+  List<Profile> getMentionedProfiles({
+    required String commentText,
+    required List<Profile> profilesInComments,
+  }) {
     final userNames = commentText
         .split(' ')
         .where((word) => word.isNotEmpty && word[0] == '@')
         .map((word) => RegExp(r'^\w*').firstMatch(word.substring(1))!.group(0)!)
         .toList();
-    final userNameMap = <String, Profile>{}..addEntries(
-        profileDetailsCache.values.map<MapEntry<String, Profile>>(
-            (profile) => MapEntry(profile.name, profile)));
+
+    /// Map where user name is the key and profile is the value
+    final userNameMap = <String, Profile>{}
+      ..addEntries(
+          profilesInComments.map((profile) => MapEntry(profile.name, profile)))
+      ..addEntries(profileDetailsCache.values.map<MapEntry<String, Profile>>(
+          (profile) => MapEntry(profile.name, profile)))
+      ..addEntries(_mentionSuggestionCache.values
+          .expand((i) => i)
+          .toList()
+          .map<MapEntry<String, Profile>>(
+              (profile) => MapEntry(profile.name, profile)));
     final mentionedProfiles = userNames
         .map<Profile?>((userName) => userNameMap[userName])
         .where((profile) => profile != null)
