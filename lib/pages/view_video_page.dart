@@ -35,17 +35,14 @@ class ViewVideoPage extends StatelessWidget {
   const ViewVideoPage({
     Key? key,
     required this.videoId,
-    this.videoThubmnailFile,
   }) : super(key: key);
 
   static const name = 'ViewVideoPage';
 
   final String videoId;
-  final File? videoThubmnailFile;
 
   static Route<void> route({
     required String videoId,
-    File? videoThubmnailFile,
   }) {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
@@ -63,8 +60,7 @@ class ViewVideoPage extends StatelessWidget {
             ),
           ),
         ],
-        child: ViewVideoPage(
-            videoId: videoId, videoThubmnailFile: videoThubmnailFile),
+        child: ViewVideoPage(videoId: videoId),
       ),
     );
   }
@@ -75,30 +71,7 @@ class ViewVideoPage extends StatelessWidget {
       body: BlocBuilder<VideoCubit, VideoState>(
         builder: (context, state) {
           if (state is VideoInitial) {
-            if (videoThubmnailFile != null) {
-              return Hero(
-                tag: videoId,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.file(
-                      videoThubmnailFile!,
-                      fit: BoxFit.cover,
-                    ),
-                    Positioned.fill(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          color: Colors.black.withOpacity(0.05),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            } else {
-              return preloader;
-            }
+            return preloader;
           } else if (state is VideoLoading) {
             final video = state.videoDetail;
             return VideoScreen(

@@ -96,10 +96,6 @@ class MapState extends State<Map> {
   final TextEditingController _citySearchQueryController =
       TextEditingController();
 
-  String? _tappedVideoId;
-  File? _tappedVideoThubmanilFile;
-  Offset? _tappedVideoCordinates;
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -157,21 +153,6 @@ class MapState extends State<Map> {
                 width: 30,
                 height: 30,
                 child: preloader,
-              ),
-            ),
-          ),
-        if (_tappedVideoId != null)
-          Positioned(
-            left: _tappedVideoCordinates!.dx,
-            top: _tappedVideoCordinates!.dy,
-            child: Hero(
-              tag: _tappedVideoId!,
-              child: ClipOval(
-                child: Image.file(
-                  _tappedVideoThubmanilFile!,
-                  width: defaultMarkerSize,
-                  height: defaultMarkerSize,
-                ),
               ),
             ),
           ),
@@ -347,32 +328,8 @@ class MapState extends State<Map> {
     required int factor,
     required int clusterCount,
   }) async {
-    final onTap = () async {
-      final controller = await _mapController.future;
-      final screenCordinate =
-          await controller.getScreenCoordinate(video.position!);
-
-      final pixelRatio =
-          Platform.isAndroid ? MediaQuery.of(context).devicePixelRatio : 1.0;
-      final imageFile = await RepositoryProvider.of<Repository>(context)
-          .getCachedFile(video.thumbnailUrl);
-
-      setState(() {
-        _tappedVideoId = video.id;
-        _tappedVideoThubmanilFile = imageFile;
-        _tappedVideoCordinates = Offset(
-          screenCordinate.x / pixelRatio - defaultMarkerSize / 2,
-          screenCordinate.y / pixelRatio - defaultMarkerSize / 2,
-        );
-      });
-      await Navigator.of(context).push(ViewVideoPage.route(
-        videoId: video.id,
-        videoThubmnailFile: imageFile,
-      ));
-      setState(() {
-        _tappedVideoId = null;
-        _tappedVideoCordinates = null;
-      });
+    final onTap = () {
+      Navigator.of(context).push(ViewVideoPage.route(videoId: video.id));
     };
     final markerSize = _getMarkerSize(_getMapFactor());
 
