@@ -1,2 +1,2 @@
 - Nearby videos will be clustered together
-- Added a little animation when opening a video from the map
+- Sharing videos will now share spot web page
