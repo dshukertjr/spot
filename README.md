@@ -116,7 +116,7 @@ create table if not exists public.follow (
     following_user_id uuid references public.users on delete cascade not null,
     followed_user_id uuid references public.users on delete cascade not null,
     followed_at timestamp with time zone default timezone('utc' :: text, now()) not null,
-    primary key (following_user_id, followed_user_id),
+    primary key (following_user_id, followed_user_id)
 );
 comment on table public.follow is 'Creates follow follower relationships.';
 
