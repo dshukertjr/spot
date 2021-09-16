@@ -345,7 +345,7 @@ grant usage on schema extensions to authenticated;
 
 -- Migrations
 
--- 2020/08/28
+-- 2021/08/28
 alter table public.follow
     add constraint fk_following
     foreign key(following_user_id)
@@ -481,6 +481,11 @@ $func$
     order by p_follow.followed_at desc;
 $func$
 language sql;
+
+-- 2021/09/16
+update storage.buckets set public = true where id = 'videos';
+update storage.buckets set public = true where id = 'profiles';
+
 
 ```
 
