@@ -28,6 +28,7 @@ https://www.figma.com/file/OBSvD6eG4eDno3aQ76Ovzo/Spot?node-id=2%3A1023
 ## Supabase Database Schema
 
 > Please note that you need enable `postgis` database extensions before run import database schema
+> Also, email confirmation is turned off at the moment. 
 
 ```sql
 create table if not exists public.users (
