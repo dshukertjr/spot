@@ -95,9 +95,6 @@ class MapState extends State<Map> {
   final TextEditingController _citySearchQueryController =
       TextEditingController();
 
-  Video? _tappedVideo;
-  Offset? _tappedVideoCordinates;
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -155,21 +152,6 @@ class MapState extends State<Map> {
                 width: 30,
                 height: 30,
                 child: preloader,
-              ),
-            ),
-          ),
-        if (_tappedVideo != null)
-          Positioned(
-            left: _tappedVideoCordinates!.dx,
-            top: _tappedVideoCordinates!.dy,
-            child: Hero(
-              tag: _tappedVideo!.id,
-              child: ClipOval(
-                child: Image.network(
-                  _tappedVideo!.thumbnailUrl,
-                  width: defaultMarkerSize,
-                  height: defaultMarkerSize,
-                ),
               ),
             ),
           ),
@@ -345,26 +327,8 @@ class MapState extends State<Map> {
     required int factor,
     required int clusterCount,
   }) async {
-    final onTap = () async {
-      final controller = await _mapController.future;
-      final screenCordinate =
-          await controller.getScreenCoordinate(video.position!);
-      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-      setState(() {
-        _tappedVideo = video;
-        _tappedVideoCordinates = Offset(
-          screenCordinate.x / pixelRatio - defaultMarkerSize / 2,
-          screenCordinate.y / pixelRatio - defaultMarkerSize / 2,
-        );
-      });
-      await Navigator.of(context).push(ViewVideoPage.route(
-        videoId: video.id,
-        video: video,
-      ));
-      setState(() {
-        _tappedVideo = null;
-        _tappedVideoCordinates = null;
-      });
+    final onTap = () {
+      Navigator.of(context).push(ViewVideoPage.route(videoId: video.id));
     };
     final markerSize = _getMarkerSize(_getMapFactor());
 

@@ -751,7 +751,7 @@ class Repository {
 
   Future<void> shareVideo(VideoDetail videoDetail) async {
     await Share.share(
-        'Check out this video on Spot https://spotvideo.page.link/ias');
+        'Check out this video on Spot http://spotvideo.app/post/${videoDetail.id}');
     await _analytics.logEvent(
         name: 'share_video', parameters: {'video_id': videoDetail.id});
   }

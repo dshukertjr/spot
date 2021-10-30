@@ -34,17 +34,14 @@ class ViewVideoPage extends StatelessWidget {
   const ViewVideoPage({
     Key? key,
     required this.videoId,
-    this.video,
   }) : super(key: key);
 
   static const name = 'ViewVideoPage';
 
   final String videoId;
-  final Video? video;
 
   static Route<void> route({
     required String videoId,
-    Video? video,
   }) {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
@@ -62,7 +59,7 @@ class ViewVideoPage extends StatelessWidget {
             ),
           ),
         ],
-        child: ViewVideoPage(videoId: videoId, video: video),
+        child: ViewVideoPage(videoId: videoId),
       ),
     );
   }
@@ -73,28 +70,6 @@ class ViewVideoPage extends StatelessWidget {
       body: BlocBuilder<VideoCubit, VideoState>(
         builder: (context, state) {
           if (state is VideoInitial) {
-            if (video != null) {
-              return Hero(
-                tag: video!.id,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.network(
-                      video!.thumbnailUrl,
-                      fit: BoxFit.cover,
-                    ),
-                    Positioned.fill(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          color: Colors.black.withOpacity(0.05),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
             return preloader;
           } else if (state is VideoLoading) {
             final video = state.videoDetail;
