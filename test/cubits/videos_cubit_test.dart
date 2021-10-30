@@ -1,10 +1,11 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
 import 'package:spot/models/video.dart';
+
 import '../helpers/helpers.dart';
 
 Future<void> main() async {

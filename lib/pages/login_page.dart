@@ -6,11 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:spot/pages/edit_profile_page.dart';
-import 'package:spot/utils/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_button.dart';
+import 'package:spot/pages/edit_profile_page.dart';
 import 'package:spot/repositories/repository.dart';
+import 'package:spot/utils/constants.dart';
 
 import '../components/app_scaffold.dart';
 

@@ -8,14 +8,14 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:spot/pages/login_page.dart';
-import 'package:spot/utils/constants.dart';
 import 'package:spot/cubits/comment/comment_cubit.dart';
 import 'package:spot/cubits/video/video_cubit.dart';
 import 'package:spot/models/comment.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
+import 'package:spot/pages/login_page.dart';
 import 'package:spot/pages/view_video_page.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:video_player/video_player.dart';
 
 import '../helpers/helpers.dart';

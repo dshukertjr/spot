@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/models/profile.dart';

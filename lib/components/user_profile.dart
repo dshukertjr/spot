@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:spot/components/follow_button.dart';
-import 'package:spot/pages/follows_page.dart';
-import 'package:spot/utils/constants.dart';
 import 'package:spot/components/video_list.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/cubits/videos/videos_cubit.dart';
 import 'package:spot/pages/edit_profile_page.dart';
+import 'package:spot/pages/follows_page.dart';
 import 'package:spot/repositories/repository.dart';
+import 'package:spot/utils/constants.dart';
 
 import 'profile_image.dart';
 

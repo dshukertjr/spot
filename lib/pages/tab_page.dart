@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:spot/utils/constants.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/gradient_border.dart';
 import 'package:spot/components/gradient_button.dart';
@@ -14,6 +13,7 @@ import 'package:spot/pages/tabs/notifications_tab.dart';
 import 'package:spot/pages/tabs/profile_tab.dart';
 import 'package:spot/pages/tabs/search_tab.dart';
 import 'package:spot/repositories/repository.dart';
+import 'package:spot/utils/constants.dart';
 import 'package:spot/utils/functions.dart';
 
 import '../components/app_scaffold.dart';

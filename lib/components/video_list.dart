@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:spot/utils/constants.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/pages/view_video_page.dart';
+import 'package:spot/utils/constants.dart';
 
 class VideoList extends StatelessWidget {
   const VideoList({

@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_video_info/flutter_video_info.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,7 +21,6 @@ import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:supabase/supabase.dart';
 import 'package:video_player/video_player.dart';
-import 'package:geocoding/geocoding.dart';
 
 class Repository {
   Repository({

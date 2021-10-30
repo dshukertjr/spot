@@ -6,11 +6,12 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:spot/utils/constants.dart';
 import 'package:spot/components/app_scaffold.dart';
 import 'package:spot/cubits/search/search_cubit.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/pages/tabs/search_tab.dart';
+import 'package:spot/utils/constants.dart';
+
 import '../../helpers/helpers.dart';
 
 void main() {

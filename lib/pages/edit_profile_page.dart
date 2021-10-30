@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:spot/utils/constants.dart';
-import 'package:spot/utils/validators.dart';
 import 'package:spot/components/app_scaffold.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/repositories/repository.dart';
+import 'package:spot/utils/constants.dart';
+import 'package:spot/utils/validators.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({

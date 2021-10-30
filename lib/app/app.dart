@@ -46,16 +46,13 @@ class App extends StatelessWidget {
             textSelectionTheme:
                 const TextSelectionThemeData(cursorColor: Color(0xFFFFFFFF)),
             primaryColor: const Color(0xFFFFFFFF),
-            accentColor: const Color(0xFFFFFFFF),
             appBarTheme: const AppBarTheme(
               centerTitle: true,
               color: Colors.transparent,
               shadowColor: Colors.transparent,
-              textTheme: TextTheme(
-                headline6: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w300,
-                ),
+              titleTextStyle: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w300,
               ),
             ),
             inputDecorationTheme: const InputDecorationTheme(
