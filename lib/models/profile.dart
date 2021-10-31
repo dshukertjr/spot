@@ -1,4 +1,6 @@
+/// Class that represents user profile.
 class Profile {
+  /// Class that represents user profile.
   Profile({
     required this.id,
     required this.name,
@@ -7,12 +9,22 @@ class Profile {
     this.isFollowing = false,
   });
 
+  /// ID of the user.
   final String id;
+
+  /// Name of the user.
   final String name;
+
+  /// Description or bio of the user.
   final String? description;
+
+  /// Profile image URL of the user if present.
   final String? imageUrl;
+
+  /// Whether the logged in user is following this user.
   final bool isFollowing;
 
+  /// Connverts raw data loaded from Supabase to `Profile`.
   static Profile fromData(Map<String, dynamic> data) {
     return Profile(
         id: data['id'] as String,
@@ -22,10 +34,12 @@ class Profile {
         isFollowing: (data['is_following'] ?? false) as bool);
   }
 
+  /// Converts raw data loaded from Supabase to list of `Profile`.
   static List<Profile> fromList(List<Map<String, dynamic>> data) {
     return data.map(fromData).toList();
   }
 
+  /// Converts `Profile` to a map so that it can be save to DB.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -35,6 +49,8 @@ class Profile {
     };
   }
 
+  /// Copies and creates a new instance
+  /// of `Profile` while replacing some properties.
   Profile copyWith({
     String? id,
     String? name,
@@ -52,7 +68,9 @@ class Profile {
   }
 }
 
+/// Profile with additional information such as like count or follower count.
 class ProfileDetail extends Profile {
+  /// Profile with additional information such as like count or follower count.
   ProfileDetail({
     required String id,
     required String name,
@@ -70,10 +88,16 @@ class ProfileDetail extends Profile {
           isFollowing: isFollowing,
         );
 
+  /// Number of followers that this user has.
   final int followerCount;
+
+  /// Number of users that this user is following.
   final int followingCount;
+
+  /// Number of likes that this user has received.
   final int likeCount;
 
+  /// Converts raw data loaded from Supabase to `ProfileDetail`
   static ProfileDetail fromData(Map<String, dynamic> data) {
     return ProfileDetail(
       id: data['id'] as String,

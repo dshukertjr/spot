@@ -615,6 +615,8 @@ void main() {
       registerFallbackValue<String>('');
 
       registerFallbackValue<VideoState>(VideoPlaying(
+        videoPlayerController:
+            VideoPlayerController.file(File('test_resources/video.mp4')),
         videoDetail: VideoDetail(
           id: 'id',
           url: 'url',
@@ -656,6 +658,8 @@ void main() {
         mockVideoCubit,
         Stream.fromIterable([
           VideoPlaying(
+            videoPlayerController:
+                VideoPlayerController.file(File('test_resources/video.mp4')),
             videoDetail: VideoDetail(
               id: 'id',
               url: 'url',
@@ -674,6 +678,8 @@ void main() {
             ),
           ),
           VideoPlaying(
+            videoPlayerController:
+                VideoPlayerController.file(File('test_resources/video.mp4')),
             videoDetail: VideoDetail(
               id: 'id',
               url: 'url',
@@ -693,6 +699,8 @@ void main() {
           ),
         ]),
         initialState: VideoPlaying(
+          videoPlayerController:
+              VideoPlayerController.file(File('test_resources/video.mp4')),
           videoDetail: VideoDetail(
             id: 'id',
             url: 'url',

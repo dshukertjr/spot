@@ -3,7 +3,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:spot/models/profile.dart';
 
+/// Class representing a video.
 class Video with ClusterItem {
+  /// Class representing a video.
   Video({
     required this.id,
     required this.url,
@@ -17,21 +19,38 @@ class Video with ClusterItem {
     required this.position,
   });
 
+  /// ID of the video.
   final String id;
+
+  /// URL of the video in full size.
   final String url;
+
+  /// URL of the image of the first frame of the video in full size.
   final String imageUrl;
+
+  /// URL of the thumbnail of the first frame of the video.
   final String thumbnailUrl;
+
+  /// URL of the gif of the video. Currently not in use.
   final String gifUrl;
+
+  /// Timestamp of when the video was posted.
   final DateTime createdAt;
+
+  /// Text description of the video.
+  /// Used to perform keyword search as well.
   final String description;
+
+  /// ID of the user who have posted the video.
   final String userId;
+
+  /// Whether the logged in user is following the creator of this video.
   final bool isFollowing;
+
+  /// Cordinates of the position of the video.
   final LatLng? position;
 
-  Future<double> getDistanceInMeter() async {
-    return 1000;
-  }
-
+  /// Video object to be passed to repository when creating a new video.
   static Video creation({
     required String videoUrl,
     required String videoImageUrl,
@@ -55,6 +74,7 @@ class Video with ClusterItem {
     );
   }
 
+  /// CopyWith with only `id`.
   Video updateId({
     String? id,
   }) {
@@ -72,6 +92,7 @@ class Video with ClusterItem {
     );
   }
 
+  /// Converts a `Video` object to Map so that it can be saved to Supabase.
   Map<String, dynamic> toMap() {
     return {
       'url': url,
@@ -85,6 +106,7 @@ class Video with ClusterItem {
     };
   }
 
+  /// Converts raw data from Supabase to list of `Videos`.
   static List<Video> videosFromData({
     required List<dynamic> data,
     required String? userId,
@@ -118,6 +140,8 @@ class Video with ClusterItem {
   @override
   LatLng get location => position!;
 
+  /// Creates a new instance of Video with copying the original
+  /// while modifying certain properties.
   Video copyWith({
     String? id,
     String? url,
@@ -145,7 +169,11 @@ class Video with ClusterItem {
   }
 }
 
+/// Class that contains additional details about a video
+/// such as number of likes or text representation of the location.
 class VideoDetail extends Video {
+  /// Class that contains additional details about a video
+  /// such as number of likes or text representation of the location.
   VideoDetail({
     required String id,
     required String url,
@@ -175,15 +203,23 @@ class VideoDetail extends Video {
           position: position,
         );
 
+  /// Number of likes that the video has received.
   final int likeCount;
+
+  /// Number of comments that the video has received.
   final int commentCount;
+
+  /// Whether the logged in user has liked the video or not.
   final bool haveLiked;
+
+  /// Full profile of the user who has posted the video.
   final Profile createdBy;
 
   /// String representitive of the location
   /// e.g. NewYork, USA
   final String? locationString;
 
+  /// Converts raw data from Supabase to `VideoDetail`
   static VideoDetail fromData({
     required Map<String, dynamic> data,
     required String? userId,
@@ -213,6 +249,8 @@ class VideoDetail extends Video {
     );
   }
 
+  /// Creates a map to be saved to `likes` table in Supabase
+  /// when the logged in user liked a video.
   static Map<String, dynamic> like({
     required String videoId,
     required String uid,

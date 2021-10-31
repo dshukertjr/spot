@@ -16,15 +16,28 @@ import '../components/app_scaffold.dart';
 
 /// Indicates which dialog is currently openeds
 @visibleForTesting
+
+/// Enum that represents different dialogs shown in `LoginPage`
 enum DialogPage {
+  /// Used when terms of service is shown to the user.
   termsOfService,
+
+  /// Used when dialog of asking user whether they want to login or signup
   loginOrSignup,
+
+  /// Used when presenting login form
   login,
+
+  /// Used when presenting register form
   signUp,
 }
 
+/// Page for user to login and register.
 class LoginPage extends StatefulWidget {
+  /// Name of this page within `RouteSettinngs`
   static const name = 'LoginPage';
+
+  /// Method ot create this page with necessary `BlocProvider`
   static Route<void> route() {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
@@ -37,6 +50,8 @@ class LoginPage extends StatefulWidget {
 }
 
 @visibleForTesting
+
+/// State of `LoginPage`. Made public for testing.
 class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -72,6 +87,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   );
 
   @visibleForTesting
+
+  /// Currently shown dialog type.
   DialogPage currentDialogPage = DialogPage.loginOrSignup;
 
   double _dialogOpacity = 1;

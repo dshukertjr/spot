@@ -1,7 +1,9 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+/// Data provider to provide location data.
 class LocationProvider {
+  /// Get the LatLng of the user.
   Future<LatLng> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -33,6 +35,7 @@ class LocationProvider {
     return LatLng(position.latitude, position.longitude);
   }
 
+  /// Go to the settings page of the user's device.
   Future<bool> openLocationSettingsPage() {
     return Geolocator.openLocationSettings();
   }

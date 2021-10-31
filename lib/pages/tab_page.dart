@@ -19,8 +19,13 @@ import 'package:spot/utils/functions.dart';
 import '../components/app_scaffold.dart';
 import 'record_page.dart';
 
+/// Page that holds tab navigation at the bottom.
+/// This is the first page presented to the user.
 class TabPage extends StatefulWidget {
+  /// Name of this page within `RouteSettinngs`
   static const name = 'TabPage';
+
+  /// Method ot create this page with necessary `BlocProvider`
   static Route<void> route() {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
@@ -33,8 +38,12 @@ class TabPage extends StatefulWidget {
 }
 
 @visibleForTesting
+
+/// State of `TabPage`. Made public for testing purposes.
 class TabPageState extends State<TabPage> {
   @visibleForTesting
+
+  /// Currently shown tab index. Initially set to show the MapTab.
   int currentIndex = 0;
 
   @override

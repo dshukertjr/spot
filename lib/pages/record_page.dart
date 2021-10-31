@@ -13,9 +13,12 @@ import 'package:spot/utils/constants.dart';
 import '../components/app_scaffold.dart';
 import '../cubits/record/record_cubit.dart';
 
+/// Page to record a video.
 class RecordPage extends StatelessWidget {
+  /// Name of this page within `RouteSettinngs`
   static const name = 'RecordPage';
 
+  /// Method ot create this page with necessary `BlocProvider`
   static Route<void> route() {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
@@ -110,7 +113,10 @@ class RecordPage extends StatelessWidget {
 }
 
 @visibleForTesting
+
+/// Widget that displays camera preview full screen.
 class RecordPreview extends StatefulWidget {
+  /// Widget that displays camera preview full screen.
   const RecordPreview({
     Key? key,
     required CameraController controller,
@@ -280,7 +286,8 @@ class _RecordPreviewState extends State<RecordPreview> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             const Text(
-                                'Are you sure you want to discard your work and exit the recording screen?'),
+                                'Are you sure you want to discard your work'
+                                ' and exit the recording screen?'),
                             const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,

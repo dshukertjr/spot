@@ -1,6 +1,8 @@
 import 'package:spot/models/profile.dart';
 
+/// Represents a single comment created by a user.
 class Comment {
+  /// Represents a single comment created by a user.
   Comment({
     required this.id,
     required this.text,
@@ -9,12 +11,23 @@ class Comment {
     required this.user,
   });
 
+  /// ID of the comment.
   final String id;
+
+  /// Text of the comment.
   final String text;
+
+  /// Create date of the comment.
   final DateTime createdAt;
+
+  /// ID of the video that the comment was posted.
   final String videoId;
+
+  /// Profile data of the user who posted this comment.
   final Profile user;
 
+  /// Converts raw data loaded from Supabase `comments` table
+  /// to list of comments.
   static List<Comment> commentsFromData(List<dynamic> data) {
     return data
         .map((row) => Comment(
@@ -32,6 +45,9 @@ class Comment {
         .toList();
   }
 
+  /// Returns a Map of comment data.
+  ///
+  /// Used when composing a new comment.
   static Map<String, dynamic> create(
       {required String text, required String userId, required String videoId}) {
     return {
@@ -41,6 +57,7 @@ class Comment {
     };
   }
 
+  /// Creates a new instance of `Comment` while copying certain properties.
   Comment copyWith({
     String? id,
     String? text,
