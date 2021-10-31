@@ -86,9 +86,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     curve: Curves.easeOutCubic,
   );
 
-  @visibleForTesting
-
   /// Currently shown dialog type.
+  @visibleForTesting
   DialogPage currentDialogPage = DialogPage.loginOrSignup;
 
   double _dialogOpacity = 1;

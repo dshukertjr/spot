@@ -17,9 +17,12 @@ import 'package:spot/utils/constants.dart';
 
 import '../../cubits/videos/videos_cubit.dart';
 
+/// Map with video thumbnails.
 class MapTab extends StatelessWidget {
+  /// Map with video thumbnails.
   const MapTab({Key? key}) : super(key: key);
 
+  /// Method ot create this page with necessary `BlocProvider`
   static Widget create() {
     return BlocProvider<VideosCubit>(
       create: (context) => VideosCubit(
@@ -58,7 +61,10 @@ class MapTab extends StatelessWidget {
 }
 
 @visibleForTesting
+
+/// Main view of MapTab.
 class Map extends StatefulWidget {
+  /// Main view of MapTab.
   Map({
     Key? key,
     List<Video>? videos,
@@ -78,6 +84,8 @@ class Map extends StatefulWidget {
 }
 
 @visibleForTesting
+
+/// State of Map widget. Made public for testing purposes.
 class MapState extends State<Map> {
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
@@ -250,19 +258,19 @@ class MapState extends State<Map> {
       stopClusteringZoom: 18,
     );
 
-    _citySearchQueryController.addListener(updateUI);
+    _citySearchQueryController.addListener(_updateUI);
     super.initState();
   }
 
   @override
   void dispose() {
     _citySearchQueryController
-      ..removeListener(updateUI)
+      ..removeListener(_updateUI)
       ..dispose();
     super.dispose();
   }
 
-  void updateUI() {
+  void _updateUI() {
     setState(() {});
   }
 

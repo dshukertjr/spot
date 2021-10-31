@@ -15,7 +15,7 @@ Future<void> main() async {
   group('SearchCubit', () {
     test('Initial State', () {
       final repository = MockRepository();
-      when(() => repository.search('')).thenAnswer((_) async => []);
+      when(() => repository.searchVideo('')).thenAnswer((_) async => []);
       expect(SearchCubit(repository: repository).state is SearchLoading, true);
     });
 
@@ -23,7 +23,8 @@ Future<void> main() async {
       'empty search results',
       build: () {
         final repository = MockRepository();
-        when(() => repository.search('')).thenAnswer((_) => Future.value([]));
+        when(() => repository.searchVideo(''))
+            .thenAnswer((_) => Future.value([]));
         return SearchCubit(repository: repository);
       },
       act: (cubit) async {
@@ -38,7 +39,7 @@ Future<void> main() async {
       'has search results',
       build: () {
         final repository = MockRepository();
-        when(() => repository.search('')).thenAnswer((_) => Future.value([
+        when(() => repository.searchVideo('')).thenAnswer((_) => Future.value([
               Video(
                 id: 'id',
                 url: 'url',
@@ -66,7 +67,7 @@ Future<void> main() async {
       'has search results',
       build: () {
         final repository = MockRepository();
-        when(() => repository.search(''))
+        when(() => repository.searchVideo(''))
             .thenThrow(PlatformException(code: ''));
         return SearchCubit(repository: repository);
       },

@@ -12,7 +12,8 @@ void main() {
     });
 
     blocTest<RecordCubit, RecordState>(
-      'initialize will result in an error because emulators do not have cameras',
+      'initialize will result in an error because '
+      'emulators do not have cameras',
       build: () => RecordCubit(repository: repository),
       act: (cubit) async {
         await cubit.initialize();

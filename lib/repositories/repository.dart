@@ -22,7 +22,9 @@ import 'package:spot/models/video.dart';
 import 'package:supabase/supabase.dart';
 import 'package:video_player/video_player.dart';
 
+/// Class that communicates with external APIs.
 class Repository {
+  /// Class that communicates with external APIs.
   Repository({
     required SupabaseClient supabaseClient,
     required FirebaseAnalytics analytics,
@@ -32,7 +34,7 @@ class Repository {
         _analytics = analytics,
         _localStorage = localStorage,
         _locationProvider = locationProvider {
-    setAuthListenner();
+    _setAuthListenner();
   }
 
   final SupabaseClient _supabaseClient;
@@ -45,34 +47,48 @@ class Repository {
   static const _timestampOfLastSeenNotification =
       'timestampOfLastSeenNotification';
 
-  /// Used as a placeholder for myUserId when loading data that requires myUserID but not signed in
+  /// Used as a placeholder for myUserId when loading data
+  /// that requires myUserID but not signed in
   static const _anonymousUUID = '00000000-0000-0000-0000-000000000000';
 
   // Local Cache
   final List<Video> _mapVideos = [];
   final _mapVideosStreamConntroller = BehaviorSubject<List<Video>>();
+
+  /// Emits videos displayed on the map.
   Stream<List<Video>> get mapVideosStream => _mapVideosStreamConntroller.stream;
 
   final Map<String, VideoDetail> _videoDetails = {};
   final _videoDetailStreamController = BehaviorSubject<VideoDetail?>();
+
+  /// Stream that emits video details.
+  /// Mainly used when the user watches a video.
   Stream<VideoDetail?> get videoDetailStream =>
       _videoDetailStreamController.stream;
 
+  /// In memory cache of profileDetails.
   @visibleForTesting
   final Map<String, ProfileDetail> profileDetailsCache = {};
   final _profileStreamController =
       BehaviorSubject<Map<String, ProfileDetail>>();
+
+  /// Emits map of all profiles that are stored in memory.
   Stream<Map<String, ProfileDetail>> get profileStream =>
       _profileStreamController.stream;
 
+  /// List of comments that are loaded about a particular video.
   @visibleForTesting
   List<Comment> comments = [];
   final _commentsStreamController = BehaviorSubject<List<Comment>>();
+
+  /// Emits list of comments about a particular video.
   Stream<List<Comment>> get commentsStream => _commentsStreamController.stream;
 
   List<AppNotification> _notifications = [];
   final _notificationsStreamController =
       BehaviorSubject<List<AppNotification>>();
+
+  /// Emits list of in app notification.
   Stream<List<AppNotification>> get notificationsStream =>
       _notificationsStreamController.stream;
 
@@ -84,6 +100,7 @@ class Repository {
   /// Completes when auth state is known
   Completer<void> statusKnown = Completer<void>();
 
+  /// Completer that completes once the logged in user's profile has been loaded
   Completer<void> myProfileHasLoaded = Completer<void>();
 
   /// The user's profile
@@ -93,12 +110,15 @@ class Repository {
   Future<bool> get hasAgreedToTermsOfService =>
       _localStorage.containsKey(key: _termsOfServiceAgreementKey);
 
+  /// Returns whether the user has agreeed to the terms of service or not.
   Future<void> agreedToTermsOfService() =>
       _localStorage.write(key: _termsOfServiceAgreementKey, value: 'true');
 
+  /// Returns session string that can be used to restore session.
   Future<void> setSessionString(String sessionString) =>
       _localStorage.write(key: _persistantSessionKey, value: sessionString);
 
+  /// Deletes session. Used when user logs out or recovering session failed.
   Future<void> deleteSession() =>
       _localStorage.delete(key: _persistantSessionKey);
 
@@ -119,12 +139,13 @@ class Repository {
     }
   }
 
-  void setAuthListenner() {
+  void _setAuthListenner() {
     _supabaseClient.auth.onAuthStateChange((event, session) {
       _resetCache();
     });
   }
 
+  /// Recovers session stored inn device's storage.
   Future<void> recoverSession() async {
     final jsonStr = await _localStorage.read(key: _persistantSessionKey);
     if (jsonStr == null) {
@@ -186,6 +207,7 @@ class Repository {
     return res.data!.persistSessionString;
   }
 
+  /// Get the logged in user's profile.
   Future<Profile?> getMyProfile() async {
     final userId = this.userId;
     if (userId == null) {
@@ -204,6 +226,7 @@ class Repository {
     }
   }
 
+  /// Get 5 closest videos from the current user's location.
   Future<void> getVideosFromLocation(LatLng location) async {
     late final PostgrestResponse res;
     res = await _supabaseClient
@@ -228,6 +251,7 @@ class Repository {
     _mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
+  /// Loads all videos inside a bounding box.
   Future<void> getVideosInBoundingBox(LatLngBounds bounds) async {
     late final PostgrestResponse res;
 
@@ -253,11 +277,12 @@ class Repository {
     _mapVideosStreamConntroller.sink.add(_mapVideos);
   }
 
+  /// Get videos created by a certain user.
   Future<List<Video>> getVideosFromUid(String uid) async {
     final res = await _supabaseClient
         .from('videos')
-        .select(
-            'id, user_id, created_at, url, image_url, thumbnail_url, gif_url, description')
+        .select('id, user_id, created_at, url, image_url,'
+            ' thumbnail_url, gif_url, description')
         .eq('user_id', uid)
         .order('created_at')
         .execute();
@@ -272,6 +297,7 @@ class Repository {
     return Video.videosFromData(data: data, userId: userId);
   }
 
+  /// Get list of videos that a certain user has liked.
   Future<List<Video>> getLikedPostsFromUid(String uid) async {
     final res = await _supabaseClient
         .from('liked_videos')
@@ -290,6 +316,7 @@ class Repository {
     return Video.videosFromData(data: data, userId: userId);
   }
 
+  /// Get profile detail of a certain user.
   Future<void> getProfileDetail(String targetUid) async {
     if (profileDetailsCache[targetUid] != null) {
       return;
@@ -320,6 +347,7 @@ class Repository {
     _profileStreamController.sink.add(profileDetailsCache);
   }
 
+  /// Updates a profile of logged in user.
   Future<void> saveProfile({required Profile profile}) async {
     final res =
         await _supabaseClient.from('users').upsert(profile.toMap()).execute();
@@ -389,6 +417,7 @@ class Repository {
     return urlRes.data!;
   }
 
+  /// Inserts a new row in `videos` table on Supabase.
   Future<void> saveVideo(Video creatingVideo) async {
     final res = await _supabaseClient
         .from('videos')
@@ -407,6 +436,7 @@ class Repository {
     await _analytics.logEvent(name: 'post_video');
   }
 
+  /// Loads a single video data and emits it on `videoDetailStream`
   Future<void> getVideoDetailStream(String videoId) async {
     _videoDetailStreamController.sink.add(null);
     final userId = _supabaseClient.auth.currentUser?.id;
@@ -444,6 +474,8 @@ class Repository {
     });
   }
 
+  /// Inserts a new row in `likes` table
+  /// and increments the like count of a video.
   Future<void> like(Video video) async {
     final videoId = video.id;
     final currentVideoDetail = _videoDetails[videoId]!;
@@ -475,6 +507,7 @@ class Repository {
     });
   }
 
+  /// Deletes a row in `likes` table and decrements the like count of a video.
   Future<void> unlike(Video video) async {
     final videoId = video.id;
     final currentVideoDetail = _videoDetails[videoId]!;
@@ -510,6 +543,7 @@ class Repository {
     });
   }
 
+  /// Loads comments of a video and emits it on a stream.
   Future<void> getComments(String videoId) async {
     final res = await _supabaseClient
         .from('video_comments')
@@ -540,6 +574,7 @@ class Repository {
     });
   }
 
+  /// Inserts a new row in `comments` table.
   Future<void> postComment({
     required String text,
     required String videoId,
@@ -584,6 +619,7 @@ class Repository {
     });
   }
 
+  /// Loads the 50 most recent notifications.
   Future<void> getNotifications() async {
     if (userId == null) {
       // If the user is not signed in, do not emit anything
@@ -632,6 +668,7 @@ class Repository {
     _notificationsStreamController.sink.add(_notifications);
   }
 
+  /// Blocks a certain user.
   Future<void> block(String blockedUserId) async {
     final uid = _supabaseClient.auth.currentUser!.id;
     final res = await _supabaseClient.from('blocks').insert([
@@ -654,6 +691,7 @@ class Repository {
     });
   }
 
+  /// Reports a certain video.
   Future<void> report({
     required String videoId,
     required String reason,
@@ -676,7 +714,8 @@ class Repository {
     });
   }
 
-  Future<void> delete({required String videoId}) async {
+  /// Deletes a certain video.
+  Future<void> deleteVideo({required String videoId}) async {
     final res = await _supabaseClient
         .from('videos')
         .delete()
@@ -696,13 +735,14 @@ class Repository {
     });
   }
 
-  Future<List<Video>> search(String queryString) async {
+  /// Performs a keyword search of videos.
+  Future<List<Video>> searchVideo(String queryString) async {
     final query = queryString.split(' ').map((word) => "'$word'").join(' & ');
 
     final res = await _supabaseClient
         .from('videos')
-        .select(
-            'id, url, image_url, thumbnail_url, gif_url, description, user_id, created_at')
+        .select('id, url, image_url, thumbnail_url, gif_url, '
+            'description, user_id, created_at')
         .textSearch('description', query, config: 'english')
         .order('created_at')
         .limit(50)
@@ -719,21 +759,28 @@ class Repository {
     return Video.videosFromData(data: data, userId: userId);
   }
 
+  /// Loads `VideoPlayerController` of a video.
   Future<VideoPlayerController> getVideoPlayerController(String url) async {
     return VideoPlayerController.network(url);
   }
 
+  /// Returns whether the user has turned on location permission or not.
   Future<bool> hasLocationPermission() async {
     final result = await Geolocator.requestPermission();
     return result != LocationPermission.denied &&
         result != LocationPermission.deniedForever;
   }
 
+  /// Updates the timestamp of when the user has last seen notifications.
+  ///
+  /// Timestamp of when the user has last seen notifications is used to
+  /// determine which notification is unread.
   Future<void> updateTimestampOfLastSeenNotification(DateTime time) async {
     await _localStorage.write(
         key: _timestampOfLastSeenNotification, value: time.toIso8601String());
   }
 
+  /// Performs a keyword search of location within a map.
   Future<LatLng?> searchLocation(String searchQuery) async {
     try {
       final locations = await locationFromAddress(searchQuery);
@@ -749,6 +796,7 @@ class Repository {
     }
   }
 
+  /// Opens a share dialog to share the video on other social media or apps.
   Future<void> shareVideo(VideoDetail videoDetail) async {
     await Share.share(
         'Check out this video on Spot http://spotvideo.app/post/${videoDetail.id}');
@@ -756,11 +804,15 @@ class Repository {
         name: 'share_video', parameters: {'video_id': videoDetail.id});
   }
 
+  /// Loads cached image file.
+  ///
+  /// Mainly used to get cached video thumbnail.
   Future<File> getCachedFile(String url) {
     return DefaultCacheManager().getSingleFile(url);
   }
 
-  Future<List<Profile>> getMentions(String queryString) async {
+  /// Loads suggested mentions from a given search query.
+  Future<List<Profile>> getMentionSuggestions(String queryString) async {
     if (_mentionSuggestionCache[queryString] != null) {
       return _mentionSuggestionCache[queryString]!;
     }
@@ -865,11 +917,16 @@ class Repository {
     return replacedComment;
   }
 
+  /// Calculate the z-index of a marker on a map.
+  /// Newer videos have high z-index.
+  /// It has a wierd formula so that it does not go
+  /// over iOS's max z-index value.
   double getZIndex(DateTime createdAt) {
     return max((createdAt.millisecondsSinceEpoch ~/ 1000000 - 1600000), 0)
         .toDouble();
   }
 
+  /// Opens device's camera roll to find videos taken in the past.
   Future<File?> getVideoFile() async {
     try {
       final pickedVideo =
@@ -882,6 +939,7 @@ class Repository {
     }
   }
 
+  /// Find the location attached to a video file from a video path.
   Future<LatLng?> getVideoLocation(String videoPath) async {
     final videoInfo = await FlutterVideoInfo().getVideoInfo(videoPath);
     final locationString = videoInfo?.location;
@@ -894,11 +952,12 @@ class Repository {
     }
   }
 
+  /// Loads list of 24 videos in desc createdAt order.
   Future<List<Video>> getNewVideos() async {
     final res = await _supabaseClient
         .from('videos')
-        .select(
-            'id, url, image_url, thumbnail_url, gif_url, description, user_id, created_at')
+        .select('id, url, image_url, thumbnail_url, gif_url,'
+            ' description, user_id, created_at')
         .order('created_at')
         .limit(24)
         .execute();
@@ -910,6 +969,7 @@ class Repository {
     return videos;
   }
 
+  /// Follows a user.
   Future<void> follow(String followedUid) async {
     if (userId == null) {
       return;
@@ -941,6 +1001,7 @@ class Repository {
     });
   }
 
+  /// Unfollows a user.
   Future<void> unfollow(String followedUid) async {
     if (userId == null) {
       return;
@@ -984,12 +1045,14 @@ class Repository {
       if (placemarks.first.administrativeArea?.isEmpty == true) {
         return '${placemarks.first.name}';
       }
-      return '${placemarks.first.administrativeArea}, ${placemarks.first.country}';
+      return '${placemarks.first.administrativeArea}, '
+          '${placemarks.first.country}';
     } catch (e) {
       return 'Unknown';
     }
   }
 
+  /// Loads list of followers.
   Future<List<Profile>> getFollowers(String uid) async {
     late final PostgrestResponse res;
     // get followers of uid with is_following
@@ -1010,6 +1073,7 @@ class Repository {
     return profiles;
   }
 
+  /// Loads list of followings.
   Future<List<Profile>> getFollowings(String uid) async {
     late final PostgrestResponse res;
     // get followers of uid with is_following
@@ -1030,10 +1094,12 @@ class Repository {
     return profiles;
   }
 
+  /// Get the current user's location.
   Future<LatLng> determinePosition() {
     return _locationProvider.determinePosition();
   }
 
+  /// Open location settings page on the device.
   Future<bool> openLocationSettingsPage() {
     return _locationProvider.openLocationSettingsPage();
   }

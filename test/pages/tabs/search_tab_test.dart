@@ -73,32 +73,33 @@ void main() {
             ),
           ]);
 
-      when(() => repository.search('aaa')).thenAnswer((invocation) async => [
-            Video(
-              id: 'id',
-              url: 'url',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now(),
-              description: 'description',
-              userId: 'userId',
-              position: const LatLng(45, 45),
-              isFollowing: false,
-            ),
-            Video(
-              id: 'id',
-              url: 'url',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now(),
-              description: 'description',
-              userId: 'userId',
-              position: const LatLng(45, 45),
-              isFollowing: false,
-            ),
-          ]);
+      when(() => repository.searchVideo('aaa'))
+          .thenAnswer((invocation) async => [
+                Video(
+                  id: 'id',
+                  url: 'url',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now(),
+                  description: 'description',
+                  userId: 'userId',
+                  position: const LatLng(45, 45),
+                  isFollowing: false,
+                ),
+                Video(
+                  id: 'id',
+                  url: 'url',
+                  imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
+                  createdAt: DateTime.now(),
+                  description: 'description',
+                  userId: 'userId',
+                  position: const LatLng(45, 45),
+                  isFollowing: false,
+                ),
+              ]);
 
       await tester.pumpApp(
         widget: BlocProvider<SearchCubit>(

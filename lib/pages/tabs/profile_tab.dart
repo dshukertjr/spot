@@ -5,6 +5,7 @@ import 'package:spot/cubits/profile/profile_cubit.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:spot/utils/constants.dart';
 
+/// Tab that displays the logged in user's profile with past posts.
 class ProfileTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,9 @@ class ProfileTab extends StatelessWidget {
   }
 }
 
+/// The logged in user's profile section.
 class MyUserProfile extends StatelessWidget {
+  /// The logged in user's profile section.
   const MyUserProfile({
     Key? key,
   }) : super(key: key);

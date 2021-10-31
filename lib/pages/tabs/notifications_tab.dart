@@ -8,7 +8,9 @@ import 'package:spot/pages/profile_page.dart';
 import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/utils/constants.dart';
 
+/// Tab that displays in app notifications.
 class NotificationsTab extends StatelessWidget {
+  /// Method ot create this page with necessary `BlocProvider`
   static Widget create() {
     return Material(
       color: Colors.transparent,
@@ -153,9 +155,11 @@ class _NotificationCell extends StatelessWidget {
       case NotificationType.like:
         return '${_notification.actionUserName} liked your video';
       case NotificationType.comment:
-        return '${_notification.actionUserName} commented "${_notification.commentText}"';
+        return '${_notification.actionUserName} commented'
+            ' "${_notification.commentText}"';
       case NotificationType.mentioned:
-        return '${_notification.actionUserName} mentioned you in a comment "${_notification.commentText}"';
+        return '${_notification.actionUserName} mentioned you in'
+            ' a comment "${_notification.commentText}"';
       case NotificationType.follow:
         return '${_notification.actionUserName} started following you';
       case NotificationType.other:

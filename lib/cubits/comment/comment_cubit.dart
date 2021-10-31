@@ -23,9 +23,8 @@ class CommentCubit extends Cubit<CommentState> {
 
   List<Comment> _comments = [];
 
-  @visibleForTesting
-
   /// Listener that listens to list of comments emmited from repository
+  @visibleForTesting
   StreamSubscription<List<Comment>>? commentsListener;
 
   @override
@@ -122,7 +121,8 @@ class CommentCubit extends Cubit<CommentState> {
       return;
     }
     emit(CommentsLoaded(_comments, isLoadingMentionSuggestions: true));
-    final mentionSuggestions = await _repository.getMentions(mentionedUserName);
+    final mentionSuggestions =
+        await _repository.getMentionSuggestions(mentionedUserName);
     emit(CommentsLoaded(_comments, mentionSuggestions: mentionSuggestions));
   }
 }

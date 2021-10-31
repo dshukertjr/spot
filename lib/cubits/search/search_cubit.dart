@@ -32,7 +32,7 @@ class SearchCubit extends Cubit<SearchState> {
   Future<void> search(String queryString) async {
     try {
       emit(SearchLoading());
-      final videos = await _repository.search(queryString);
+      final videos = await _repository.searchVideo(queryString);
       if (videos.isEmpty) {
         emit(SearchEmpty());
       } else {
