@@ -779,7 +779,7 @@ void main() {
 
       /// suggestions are being displayed
       expect(find.text('Tyler'), findsOneWidget);
-      expect(find.byWidget(preloader), findsOneWidget);
+      expect(find.byWidget(preloader), findsNothing);
 
       await tester.tap(find.text('Tyler'));
 
