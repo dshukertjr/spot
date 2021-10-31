@@ -15,7 +15,11 @@ import 'package:video_player/video_player.dart';
 
 part 'confirm_video_state.dart';
 
+/// Cubit that takes care of video transcoding
+/// while the user confirms the video.
 class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
+  /// Cubit that takes care of video transcoding
+  /// while the user confirms the video.
   ConfirmVideoCubit({required Repository repository})
       : _repository = repository,
         super(ConfirmVideoInitial());
@@ -42,6 +46,7 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     return super.close();
   }
 
+  /// Initialize the transcoding in the background
   Future<void> initialize({required File videoFile}) async {
     try {
       final videoPath = videoFile.path;
@@ -75,9 +80,9 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     }
   }
 
+  /// Submits the video to be saved on Supabase
   Future<void> post({required String description}) async {
-    emit(
-        ConfirmVideoTranscoding(videoPlayerController: _videoPlayerController));
+    emit(ConfirmVideoUploading(videoPlayerController: _videoPlayerController));
 
     /// wait until video processing is complete
     await _compressingVideoCompleter.future;
@@ -137,7 +142,9 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     ///  -movflags +faststart optimizes video for web streaming
     /// by bringing some of the headers upfront
     final command =
-        '-t ${maxVideoDuration.inSeconds} -y -i $videoPath -c:v libx264 -preset veryfast -tune zerolatency -movflags +faststart -filter:v scale=-2:720 $tempPath';
+        '-t ${maxVideoDuration.inSeconds} -y -i $videoPath -c:v libx264 '
+        '-preset veryfast -tune zerolatency -movflags '
+        '+faststart -filter:v scale=-2:720 $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(
@@ -171,9 +178,8 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     /// -y overrides the output file
     /// -i ${filePath} input file path
     ///
-    final command =
-        // '-y -i $videoPath -vf "scale=200:-2, crop=200:200:exact=1" $tempPath';
-        '-y -i $videoPath -vf "crop=w=\'min(iw\,ih)\':h=\'min(iw\,ih)\',scale=200:200,setsar=1" $tempPath';
+    final command = '-y -i $videoPath -vf "crop=w=\'min(iw\,ih)\''
+        ':h=\'min(iw\,ih)\',scale=200:200,setsar=1" $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {
       throw PlatformException(
@@ -191,7 +197,8 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
     /// -y overrides the output file
     /// -t 2 creates a 2 second gif
     /// -i ${filePath} input file path
-    /// -vf scale=-2:240 sets the height at 240 and width at the same aspect ratio
+    /// -vf scale=-2:240 sets the height at 240 and width
+    /// at the same aspect ratio
     final command = '-y -t 2 -i $videoPath -vf scale=-2:240 -r 10 $tempPath';
     final res = await _flutterFFmpeg.execute(command);
     if (res != 0) {

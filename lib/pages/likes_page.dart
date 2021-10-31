@@ -32,7 +32,7 @@ class LikesPage extends StatelessWidget {
             final videos = state.videos;
             return SingleChildScrollView(
               padding: MediaQuery.of(context).padding,
-              child: VideoList(videos: videos),
+              child: VideoGrid(videos: videos),
             );
           }
           return preloader;

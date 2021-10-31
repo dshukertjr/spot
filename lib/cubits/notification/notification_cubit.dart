@@ -7,7 +7,9 @@ import 'package:spot/repositories/repository.dart';
 
 part 'notification_state.dart';
 
+/// Cubit that takes care of in app notifications
 class NotificationCubit extends Cubit<NotificationState> {
+  /// Cubit that takes care of in app notifications
   NotificationCubit({required Repository repository})
       : _repository = repository,
         super(NotificationInitial());
@@ -16,6 +18,7 @@ class NotificationCubit extends Cubit<NotificationState> {
   List<AppNotification> _notifications = <AppNotification>[];
   StreamSubscription<List<AppNotification>>? _notificationListener;
 
+  /// Sets up listeners to listen to notifications emitted on repository
   Future<void> loadNotifications() async {
     try {
       await _repository.getNotifications();
@@ -39,6 +42,10 @@ class NotificationCubit extends Cubit<NotificationState> {
     }
   }
 
+  /// Called when a user has viewed a notification
+  /// and want to update the last seen timestamp.
+  /// Last seem timestamp is used to determine which
+  /// notificatons are unread yet.
   Future<void> updateTimestampOfLastSeenNotification() async {
     if (_notifications.isNotEmpty) {
       emit(NotificationLoaded(

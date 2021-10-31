@@ -14,8 +14,12 @@ import 'package:video_player/video_player.dart';
 
 import '../components/app_scaffold.dart';
 
+/// Page where the user confirms the recorded video
 class ConfirmRecordingPage extends StatelessWidget {
+  /// Name of this page within `RouteSettinngs`
   static const name = 'ConfirmRecordingPage';
+
+  /// Method ot create this page with necessary `BlocProvider`
   static Route<void> route({required File videoFile}) {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
@@ -41,10 +45,10 @@ class ConfirmRecordingPage extends StatelessWidget {
           if (state is ConfirmVideoInitial) {
             return preloader;
           } else if (state is ConfirmVideoPlaying) {
-            return VideoConfirmationPage(
+            return VideoConfirmationWidget(
               videoPlayerController: state.videoPlayerController,
             );
-          } else if (state is ConfirmVideoTranscoding) {
+          } else if (state is ConfirmVideoUploading) {
             return Stack(
               fit: StackFit.expand,
               children: [
@@ -88,8 +92,11 @@ class ConfirmRecordingPage extends StatelessWidget {
 }
 
 @visibleForTesting
-class VideoConfirmationPage extends StatefulWidget {
-  VideoConfirmationPage({
+
+/// Full page widget to confirm video
+class VideoConfirmationWidget extends StatefulWidget {
+  /// Full page widget to confirm video
+  VideoConfirmationWidget({
     Key? key,
     required VideoPlayerController videoPlayerController,
   })  : _videoPlayerController = videoPlayerController,
@@ -98,10 +105,11 @@ class VideoConfirmationPage extends StatefulWidget {
   final VideoPlayerController _videoPlayerController;
 
   @override
-  _VideoConfirmationPageState createState() => _VideoConfirmationPageState();
+  _VideoConfirmationWidgetState createState() =>
+      _VideoConfirmationWidgetState();
 }
 
-class _VideoConfirmationPageState extends State<VideoConfirmationPage> {
+class _VideoConfirmationWidgetState extends State<VideoConfirmationWidget> {
   bool _showDescriptionDialog = false;
   bool _showStartOverConfirmationDialog = false;
 
@@ -231,7 +239,8 @@ class _VideoConfirmationPageState extends State<VideoConfirmationPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Are you sure you want to start over? The video you took will be lost.',
+              'Are you sure you want to start over?'
+              'The video you took will be lost.',
               style: TextStyle(
                 fontSize: 18,
               ),

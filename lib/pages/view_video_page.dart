@@ -24,22 +24,28 @@ import '../utils/constants.dart';
 import 'tab_page.dart';
 
 @visibleForTesting
+
+/// enum for different actions users can perform on a video
 enum VideoMenu {
+  /// Used when a user wants to block another user
   block,
+
+  /// Used when a user would like to report a post
   report,
+
+  /// Used when a user would like to delete a video
   delete,
 }
 
+/// Page to view a video
 class ViewVideoPage extends StatelessWidget {
-  const ViewVideoPage({
-    Key? key,
-    required this.videoId,
-  }) : super(key: key);
+  /// Page to view a video
+  const ViewVideoPage({Key? key}) : super(key: key);
 
+  /// Name of this page within `RouteSettinngs`
   static const name = 'ViewVideoPage';
 
-  final String videoId;
-
+  /// Method ot create this page with necessary `BlocProvider`
   static Route<void> route({
     required String videoId,
   }) {
@@ -59,7 +65,7 @@ class ViewVideoPage extends StatelessWidget {
             ),
           ),
         ],
-        child: ViewVideoPage(videoId: videoId),
+        child: const ViewVideoPage(),
       ),
     );
   }
@@ -104,7 +110,12 @@ class ViewVideoPage extends StatelessWidget {
 }
 
 @visibleForTesting
+
+/// Widget that displays the video along with various buttons such as
+/// the like butotn or menu button along with profile of the creator.
 class VideoScreen extends StatefulWidget {
+  /// Widget that displays the video along with various buttons such as
+  /// the like butotn or menu button along with profile of the creator.
   const VideoScreen({
     Key? key,
     VideoPlayerController? controller,
@@ -523,8 +534,8 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                  'Could you please tell us why you would like to report this video?'),
+              const Text('Could you please tell us why you would like to'
+                  'report this video?'),
               const SizedBox(height: 12),
               TextFormField(
                 maxLines: null,
@@ -582,7 +593,16 @@ class __ReportingDialogContentState extends State<_ReportingDialogContent> {
 }
 
 @visibleForTesting
+
+/// Overlay that appears on top of video player
+/// when user tapps on comment button.
+/// It will display a list of comments and a text form field to submit
+/// new comments.
 class CommentsOverlay extends StatefulWidget {
+  /// Overlay that appears on top of video player
+  /// when user tapps on comment button.
+  /// It will display a list of comments and a text form field to submit
+  /// new comments.
   CommentsOverlay({
     Key? key,
     required void Function() onClose,
@@ -634,7 +654,7 @@ class _CommentsOverlayState extends State<CommentsOverlay> {
                   } else if (state is CommentsLoaded) {
                     final comments = state.comments;
                     final mentionSuggestions = state.mentionSuggestions;
-                    final isLoadingMentions = state.isLoadingMentions;
+                    final isLoadingMentions = state.isLoadingMentionSuggestions;
                     return Stack(
                       fit: StackFit.expand,
                       children: [

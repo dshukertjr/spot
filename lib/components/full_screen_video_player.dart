@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+/// Video play that takes up the full screen
 class FullScreenVideoPlayer extends StatefulWidget {
+  /// Video play that takes up the full screen
   const FullScreenVideoPlayer({
     Key? key,
     required VideoPlayerController videoPlayerController,
