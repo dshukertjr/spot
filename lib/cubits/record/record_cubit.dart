@@ -7,7 +7,9 @@ import 'package:spot/repositories/repository.dart';
 
 part 'record_state.dart';
 
+/// Cubit that takes care of recording.
 class RecordCubit extends Cubit<RecordState> {
+  /// Cubit that takes care of recording.
   RecordCubit({
     required Repository repository,
   })  : _repository = repository,
@@ -22,6 +24,7 @@ class RecordCubit extends Cubit<RecordState> {
     return super.close();
   }
 
+  /// Initializes the camera
   Future<void> initialize() async {
     try {
       final cameras = await availableCameras();
@@ -39,6 +42,7 @@ class RecordCubit extends Cubit<RecordState> {
     }
   }
 
+  /// Starts recording the video
   Future<void> startRecording() async {
     if (state is RecordReady) {
       await _controller!.startVideoRecording();
@@ -49,11 +53,13 @@ class RecordCubit extends Cubit<RecordState> {
     }
   }
 
+  /// Pauses recording.
   Future<void> pauseRecording() async {
     await _controller!.pauseVideoRecording();
     emit(RecordPaused(controller: _controller!));
   }
 
+  /// Completes the recording.
   Future<void> doneRecording() async {
     emit(RecordProcessing(controller: _controller!));
 
@@ -65,6 +71,7 @@ class RecordCubit extends Cubit<RecordState> {
     );
   }
 
+  /// Opens video library on user's device to choose the video to be uploaded
   Future<void> uploadVideo() async {
     final videoPickedFile = await _repository.getVideoFile();
     if (videoPickedFile != null) {

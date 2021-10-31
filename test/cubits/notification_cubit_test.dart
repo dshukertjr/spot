@@ -149,7 +149,8 @@ Future<void> main() async {
                     actionUid: 'aaa',
                     actionUserName: 'Tyler',
                     commentText:
-                        'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
+                        'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2'
+                        ' yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
                     isNew: false,
                   ),
                 ],

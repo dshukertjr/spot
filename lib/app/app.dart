@@ -1,3 +1,5 @@
+// ignore_for_file: public_member_api_docs
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';

@@ -8,14 +8,25 @@ import 'package:spot/pages/profile_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:spot/utils/constants.dart';
 
+/// Page that displays followers or followings.
 class FollowsPage extends StatelessWidget {
+  /// Page that displays followers or followings.
   const FollowsPage({
     Key? key,
     required this.isDisplayingFollowers,
   }) : super(key: key);
 
+  /// Whether the page is currently displaying followers or followings.
+  ///
+  /// True if currently displaying followers.
+  ///
+  /// False if currently displaying followings.
   final bool isDisplayingFollowers;
 
+  /// Name of this page within `RouteSettinngs`
+  static const name = 'FollowsPage';
+
+  /// Method ot create this page with necessary `BlocProvider`
   static Route<void> route({
     required String uid,
 
@@ -24,6 +35,7 @@ class FollowsPage extends StatelessWidget {
     required bool isDisplayingFollowers,
   }) {
     return MaterialPageRoute(
+      settings: const RouteSettings(name: name),
       builder: (context) => BlocProvider(
         create: (context) => ProfileCubit(
           repository: RepositoryProvider.of<Repository>(context),

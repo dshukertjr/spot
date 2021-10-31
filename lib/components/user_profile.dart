@@ -12,7 +12,12 @@ import 'package:spot/utils/constants.dart';
 
 import 'profile_image.dart';
 
+/// Displays a user's profile such as name, bio and like counts
+/// It will also display the posts that the user has posted.
+/// It is almost a page, but is used as one of the tab
+/// as well as a stand alone page
 class UserProfile extends StatelessWidget {
+  /// Displays a user's profile such as name, bio and like counts
   UserProfile({
     Key? key,
     required String userId,
@@ -54,7 +59,7 @@ class _UserPosts extends StatelessWidget {
           return preloader;
         } else if (state is VideosLoaded) {
           final videos = state.videos;
-          return VideoList(videos: videos);
+          return VideoGrid(videos: videos);
         } else if (state is VideosError) {
           return const Center(
             child: Text('Something went wrong. Please reopen the app. '),
@@ -81,7 +86,7 @@ class _Profile extends StatelessWidget {
       } else if (state is ProfileLoaded) {
         final profile = state.profile;
 
-        /// Used to determine if the
+        /// Used to determine if the profile is the user's or someone else's
         final isMyProfile =
             RepositoryProvider.of<Repository>(context).userId == profile.id;
 

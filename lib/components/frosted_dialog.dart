@@ -2,9 +2,11 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+/// Creates a dialog with a frosted effect
 class FrostedDialog extends StatefulWidget {
+  /// Creates a dialog with a frosted effect
   const FrostedDialog({
-    Key? key,
+    @override Key? key,
     required Widget child,
     bool hasBackdropShadow = false,
   })  : _child = child,

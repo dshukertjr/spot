@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// Displays a profile image of a user
 class ProfileImage extends StatelessWidget {
+  /// Displays a profile image of a user
   const ProfileImage({
     Key? key,
     double size = 50,

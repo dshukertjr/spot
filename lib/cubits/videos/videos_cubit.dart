@@ -8,7 +8,10 @@ import 'package:spot/repositories/repository.dart';
 
 part 'videos_state.dart';
 
+/// Cubit that takes care of list of videos.
+/// Mainly used to load the videos displayed on the map.
 class VideosCubit extends Cubit<VideosState> {
+  /// Cubit that takes care of list of videos.
   VideosCubit({required Repository repository})
       : _repository = repository,
         super(VideosInitial());
@@ -24,6 +27,7 @@ class VideosCubit extends Cubit<VideosState> {
     return super.close();
   }
 
+  /// Loads the videos that are initially shown to the user.
   Future<void> loadInitialVideos() async {
     try {
       final searchLocation = await _repository.determinePosition();
@@ -38,6 +42,7 @@ class VideosCubit extends Cubit<VideosState> {
     }
   }
 
+  /// Loads videos that are inside a bounding box.
   Future<void> loadVideosWithinBoundingBox(LatLngBounds bounds) async {
     try {
       emit(VideosLoadingMore(_videos));
@@ -47,6 +52,7 @@ class VideosCubit extends Cubit<VideosState> {
     }
   }
 
+  /// Loads videos posted by a user with `uid`.
   Future<void> loadFromUid(String uid) async {
     try {
       final videos = await _repository.getVideosFromUid(uid);
@@ -56,6 +62,7 @@ class VideosCubit extends Cubit<VideosState> {
     }
   }
 
+  /// Load videos that a user with `uid` has liked.
   Future<void> loadLikedPosts(String uid) async {
     try {
       final videos = await _repository.getLikedPostsFromUid(uid);

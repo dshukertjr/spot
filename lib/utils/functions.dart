@@ -4,7 +4,11 @@ import 'package:spot/pages/edit_profile_page.dart';
 import 'package:spot/pages/login_page.dart';
 import 'package:spot/repositories/repository.dart';
 
+/// Class to hold static method related to requiring auth.
 class AuthRequired {
+  /// Method to determine whether the user has
+  /// the right to perform auth required action
+  /// such as posting videos or viewing their own profile.
   static Future<void> action(BuildContext context,
       {required void Function() action}) async {
     final repository = RepositoryProvider.of<Repository>(context);

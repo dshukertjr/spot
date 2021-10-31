@@ -308,7 +308,8 @@ void main() {
                     actionUid: 'aaa',
                     actionUserName: 'Tyler',
                     commentText:
-                        'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
+                        'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2'
+                        ' yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2',
                     isNew: false,
                   ),
                 ]));
@@ -332,7 +333,8 @@ void main() {
         when(() => repository.getVideosFromUid('aaa'))
             .thenAnswer((_) => Future.value([]));
         when(() => repository.replaceMentionsWithUserNames(
-                'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2'))
+                'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay'
+                ' @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2'))
             .thenAnswer(
                 (invocation) async => 'something random @Tyler yay @Sam');
 
@@ -363,8 +365,8 @@ void main() {
       });
 
       testWidgets(
-          'Users who don\'t have timestampOfLastSeenNotification and have notifications will see a dot',
-          (tester) async {
+          'Users who don\'t have timestampOfLastSeenNotification and have '
+          'notifications will see a dot', (tester) async {
         when(() => repository.notificationsStream)
             .thenAnswer((invocation) => Stream.value([
                   AppNotification(

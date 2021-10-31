@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Utility widget that wrapps the child with Gradient border
 class GradientBorder extends StatelessWidget {
   /// Wraps the child widget with gradient border
   const GradientBorder({

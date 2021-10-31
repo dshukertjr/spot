@@ -47,8 +47,8 @@ void main() {
 
     group('createCommentWithMentionedProfile', () {
       test(
-          'createCommentWithMentionedProfile where the comment only has mentions',
-          () {
+          'createCommentWithMentionedProfile where '
+          'the comment only has mentions', () {
         final commentText = '@som';
         final profileName = 'some';
         final replacedComment = commentCubit.createCommentWithMentionedProfile(
@@ -58,8 +58,8 @@ void main() {
         expect(replacedComment, '@some ');
       });
       test(
-          'createCommentWithMentionedProfile where the comment only has mentions',
-          () {
+          'createCommentWithMentionedProfile where '
+          'the comment only has mentions', () {
         final commentText = 'another @som';
         final profileName = 'some';
         final replacedComment = commentCubit.createCommentWithMentionedProfile(
@@ -69,8 +69,8 @@ void main() {
         expect(replacedComment, 'another @some ');
       });
       test(
-          'createCommentWithMentionedProfile where the comment only has mentions',
-          () {
+          'createCommentWithMentionedProfile '
+          'where the comment only has mentions', () {
         final commentText = '@another @som';
         final profileName = 'some';
         final replacedComment = commentCubit.createCommentWithMentionedProfile(

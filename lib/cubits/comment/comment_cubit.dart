@@ -8,7 +8,9 @@ import 'package:spot/repositories/repository.dart';
 
 part 'comment_state.dart';
 
+/// Cubit that takes care of anything related to comments.
 class CommentCubit extends Cubit<CommentState> {
+  /// Cubit that takes care of anything related to comments.
   CommentCubit({
     required Repository repository,
     required String videoId,
@@ -21,6 +23,7 @@ class CommentCubit extends Cubit<CommentState> {
 
   List<Comment> _comments = [];
 
+  /// Listener that listens to list of comments emmited from repository
   @visibleForTesting
   StreamSubscription<List<Comment>>? commentsListener;
 
@@ -30,6 +33,7 @@ class CommentCubit extends Cubit<CommentState> {
     return super.close();
   }
 
+  /// Loads comments of a video
   Future<void> loadComments() async {
     try {
       if (_comments.isNotEmpty) {
@@ -50,6 +54,7 @@ class CommentCubit extends Cubit<CommentState> {
     }
   }
 
+  /// Posts a new comment on a video
   Future<void> postComment(String text) async {
     try {
       final userId = _repository.userId;
@@ -115,8 +120,9 @@ class CommentCubit extends Cubit<CommentState> {
       emit(CommentsLoaded(_comments, mentionSuggestions: usersInComments));
       return;
     }
-    emit(CommentsLoaded(_comments, isLoadingMentions: true));
-    final mentionSuggestions = await _repository.getMentions(mentionedUserName);
+    emit(CommentsLoaded(_comments, isLoadingMentionSuggestions: true));
+    final mentionSuggestions =
+        await _repository.getMentionSuggestions(mentionedUserName);
     emit(CommentsLoaded(_comments, mentionSuggestions: mentionSuggestions));
   }
 }

@@ -8,31 +8,34 @@ import 'package:spot/repositories/repository.dart';
 import 'package:spot/utils/constants.dart';
 import 'package:spot/utils/functions.dart';
 
+/// Button where users can follow or unfollow other users
 class FollowButton extends StatelessWidget {
+  /// Button where users can follow or unfollow other users
   const FollowButton({
     Key? key,
-    required this.profile,
-  }) : super(key: key);
+    required Profile profile,
+  })  : _profile = profile,
+        super(key: key);
 
-  final Profile profile;
+  final Profile _profile;
 
   @override
   Widget build(BuildContext context) {
     final isMyProfile =
-        RepositoryProvider.of<Repository>(context).userId == profile.id;
+        RepositoryProvider.of<Repository>(context).userId == _profile.id;
     if (isMyProfile) {
       return const SizedBox();
     }
     return GradientButton(
-      decoration: profile.isFollowing
+      decoration: _profile.isFollowing
           ? const BoxDecoration(gradient: redOrangeGradient)
           : null,
       onPressed: () {
         AuthRequired.action(context, action: () {
-          if (profile.isFollowing) {
-            BlocProvider.of<ProfileCubit>(context).unfollow(profile.id);
+          if (_profile.isFollowing) {
+            BlocProvider.of<ProfileCubit>(context).unfollow(_profile.id);
           } else {
-            BlocProvider.of<ProfileCubit>(context).follow(profile.id);
+            BlocProvider.of<ProfileCubit>(context).follow(_profile.id);
           }
         });
       },
@@ -40,13 +43,13 @@ class FollowButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            profile.isFollowing
+            _profile.isFollowing
                 ? FeatherIcons.userCheck
                 : FeatherIcons.userPlus,
             size: 16,
           ),
           const SizedBox(width: 8),
-          Text(profile.isFollowing ? 'Following' : 'Follow'),
+          Text(_profile.isFollowing ? 'Following' : 'Follow'),
         ],
       ),
     );

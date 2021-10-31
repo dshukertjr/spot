@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+/// Scaffold with a beautiful gradient background just for this app.
 class AppScaffold extends Scaffold {
+  /// Scaffold with a beautiful gradient background just for this app.
   AppScaffold({
     PreferredSizeWidget? appBar,
     required Widget body,

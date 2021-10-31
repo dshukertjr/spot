@@ -10,7 +10,9 @@ import 'package:spot/repositories/repository.dart';
 
 part 'profile_state.dart';
 
+/// Cubit that manages user profile
 class ProfileCubit extends Cubit<ProfileState> {
+  /// Cubit that manages user profile
   ProfileCubit({
     required Repository repository,
   })  : _repository = repository,
@@ -29,6 +31,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     return super.close();
   }
 
+  /// Get the logged in user's profile
   Future<void> loadMyProfile() async {
     await _repository.myProfileHasLoaded.future;
     final uid = _repository.userId!;
@@ -41,6 +44,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     await loadProfile(uid);
   }
 
+  /// Get a profile of user where the user ID is `targetUid`
   Future<void> loadProfile(String targetUid) async {
     try {
       await _repository.getProfileDetail(targetUid);
@@ -57,6 +61,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
+  /// update profile of the logged in user
   Future<void> saveProfile({
     required String name,
     required String description,
@@ -95,6 +100,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
+  /// Follow the user where user ID is `followedUid`
   Future<void> follow(String followedUid) {
     if (_followerOrFollowingList.isNotEmpty) {
       // Update the follow state within _followerOrFollowingList
@@ -107,6 +113,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     return _repository.follow(followedUid);
   }
 
+  /// Unfollow the user where user ID is `followedUid`
   Future<void> unfollow(String followedUid) {
     if (_followerOrFollowingList.isNotEmpty) {
       // Update the follow state within _followerOrFollowingList
@@ -119,6 +126,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     return _repository.unfollow(followedUid);
   }
 
+  /// Load list of followers or following
   Future<void> loadFollowersOrFllowings({
     required String uid,
     required bool isLoadingFollowers,

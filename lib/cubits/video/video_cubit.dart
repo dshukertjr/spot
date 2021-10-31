@@ -13,6 +13,8 @@ part 'video_state.dart';
 /// Takes care of actions done on single video
 /// like viewing liking, blocking and such
 class VideoCubit extends Cubit<VideoState> {
+  /// Takes care of actions done on single video
+  /// like viewing liking, blocking and such
   VideoCubit({required Repository repository})
       : _repository = repository,
         super(VideoInitial());
@@ -31,6 +33,7 @@ class VideoCubit extends Cubit<VideoState> {
     return super.close();
   }
 
+  /// Set up listener to listen to video data emitted in repository.
   Future<void> initialize(String videoId) async {
     try {
       _videoId = videoId;
@@ -46,10 +49,15 @@ class VideoCubit extends Cubit<VideoState> {
           } else if (state is VideoLoading) {
             emit(VideoLoading(_videoDetail!));
           } else if (state is VideoPlaying) {
-            emit(VideoPlaying(
-              videoDetail: _videoDetail!,
-              videoPlayerController: _videoPlayerController,
-            ));
+            final videoPlayerContoller = _videoPlayerController;
+            if (videoPlayerContoller == null) {
+              emit(VideoError(message: 'Video player failed to load.'));
+            } else {
+              emit(VideoPlaying(
+                videoDetail: _videoDetail!,
+                videoPlayerController: videoPlayerContoller,
+              ));
+            }
           }
         }
       });
@@ -58,6 +66,7 @@ class VideoCubit extends Cubit<VideoState> {
     }
   }
 
+  /// Like a video.
   Future<void> like() {
     try {
       return _repository.like(_videoDetail!);
@@ -67,6 +76,7 @@ class VideoCubit extends Cubit<VideoState> {
     }
   }
 
+  /// Unlike a video.
   Future<void> unlike() {
     try {
       return _repository.unlike(_videoDetail!);
@@ -76,10 +86,12 @@ class VideoCubit extends Cubit<VideoState> {
     }
   }
 
+  /// Block the creator of the video.
   Future<void> block(String blockedUserId) {
     return _repository.block(blockedUserId);
   }
 
+  /// Report this video.
   Future<void> report({
     required String videoId,
     required String reason,
@@ -90,10 +102,12 @@ class VideoCubit extends Cubit<VideoState> {
     );
   }
 
+  /// Delete this video. Can only be performed by the creator.
   Future<void> delete() {
-    return _repository.delete(videoId: _videoId);
+    return _repository.deleteVideo(videoId: _videoId);
   }
 
+  /// Share this video.
   Future<void> shareVideo() {
     return _repository.shareVideo(_videoDetail!);
   }

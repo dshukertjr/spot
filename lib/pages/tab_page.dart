@@ -19,8 +19,13 @@ import 'package:spot/utils/functions.dart';
 import '../components/app_scaffold.dart';
 import 'record_page.dart';
 
+/// Page that holds tab navigation at the bottom.
+/// This is the first page presented to the user.
 class TabPage extends StatefulWidget {
+  /// Name of this page within `RouteSettinngs`
   static const name = 'TabPage';
+
+  /// Method ot create this page with necessary `BlocProvider`
   static Route<void> route() {
     return MaterialPageRoute(
       settings: const RouteSettings(name: name),
@@ -33,7 +38,10 @@ class TabPage extends StatefulWidget {
 }
 
 @visibleForTesting
+
+/// State of `TabPage`. Made public for testing purposes.
 class TabPageState extends State<TabPage> {
+  /// Currently shown tab index. Initially set to show the MapTab.
   @visibleForTesting
   int currentIndex = 0;
 
@@ -180,6 +188,7 @@ class TabPageState extends State<TabPage> {
     );
   }
 
+  /// Called when the app comes back from background mode.
   Future<void> onResumed() async {
     await RepositoryProvider.of<Repository>(context).recoverSession();
   }
@@ -192,10 +201,16 @@ class TabPageState extends State<TabPage> {
   }
 }
 
+/// Class to listen to app lifecycle such as background and foreground.
+/// Listening to app lifecycle is necessary to keep auth state.
 class LifecycleEventHandler extends WidgetsBindingObserver {
+  /// Class to listen to app lifecycle such as background and foreground.
+  /// Listening to app lifecycle is necessary to keep auth state.
   LifecycleEventHandler({
     required this.resumeCallBack,
   });
+
+  /// Method to be called when the app comes back to foreground.
   final AsyncCallback resumeCallBack;
 
   @override
@@ -212,7 +227,10 @@ class LifecycleEventHandler extends WidgetsBindingObserver {
 }
 
 @visibleForTesting
+
+/// Button that opens `RecordPage`.
 class RecordButton extends StatelessWidget {
+  /// Button that opens `RecordPage`.
   const RecordButton({
     Key? key,
   }) : super(key: key);
@@ -272,8 +290,8 @@ class RecordButton extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                const Text(
-                                    'Please grant location permission to post a video. '),
+                                const Text('Please grant location '
+                                    'permission to post a video. '),
                                 const SizedBox(height: 12),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,

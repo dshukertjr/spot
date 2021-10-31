@@ -7,7 +7,9 @@ import 'package:spot/cubits/search/search_cubit.dart';
 import '../../repositories/repository.dart';
 import '../../utils/constants.dart';
 
+/// One of the tabs in main screen for users to perform keyword search
 class SearchTab extends StatefulWidget {
+  /// method to create the widget with necessary `BlocProvider`
   static Widget create() {
     return BlocProvider<SearchCubit>(
       create: (context) =>
@@ -55,7 +57,7 @@ class _SearchTabState extends State<SearchTab> {
               return preloader;
             } else if (state is SearchLoaded) {
               final videos = state.videos;
-              return VideoList(videos: videos);
+              return VideoGrid(videos: videos);
             } else if (state is SearchEmpty) {
               return const Padding(
                 padding: EdgeInsets.all(16.0),

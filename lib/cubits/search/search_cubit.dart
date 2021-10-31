@@ -5,13 +5,16 @@ import '../../models/video.dart';
 import '../../repositories/repository.dart';
 part 'search_state.dart';
 
+/// Cubit that takes care of key word search.
 class SearchCubit extends Cubit<SearchState> {
+  /// Cubit that takes care of key word search.
   SearchCubit({required Repository repository})
       : _repository = repository,
         super(SearchLoading());
 
   final Repository _repository;
 
+  /// Load some videos to be initially shown to users prior to performing serach
   Future<void> loadInitialVideos() async {
     try {
       final videos = await _repository.getNewVideos();
@@ -25,10 +28,11 @@ class SearchCubit extends Cubit<SearchState> {
     }
   }
 
+  /// Perform a keyword search.
   Future<void> search(String queryString) async {
     try {
       emit(SearchLoading());
-      final videos = await _repository.search(queryString);
+      final videos = await _repository.searchVideo(queryString);
       if (videos.isEmpty) {
         emit(SearchEmpty());
       } else {

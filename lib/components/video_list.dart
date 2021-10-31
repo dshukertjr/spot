@@ -3,13 +3,16 @@ import 'package:spot/models/video.dart';
 import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/utils/constants.dart';
 
-class VideoList extends StatelessWidget {
-  const VideoList({
+/// Displays videos in a grid
+class VideoGrid extends StatelessWidget {
+  /// Displays videos in a grid
+  const VideoGrid({
     Key? key,
-    required this.videos,
-  }) : super(key: key);
+    required List<Video> videos,
+  })  : _videos = videos,
+        super(key: key);
 
-  final List<Video> videos;
+  final List<Video> _videos;
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +20,8 @@ class VideoList extends StatelessWidget {
       color: Colors.transparent,
       child: Wrap(
         alignment: WrapAlignment.start,
-        children: List.generate(videos.length, (index) {
-          final video = videos[index];
+        children: List.generate(_videos.length, (index) {
+          final video = _videos[index];
           return SizedBox(
             width: MediaQuery.of(context).size.width / 3,
             child: AspectRatio(

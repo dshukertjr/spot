@@ -102,7 +102,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: const ViewVideoPage(videoId: 'aaa'),
+          child: const ViewVideoPage(),
         ),
         repository: repository,
       );
@@ -168,7 +168,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: const ViewVideoPage(videoId: 'aaa'),
+          child: const ViewVideoPage(),
         ),
         repository: repository,
       );
@@ -240,7 +240,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: const ViewVideoPage(videoId: 'aaa'),
+          child: const ViewVideoPage(),
         ),
         repository: repository,
       );
@@ -319,7 +319,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: const ViewVideoPage(videoId: 'aaa'),
+          child: const ViewVideoPage(),
         ),
         repository: repository,
       );
@@ -402,7 +402,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) =>
               VideoCubit(repository: repository)..initialize('aaa'),
-          child: const ViewVideoPage(videoId: 'aaa'),
+          child: const ViewVideoPage(),
         ),
         repository: repository,
       );
@@ -483,7 +483,7 @@ void main() {
         widget: BlocProvider<VideoCubit>(
           create: (BuildContext context) => VideoCubit(repository: repository)
             ..initialize(likedVideoDetail.id),
-          child: const ViewVideoPage(videoId: 'aaa'),
+          child: const ViewVideoPage(),
         ),
         repository: repository,
       );
@@ -582,7 +582,7 @@ void main() {
                     ..loadComments(),
             ),
           ],
-          child: const ViewVideoPage(videoId: 'aaa'),
+          child: const ViewVideoPage(),
         ),
         repository: repository,
       );
@@ -615,6 +615,8 @@ void main() {
       registerFallbackValue<String>('');
 
       registerFallbackValue<VideoState>(VideoPlaying(
+        videoPlayerController:
+            VideoPlayerController.file(File('test_resources/video.mp4')),
         videoDetail: VideoDetail(
           id: 'id',
           url: 'url',
@@ -656,6 +658,8 @@ void main() {
         mockVideoCubit,
         Stream.fromIterable([
           VideoPlaying(
+            videoPlayerController:
+                VideoPlayerController.file(File('test_resources/video.mp4')),
             videoDetail: VideoDetail(
               id: 'id',
               url: 'url',
@@ -674,6 +678,8 @@ void main() {
             ),
           ),
           VideoPlaying(
+            videoPlayerController:
+                VideoPlayerController.file(File('test_resources/video.mp4')),
             videoDetail: VideoDetail(
               id: 'id',
               url: 'url',
@@ -693,6 +699,8 @@ void main() {
           ),
         ]),
         initialState: VideoPlaying(
+          videoPlayerController:
+              VideoPlayerController.file(File('test_resources/video.mp4')),
           videoDetail: VideoDetail(
             id: 'id',
             url: 'url',
@@ -726,7 +734,7 @@ void main() {
               )
             ],
             mentionSuggestions: [],
-            isLoadingMentions: true,
+            isLoadingMentionSuggestions: true,
           ),
           CommentsLoaded(
             [
@@ -748,7 +756,7 @@ void main() {
                 name: 'Takahiro',
               ),
             ],
-            isLoadingMentions: false,
+            isLoadingMentionSuggestions: false,
           ),
         ]),
       );
@@ -761,7 +769,7 @@ void main() {
             BlocProvider<CommentCubit>(
                 create: (BuildContext context) => mockCommentCubit),
           ],
-          child: const ViewVideoPage(videoId: 'aaa'),
+          child: const ViewVideoPage(),
         ),
         repository: repository,
       );
@@ -771,7 +779,7 @@ void main() {
 
       /// suggestions are being displayed
       expect(find.text('Tyler'), findsOneWidget);
-      expect(find.byWidget(preloader), findsOneWidget);
+      expect(find.byWidget(preloader), findsNothing);
 
       await tester.tap(find.text('Tyler'));
 

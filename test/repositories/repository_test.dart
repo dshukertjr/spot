@@ -658,7 +658,8 @@ void main() {
     });
     test('getUserIdsInComment with 2 user id', () {
       final comment =
-          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
+          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay'
+          ' @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
       final userIds = repository.getUserIdsInComment(comment);
       expect(userIds, [
         'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
@@ -667,7 +668,8 @@ void main() {
     });
     test('getUserIdsInComment with 2 user id with the same id', () {
       final comment =
-          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
+          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay'
+          ' @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
       final userIds = repository.getUserIdsInComment(comment);
       expect(userIds, [
         'b35bac1a-8d4b-4361-99cc-a1d274d1c4d2',
@@ -740,7 +742,8 @@ void main() {
           locationProvider: locationProvider);
 
       final comment =
-          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
+          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay'
+          ' @aaabac1a-8d4b-4361-99cc-a1d274d1c4d2';
 
       final updatedComment =
           await repository.replaceMentionsWithUserNames(comment);
@@ -753,8 +756,8 @@ void main() {
           analytics: analytics,
           localStorage: localStorage,
           locationProvider: locationProvider);
-      final comment =
-          'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
+      final comment = 'something random @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2 '
+          'yay @b35bac1a-8d4b-4361-99cc-a1d274d1c4d2';
 
       final updatedComment =
           await repository.replaceMentionsWithUserNames(comment);

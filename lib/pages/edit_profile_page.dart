@@ -10,16 +10,25 @@ import 'package:spot/repositories/repository.dart';
 import 'package:spot/utils/constants.dart';
 import 'package:spot/utils/validators.dart';
 
+/// Page for editing a user's profile.
+///
+/// Used for both when first creating a profile and later editing a profile.
 class EditProfilePage extends StatefulWidget {
+  /// Page for editing a user's profile.
+  ///
+  /// Used for both when first creating a profile and later editing a profile.
   const EditProfilePage({
     Key? key,
     required this.isCreatingAccount,
   }) : super(key: key);
 
+  ///
   final bool isCreatingAccount;
 
+  /// Name of this page within `RouteSettinngs`
   static const name = 'EditProfilePage';
 
+  /// Method ot create this page with necessary `BlocProvider`
   static Route<void> route({
     required bool isCreatingAccount,
   }) {
