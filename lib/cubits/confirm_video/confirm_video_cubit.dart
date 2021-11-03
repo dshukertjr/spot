@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:better_player/better_player.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +12,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:spot/models/video.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:spot/utils/constants.dart';
-import 'package:video_player/video_player.dart';
 
 part 'confirm_video_state.dart';
 
@@ -26,34 +26,28 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
 
   final Repository _repository;
 
-  late final VideoPlayerController _videoPlayerController;
+  late final BetterPlayerController _videoPlayerController;
 
   final _flutterFFmpeg = FlutterFFmpeg();
 
   final _compressingVideoCompleter = Completer();
-  bool _isSeekingToBeginning = false;
   LatLng? _videoLocation;
   late final File _compressedVideo;
   late final File _videoImage;
   late final File _thumbnail;
   late final File _gif;
 
-  @override
-  Future<void> close() {
-    _videoPlayerController
-      ..removeListener(_limitVideoDuration)
-      ..dispose();
-    return super.close();
-  }
-
   /// Initialize the transcoding in the background
   Future<void> initialize({required File videoFile}) async {
     try {
       final videoPath = videoFile.path;
-      _videoPlayerController = VideoPlayerController.file(File(videoPath));
-      await _videoPlayerController.initialize();
+      final config = const BetterPlayerConfiguration(
+          controlsConfiguration:
+              BetterPlayerControlsConfiguration(showControls: false));
+      final dataSource = BetterPlayerDataSource.file(videoPath);
+      _videoPlayerController =
+          BetterPlayerController(config, betterPlayerDataSource: dataSource);
       await _videoPlayerController.play();
-      _videoPlayerController.addListener(_limitVideoDuration);
       emit(ConfirmVideoPlaying(videoPlayerController: _videoPlayerController));
 
       _videoLocation = await _repository.getVideoLocation(videoPath);
@@ -208,19 +202,5 @@ class ConfirmVideoCubit extends Cubit<ConfirmVideoState> {
       );
     }
     return File(tempPath);
-  }
-
-  /// Only show the video for the max duration amount
-  Future<void> _limitVideoDuration() async {
-    if (_videoPlayerController.value.position ==
-            _videoPlayerController.value.duration ||
-        _videoPlayerController.value.position > maxVideoDuration) {
-      if (!_isSeekingToBeginning) {
-        _isSeekingToBeginning = true;
-        await _videoPlayerController.pause();
-        await _videoPlayerController.seekTo(const Duration(seconds: 0));
-        _isSeekingToBeginning = false;
-      }
-    }
   }
 }

@@ -29,7 +29,7 @@ class VideoPlaying extends VideoState {
   final VideoDetail videoDetail;
 
   /// VideoPlayerController of the playing video.
-  final VideoPlayerController videoPlayerController;
+  final BetterPlayerController videoPlayerController;
 }
 
 /// State to be emitted when an error occured.

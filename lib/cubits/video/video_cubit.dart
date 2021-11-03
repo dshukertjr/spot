@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:better_player/better_player.dart';
 import 'package:bloc/bloc.dart';
 
 import 'package:meta/meta.dart';
 import 'package:spot/repositories/repository.dart';
-import 'package:video_player/video_player.dart';
 
 import '../../models/video.dart';
 
@@ -23,7 +23,7 @@ class VideoCubit extends Cubit<VideoState> {
 
   late final String _videoId;
   VideoDetail? _videoDetail;
-  VideoPlayerController? _videoPlayerController;
+  BetterPlayerController? _videoPlayerController;
   StreamSubscription<VideoDetail?>? _videoStreamSubscription;
 
   @override
@@ -117,7 +117,6 @@ class VideoCubit extends Cubit<VideoState> {
       if (_videoPlayerController == null) {
         _videoPlayerController =
             await _repository.getVideoPlayerController(_videoDetail!.url);
-        await _videoPlayerController!.initialize();
         await _videoPlayerController!.play();
 
         emit(VideoPlaying(

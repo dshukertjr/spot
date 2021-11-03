@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -10,7 +11,6 @@ import 'package:spot/cubits/confirm_video/confirm_video_cubit.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:spot/utils/constants.dart';
-import 'package:video_player/video_player.dart';
 
 import '../components/app_scaffold.dart';
 
@@ -98,11 +98,11 @@ class VideoConfirmationWidget extends StatefulWidget {
   /// Full page widget to confirm video
   VideoConfirmationWidget({
     Key? key,
-    required VideoPlayerController videoPlayerController,
+    required BetterPlayerController videoPlayerController,
   })  : _videoPlayerController = videoPlayerController,
         super(key: key);
 
-  final VideoPlayerController _videoPlayerController;
+  final BetterPlayerController _videoPlayerController;
 
   @override
   _VideoConfirmationWidgetState createState() =>

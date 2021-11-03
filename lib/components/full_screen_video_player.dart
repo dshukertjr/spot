@@ -1,16 +1,16 @@
+import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 
 /// Video play that takes up the full screen
 class FullScreenVideoPlayer extends StatefulWidget {
   /// Video play that takes up the full screen
   const FullScreenVideoPlayer({
     Key? key,
-    required VideoPlayerController videoPlayerController,
+    required BetterPlayerController videoPlayerController,
   })  : _videoPlayerController = videoPlayerController,
         super(key: key);
 
-  final VideoPlayerController _videoPlayerController;
+  final BetterPlayerController _videoPlayerController;
 
   @override
   _FullScreenVideoPlayerState createState() => _FullScreenVideoPlayerState();
@@ -22,35 +22,19 @@ class _FullScreenVideoPlayerState extends State<FullScreenVideoPlayer> {
     return GestureDetector(
       onTap: () async {
         // Toggle video play
-        if (widget._videoPlayerController.value.isPlaying) {
+        if (widget._videoPlayerController.isPlaying()!) {
           await widget._videoPlayerController.pause();
         } else {
-          if (isVideoAtEnd) {
-            await widget._videoPlayerController.seekTo(Duration.zero);
-          }
           await widget._videoPlayerController.play();
         }
       },
       child: Stack(
         fit: StackFit.expand,
         children: [
-          ClipRect(
-            child: OverflowBox(
-              alignment: Alignment.center,
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  height: 1,
-                  child: AspectRatio(
-                    aspectRatio:
-                        widget._videoPlayerController.value.aspectRatio,
-                    child: VideoPlayer(widget._videoPlayerController),
-                  ),
-                ),
-              ),
-            ),
+          BetterPlayer(
+            controller: widget._videoPlayerController,
           ),
-          if (!widget._videoPlayerController.value.isPlaying)
+          if (!widget._videoPlayerController.isPlaying()!)
             Center(
               child: Material(
                 borderRadius: BorderRadius.circular(100),
@@ -71,21 +55,25 @@ class _FullScreenVideoPlayerState extends State<FullScreenVideoPlayer> {
 
   @override
   void initState() {
-    widget._videoPlayerController.addListener(updateUi);
+    // widget._videoPlayerController.addListener(updateUi);
+    widget._videoPlayerController.addEventsListener(_updateUi);
     super.initState();
   }
 
   @override
+  void didChangeDependencies() {
+    widget._videoPlayerController
+        .setOverriddenAspectRatio(MediaQuery.of(context).size.aspectRatio);
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    widget._videoPlayerController.removeListener(updateUi);
+    widget._videoPlayerController.removeEventsListener(_updateUi);
     super.dispose();
   }
 
-  void updateUi() {
+  void _updateUi(_) {
     setState(() {});
   }
-
-  bool get isVideoAtEnd =>
-      widget._videoPlayerController.value.duration ==
-      widget._videoPlayerController.value.position;
 }

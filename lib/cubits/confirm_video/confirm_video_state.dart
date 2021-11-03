@@ -14,7 +14,7 @@ class ConfirmVideoPlaying extends ConfirmVideoState {
   ConfirmVideoPlaying({required this.videoPlayerController});
 
   /// VideoPlayerController of the playing video
-  final VideoPlayerController videoPlayerController;
+  final BetterPlayerController videoPlayerController;
 }
 
 /// State where it is waiting for the video to complete
@@ -25,7 +25,7 @@ class ConfirmVideoUploading extends ConfirmVideoState {
   ConfirmVideoUploading({required this.videoPlayerController});
 
   /// VideoPlayerController of the playing video
-  final VideoPlayerController videoPlayerController;
+  final BetterPlayerController videoPlayerController;
 }
 
 /// State where the upload of the video has complete

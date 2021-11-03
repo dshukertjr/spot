@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,6 @@ import 'package:spot/pages/profile_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:spot/utils/constants.dart';
 import 'package:spot/utils/functions.dart';
-import 'package:video_player/video_player.dart';
 
 import '../utils/constants.dart';
 import 'tab_page.dart';
@@ -118,13 +118,13 @@ class VideoScreen extends StatefulWidget {
   /// the like butotn or menu button along with profile of the creator.
   const VideoScreen({
     Key? key,
-    VideoPlayerController? controller,
+    BetterPlayerController? controller,
     required VideoDetail video,
   })  : _controller = controller,
         _video = video,
         super(key: key);
 
-  final VideoPlayerController? _controller;
+  final BetterPlayerController? _controller;
   final VideoDetail _video;
 
   @override

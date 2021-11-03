@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:better_player/better_player.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +21,6 @@ import 'package:spot/models/notification.dart';
 import 'package:spot/models/profile.dart';
 import 'package:spot/models/video.dart';
 import 'package:supabase/supabase.dart';
-import 'package:video_player/video_player.dart';
 
 /// Class that communicates with external APIs.
 class Repository {
@@ -760,8 +760,32 @@ class Repository {
   }
 
   /// Loads `VideoPlayerController` of a video.
-  Future<VideoPlayerController> getVideoPlayerController(String url) async {
-    return VideoPlayerController.network(url);
+  Future<BetterPlayerController> getVideoPlayerController(String url) async {
+    final config = const BetterPlayerConfiguration(
+      autoPlay: true,
+      looping: true,
+      fit: BoxFit.cover,
+      fullScreenByDefault: false,
+      controlsConfiguration: BetterPlayerControlsConfiguration(
+        loadingColor: Colors.red,
+        backgroundColor: Colors.transparent,
+        showControls: false,
+      ),
+    );
+    return BetterPlayerController(
+      config,
+      betterPlayerDataSource: BetterPlayerDataSource(
+        BetterPlayerDataSourceType.network,
+        url,
+        cacheConfiguration: BetterPlayerCacheConfiguration(
+          useCache: true,
+          preCacheSize: 10 * 1024 * 1024,
+          maxCacheSize: 10 * 1024 * 1024,
+          maxCacheFileSize: 10 * 1024 * 1024,
+          key: url,
+        ),
+      ),
+    );
   }
 
   /// Returns whether the user has turned on location permission or not.

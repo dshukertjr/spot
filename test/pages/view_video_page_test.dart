@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:better_player/better_player.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +17,6 @@ import 'package:spot/models/video.dart';
 import 'package:spot/pages/login_page.dart';
 import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/utils/constants.dart';
-import 'package:video_player/video_player.dart';
 
 import '../helpers/helpers.dart';
 import '../test_resources/constants.dart';
@@ -96,7 +96,13 @@ void main() {
       when(() => repository.getVideoPlayerController(
               'https://www.w3schools.com/html/mov_bbb.mp4'))
           .thenAnswer((_) => Future.value(
-              VideoPlayerController.file(File('test_resources/video.mp4'))));
+                BetterPlayerController(
+                  const BetterPlayerConfiguration(),
+                  betterPlayerDataSource: BetterPlayerDataSource(
+                      BetterPlayerDataSourceType.network,
+                      'https://www.w3schools.com/html/mov_bbb.mp4'),
+                ),
+              ));
 
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
@@ -162,7 +168,13 @@ void main() {
       when(() => repository.getVideoPlayerController(
               'https://www.w3schools.com/html/mov_bbb.mp4'))
           .thenAnswer((_) => Future.value(
-              VideoPlayerController.file(File('test_resources/video.mp4'))));
+                BetterPlayerController(
+                  const BetterPlayerConfiguration(),
+                  betterPlayerDataSource: BetterPlayerDataSource(
+                      BetterPlayerDataSourceType.network,
+                      'https://www.w3schools.com/html/mov_bbb.mp4'),
+                ),
+              ));
 
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
@@ -234,7 +246,13 @@ void main() {
       when(() => repository.getVideoPlayerController(
               'https://www.w3schools.com/html/mov_bbb.mp4'))
           .thenAnswer((_) => Future.value(
-              VideoPlayerController.file(File('test_resources/video.mp4'))));
+                BetterPlayerController(
+                  const BetterPlayerConfiguration(),
+                  betterPlayerDataSource: BetterPlayerDataSource(
+                      BetterPlayerDataSourceType.network,
+                      'https://www.w3schools.com/html/mov_bbb.mp4'),
+                ),
+              ));
 
       await tester.pumpApp(
         widget: BlocProvider<VideoCubit>(
@@ -308,7 +326,13 @@ void main() {
       when(() => repository.getVideoPlayerController(
               'https://www.w3schools.com/html/mov_bbb.mp4'))
           .thenAnswer((_) => Future.value(
-              VideoPlayerController.file(File('test_resources/video.mp4'))));
+                BetterPlayerController(
+                  const BetterPlayerConfiguration(),
+                  betterPlayerDataSource: BetterPlayerDataSource(
+                      BetterPlayerDataSourceType.network,
+                      'https://www.w3schools.com/html/mov_bbb.mp4'),
+                ),
+              ));
 
       when(() => repository.like(any<VideoDetail>()))
           .thenAnswer((invocation) => Future.value());
@@ -391,7 +415,13 @@ void main() {
       when(() => repository.getVideoPlayerController(
               'https://www.w3schools.com/html/mov_bbb.mp4'))
           .thenAnswer((_) => Future.value(
-              VideoPlayerController.file(File('test_resources/video.mp4'))));
+                BetterPlayerController(
+                  const BetterPlayerConfiguration(),
+                  betterPlayerDataSource: BetterPlayerDataSource(
+                      BetterPlayerDataSourceType.network,
+                      'https://www.w3schools.com/html/mov_bbb.mp4'),
+                ),
+              ));
 
       when(() => repository.like(likedVideoDetail))
           .thenAnswer((invocation) => Future.value());
@@ -472,7 +502,13 @@ void main() {
       when(() => repository.getVideoPlayerController(
               'https://www.w3schools.com/html/mov_bbb.mp4'))
           .thenAnswer((_) => Future.value(
-              VideoPlayerController.file(File('test_resources/video.mp4'))));
+                BetterPlayerController(
+                  const BetterPlayerConfiguration(),
+                  betterPlayerDataSource: BetterPlayerDataSource(
+                      BetterPlayerDataSourceType.network,
+                      'https://www.w3schools.com/html/mov_bbb.mp4'),
+                ),
+              ));
 
       when(() => repository.like(any<VideoDetail>()))
           .thenAnswer((invocation) => Future.value());
@@ -550,7 +586,13 @@ void main() {
       when(() => repository.getVideoPlayerController(
               'https://www.w3schools.com/html/mov_bbb.mp4'))
           .thenAnswer((_) => Future.value(
-              VideoPlayerController.file(File('test_resources/video.mp4'))));
+                BetterPlayerController(
+                  const BetterPlayerConfiguration(),
+                  betterPlayerDataSource: BetterPlayerDataSource(
+                      BetterPlayerDataSourceType.network,
+                      'https://www.w3schools.com/html/mov_bbb.mp4'),
+                ),
+              ));
 
       when(() => repository.getComments('aaa'))
           .thenAnswer((_) => Future.value());
@@ -615,8 +657,12 @@ void main() {
       registerFallbackValue<String>('');
 
       registerFallbackValue<VideoState>(VideoPlaying(
-        videoPlayerController:
-            VideoPlayerController.file(File('test_resources/video.mp4')),
+        videoPlayerController: BetterPlayerController(
+          const BetterPlayerConfiguration(),
+          betterPlayerDataSource: BetterPlayerDataSource(
+              BetterPlayerDataSourceType.network,
+              'https://www.w3schools.com/html/mov_bbb.mp4'),
+        ),
         videoDetail: VideoDetail(
           id: 'id',
           url: 'url',
@@ -658,8 +704,12 @@ void main() {
         mockVideoCubit,
         Stream.fromIterable([
           VideoPlaying(
-            videoPlayerController:
-                VideoPlayerController.file(File('test_resources/video.mp4')),
+            videoPlayerController: BetterPlayerController(
+              const BetterPlayerConfiguration(),
+              betterPlayerDataSource: BetterPlayerDataSource(
+                  BetterPlayerDataSourceType.network,
+                  'https://www.w3schools.com/html/mov_bbb.mp4'),
+            ),
             videoDetail: VideoDetail(
               id: 'id',
               url: 'url',
@@ -678,8 +728,12 @@ void main() {
             ),
           ),
           VideoPlaying(
-            videoPlayerController:
-                VideoPlayerController.file(File('test_resources/video.mp4')),
+            videoPlayerController: BetterPlayerController(
+              const BetterPlayerConfiguration(),
+              betterPlayerDataSource: BetterPlayerDataSource(
+                  BetterPlayerDataSourceType.network,
+                  'https://www.w3schools.com/html/mov_bbb.mp4'),
+            ),
             videoDetail: VideoDetail(
               id: 'id',
               url: 'url',
@@ -699,8 +753,12 @@ void main() {
           ),
         ]),
         initialState: VideoPlaying(
-          videoPlayerController:
-              VideoPlayerController.file(File('test_resources/video.mp4')),
+          videoPlayerController: BetterPlayerController(
+            const BetterPlayerConfiguration(),
+            betterPlayerDataSource: BetterPlayerDataSource(
+                BetterPlayerDataSourceType.network,
+                'https://www.w3schools.com/html/mov_bbb.mp4'),
+          ),
           videoDetail: VideoDetail(
             id: 'id',
             url: 'url',

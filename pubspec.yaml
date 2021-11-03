@@ -14,7 +14,7 @@ dependencies:
   camera: ^0.8.0
   flutter_bloc: ^7.3.0
   google_maps_flutter: ^2.0.1
-  video_player: ^2.0.2
+  better_player: ^0.0.77
   flutter_ffmpeg: ^0.4.2
   path_provider: ^2.0.1
   geolocator: ^7.0.1
