@@ -245,6 +245,22 @@ class MapState extends State<Map> {
           _markers = markers;
         });
       },
+      levels: const [
+        1,
+        4.25,
+        6.75,
+        8.25,
+        11.5,
+        12.8,
+        14.5,
+        15.3,
+        16.0,
+        16.5,
+        17.3,
+        18.0,
+        19.0,
+        20.0,
+      ],
       markerBuilder: (cluster) {
         final items = cluster.items.toList()
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
