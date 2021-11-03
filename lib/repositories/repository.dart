@@ -901,8 +901,11 @@ class Repository {
     return mentionReplacedText;
   }
 
-  /// Extracts the username to be searched within the database
-  /// Called when a user is typing up a comment
+  /// Extracts the username to be searched within the database.
+  ///
+  /// Username must start with a `@`.
+  ///
+  /// Called when a user is typing up a comment.
   String? getMentionedUserName(String comment) {
     final mention = comment.split(' ').last;
     if (mention.isEmpty || mention[0] != '@') {

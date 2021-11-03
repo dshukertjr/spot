@@ -656,193 +656,67 @@ void main() {
 
       registerFallbackValue<String>('');
 
-      registerFallbackValue<VideoState>(VideoPlaying(
-        videoPlayerController: BetterPlayerController(
-          const BetterPlayerConfiguration(),
-          betterPlayerDataSource: BetterPlayerDataSource(
-              BetterPlayerDataSourceType.network,
-              'https://www.w3schools.com/html/mov_bbb.mp4'),
-        ),
-        videoDetail: VideoDetail(
-          id: 'id',
-          url: 'url',
-          imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-          thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-          gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-          createdAt: DateTime.now(),
-          description: 'description',
-          position: const LatLng(0, 0),
-          userId: 'userId',
-          likeCount: 1,
-          commentCount: 1,
-          haveLiked: false,
-          createdBy: sampleProfile,
-          isFollowing: false,
-        ),
-      ));
       registerFallbackValue<CommentState>(CommentInitial());
     });
 
     testWidgets('Mentions are being displayed properly', (tester) async {
       final repository = MockRepository();
       when(() => repository.userId).thenReturn('myUserId');
-      final mockVideoCubit = MockVideoCubit();
-      final mockCommentCubit = MockCommentCubit();
 
-      when(() => mockCommentCubit.getMentionSuggestion(any<String>()))
-          .thenAnswer((invocation) => Future.value());
+      when(() => repository.getMentionedUserName('')).thenReturn(null);
+      when(() => repository.getMentionedUserName('@')).thenReturn('@');
 
-      when(mockCommentCubit.loadComments)
-          .thenAnswer((invocation) => Future.value());
+      when(() => repository.getComments('aaa')).thenAnswer((_) async => null);
 
-      when(() => mockCommentCubit.createCommentWithMentionedProfile(
-            commentText: any<String>(named: 'commentText'),
-            profileName: any<String>(named: 'profileName'),
-          )).thenReturn('@Tyler ');
-
-      whenListen(
-        mockVideoCubit,
-        Stream.fromIterable([
-          VideoPlaying(
-            videoPlayerController: BetterPlayerController(
-              const BetterPlayerConfiguration(),
-              betterPlayerDataSource: BetterPlayerDataSource(
-                  BetterPlayerDataSourceType.network,
-                  'https://www.w3schools.com/html/mov_bbb.mp4'),
-            ),
-            videoDetail: VideoDetail(
-              id: 'id',
-              url: 'url',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now(),
-              description: 'description',
-              position: const LatLng(0, 0),
-              userId: 'userId',
-              likeCount: 1,
-              commentCount: 1,
-              haveLiked: false,
-              createdBy: sampleProfile,
-              isFollowing: false,
-            ),
-          ),
-          VideoPlaying(
-            videoPlayerController: BetterPlayerController(
-              const BetterPlayerConfiguration(),
-              betterPlayerDataSource: BetterPlayerDataSource(
-                  BetterPlayerDataSourceType.network,
-                  'https://www.w3schools.com/html/mov_bbb.mp4'),
-            ),
-            videoDetail: VideoDetail(
-              id: 'id',
-              url: 'url',
-              imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-              createdAt: DateTime.now(),
-              description: 'description',
-              position: const LatLng(0, 0),
-              userId: 'userId',
-              likeCount: 1,
-              commentCount: 1,
-              haveLiked: false,
-              createdBy: sampleProfile,
-              isFollowing: false,
-            ),
-          ),
-        ]),
-        initialState: VideoPlaying(
-          videoPlayerController: BetterPlayerController(
-            const BetterPlayerConfiguration(),
-            betterPlayerDataSource: BetterPlayerDataSource(
-                BetterPlayerDataSourceType.network,
-                'https://www.w3schools.com/html/mov_bbb.mp4'),
-          ),
-          videoDetail: VideoDetail(
-            id: 'id',
-            url: 'url',
-            imageUrl: 'https://dshukertjr.dev/images/profile.jpg',
-            thumbnailUrl: 'https://dshukertjr.dev/images/profile.jpg',
-            gifUrl: 'https://dshukertjr.dev/images/profile.jpg',
-            createdAt: DateTime.now(),
-            description: 'description',
-            position: const LatLng(0, 0),
-            userId: 'userId',
-            likeCount: 1,
-            commentCount: 1,
-            haveLiked: false,
-            createdBy: sampleProfile,
-            isFollowing: false,
-          ),
-        ),
-      );
-
-      whenListen(
-        mockCommentCubit,
-        Stream.fromIterable([
-          CommentsLoaded(
-            [
-              Comment(
-                id: 'id',
-                text: 'text',
-                createdAt: DateTime.now(),
-                videoId: 'videoId',
-                user: sampleProfile,
-              )
-            ],
-            mentionSuggestions: [],
-            isLoadingMentionSuggestions: true,
-          ),
-          CommentsLoaded(
-            [
-              Comment(
-                id: 'id',
-                text: 'text',
-                createdAt: DateTime.now(),
-                videoId: 'videoId',
-                user: sampleProfile,
-              )
-            ],
-            mentionSuggestions: [
-              Profile(
-                id: 'aaa',
-                name: 'Tyler',
-              ),
-              Profile(
-                id: 'bbb',
-                name: 'Takahiro',
-              ),
-            ],
-            isLoadingMentionSuggestions: false,
-          ),
-        ]),
-      );
+      when(() => repository.commentsStream)
+          .thenAnswer((_) => Stream.fromIterable([
+                [
+                  Comment(
+                    id: 'id',
+                    text: 'text',
+                    createdAt: DateTime.now(),
+                    videoId: 'aaa',
+                    user: Profile(id: 'abc', name: 'Tyler'),
+                  ),
+                ]
+              ]));
 
       await tester.pumpApp(
         widget: MultiBlocProvider(
           providers: [
-            BlocProvider<VideoCubit>(
-                create: (BuildContext context) => mockVideoCubit),
             BlocProvider<CommentCubit>(
-                create: (BuildContext context) => mockCommentCubit),
+              create: (BuildContext context) => CommentCubit(
+                repository: repository,
+                videoId: 'aaa',
+              )..loadComments(),
+            ),
           ],
-          child: const ViewVideoPage(),
+          child: Material(child: CommentsOverlay(onClose: () {})),
         ),
         repository: repository,
       );
 
-      await tester.tap(find.byIcon(FeatherIcons.messageCircle));
       await tester.pump();
 
-      /// suggestions are being displayed
+      /// Finds the user name from the comment
       expect(find.text('Tyler'), findsOneWidget);
       expect(find.byWidget(preloader), findsNothing);
 
-      await tester.tap(find.text('Tyler'));
+      /// Type `@` to see the suggestions
+      await tester.enterText(find.byType(TextFormField), '@');
 
       await tester.pump();
 
+      /// Find both the comment and suggestion
+      expect(find.text('Tyler'), findsNWidgets(2));
+
+      /// Tap on the suggestion
+      await tester.tap(find.byType(ListTile));
+
+      await tester.pump();
+
+      /// After tapping on a suggestion, the textField
+      /// value is overridden to `@[user_name]`
       final value = tester
           .widget<TextFormField>(find.byType(TextFormField))
           .controller!
