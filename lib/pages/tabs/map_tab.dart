@@ -60,9 +60,8 @@ class MapTab extends StatelessWidget {
   }
 }
 
-@visibleForTesting
-
 /// Main view of MapTab.
+@visibleForTesting
 class Map extends StatefulWidget {
   /// Main view of MapTab.
   Map({
@@ -83,9 +82,8 @@ class Map extends StatefulWidget {
   MapState createState() => MapState();
 }
 
-@visibleForTesting
-
 /// State of Map widget. Made public for testing purposes.
+@visibleForTesting
 class MapState extends State<Map> {
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
@@ -124,6 +122,7 @@ class MapState extends State<Map> {
             if (_loading) {
               return;
             }
+
             _loading = true;
             // Finds the center of the map and load videos around that location
             final mapController = await _mapController.future;
@@ -256,7 +255,8 @@ class MapState extends State<Map> {
         15.3,
         16.0,
         16.5,
-        17.3,
+        17.0,
+        17.5,
         18.0,
         19.0,
         20.0,
@@ -271,7 +271,7 @@ class MapState extends State<Map> {
           clusterCount: cluster.items.length,
         );
       },
-      stopClusteringZoom: 18,
+      stopClusteringZoom: 20,
     );
 
     _citySearchQueryController.addListener(_updateUI);
@@ -291,7 +291,8 @@ class MapState extends State<Map> {
   }
 
   Future<void> _initiallyMoveCameraToShowAllMarkers() async {
-    if (_markers.isEmpty) {
+    final videos = widget._videos;
+    if (videos.isEmpty) {
       return;
     }
     if (_hasLoadedMarkers) {
@@ -299,13 +300,13 @@ class MapState extends State<Map> {
     }
     _hasLoadedMarkers = true;
     final mapController = await _mapController.future;
-    if (_markers.length == 1) {
+    if (videos.length == 1) {
       // If there is only 1 marker, move camera to centre that marker
       return mapController
-          .moveCamera(CameraUpdate.newLatLng(_markers.first.position));
+          .moveCamera(CameraUpdate.newLatLng(videos.first.position!));
     }
     final cordinatesList =
-        List<LatLng>.from(_markers.map((marker) => marker.position))
+        List<LatLng>.from(videos.map((video) => video.position))
           ..sort((a, b) => b.latitude.compareTo(a.latitude));
     final northernLatitude = cordinatesList.first.latitude;
     cordinatesList.sort((a, b) => a.latitude.compareTo(b.latitude));
