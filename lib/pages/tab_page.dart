@@ -12,9 +12,11 @@ import 'package:spot/pages/tabs/map_tab.dart';
 import 'package:spot/pages/tabs/notifications_tab.dart';
 import 'package:spot/pages/tabs/profile_tab.dart';
 import 'package:spot/pages/tabs/search_tab.dart';
+import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:spot/utils/constants.dart';
 import 'package:spot/utils/functions.dart';
+import 'package:uni_links/uni_links.dart';
 
 import '../components/app_scaffold.dart';
 import 'record_page.dart';
@@ -196,8 +198,33 @@ class TabPageState extends State<TabPage> {
   @override
   void initState() {
     super.initState();
+    _setupAppLinks();
     WidgetsBinding.instance
         ?.addObserver(LifecycleEventHandler(resumeCallBack: onResumed));
+  }
+
+  Future<void> _setupAppLinks() async {
+    /// Quick and dirty way of
+    /// waiting until TabPage gets added to the widget tree.
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    try {
+      final initialUri = await getInitialUri();
+      _handleAppLink(initialUri);
+      uriLinkStream.listen(_handleAppLink);
+    } catch (_) {
+      context.showErrorSnackbar('Error opening the video.');
+    }
+  }
+
+  void _handleAppLink(Uri? uri) {
+    if (uri != null) {
+      final path = uri.path;
+      if (path.split('/').first == 'post') {
+        final videoId = path.split('/').last;
+        Navigator.of(context).push(ViewVideoPage.route(videoId: videoId));
+      }
+    }
   }
 }
 
