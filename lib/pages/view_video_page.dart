@@ -21,7 +21,6 @@ import 'package:spot/utils/functions.dart';
 import 'package:video_player/video_player.dart';
 
 import '../utils/constants.dart';
-import 'tab_page.dart';
 
 @visibleForTesting
 
