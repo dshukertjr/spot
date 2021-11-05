@@ -7,16 +7,15 @@ import 'package:spot/components/gradient_border.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/components/notification_dot.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
+import 'package:spot/data_profiders/app_link_provider.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
 import 'package:spot/pages/tabs/notifications_tab.dart';
 import 'package:spot/pages/tabs/profile_tab.dart';
 import 'package:spot/pages/tabs/search_tab.dart';
-import 'package:spot/pages/view_video_page.dart';
 import 'package:spot/repositories/repository.dart';
 import 'package:spot/utils/constants.dart';
 import 'package:spot/utils/functions.dart';
-import 'package:uni_links/uni_links.dart';
 
 import '../components/app_scaffold.dart';
 import 'record_page.dart';
@@ -24,16 +23,13 @@ import 'record_page.dart';
 /// Page that holds tab navigation at the bottom.
 /// This is the first page presented to the user.
 class TabPage extends StatefulWidget {
-  /// Name of this page within `RouteSettinngs`
-  static const name = 'TabPage';
+  /// Page that holds tab navigation at the bottom.
+  /// This is the first page presented to the user.
+  const TabPage({Key? key, required AppLinkProvider appLinkProvider})
+      : _appLinkProvider = appLinkProvider,
+        super(key: key);
 
-  /// Method ot create this page with necessary `BlocProvider`
-  static Route<void> route() {
-    return MaterialPageRoute(
-      settings: const RouteSettings(name: name),
-      builder: (_) => TabPage(),
-    );
-  }
+  final AppLinkProvider _appLinkProvider;
 
   @override
   TabPageState createState() => TabPageState();
@@ -198,33 +194,9 @@ class TabPageState extends State<TabPage> {
   @override
   void initState() {
     super.initState();
-    _setupAppLinks();
+    widget._appLinkProvider.setupAppLinks(context);
     WidgetsBinding.instance
         ?.addObserver(LifecycleEventHandler(resumeCallBack: onResumed));
-  }
-
-  Future<void> _setupAppLinks() async {
-    /// Quick and dirty way of
-    /// waiting until TabPage gets added to the widget tree.
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    try {
-      final initialUri = await getInitialUri();
-      _handleAppLink(initialUri);
-      uriLinkStream.listen(_handleAppLink);
-    } catch (_) {
-      context.showErrorSnackbar('Error opening the video.');
-    }
-  }
-
-  void _handleAppLink(Uri? uri) {
-    if (uri != null) {
-      final path = uri.path;
-      if (path.split('/').first == 'post') {
-        final videoId = path.split('/').last;
-        Navigator.of(context).push(ViewVideoPage.route(videoId: videoId));
-      }
-    }
   }
 }
 

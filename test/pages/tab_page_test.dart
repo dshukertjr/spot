@@ -9,6 +9,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:spot/components/frosted_dialog.dart';
 import 'package:spot/components/notification_dot.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
+import 'package:spot/data_profiders/app_link_provider.dart';
 import 'package:spot/models/notification.dart';
 import 'package:spot/pages/edit_profile_page.dart';
 import 'package:spot/pages/login_page.dart';
@@ -25,9 +26,21 @@ import '../test_resources/constants.dart';
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
+class MockAppLinkProvider extends Mock implements AppLinkProvider {}
+
+class BuildContextFake extends Fake implements BuildContext {}
+
 void main() {
+  late final AppLinkProvider _appLinkProvider;
+
   /// This will allow http request to be sent within test code
-  setUpAll(() => HttpOverrides.global = null);
+  setUpAll(() {
+    HttpOverrides.global = null;
+    _appLinkProvider = MockAppLinkProvider();
+    registerFallbackValue<BuildContext>(BuildContextFake());
+    when(() => _appLinkProvider.setupAppLinks(any<BuildContext>()))
+        .thenAnswer((_) async => null);
+  });
   group('TabPage', () {
     group('signed in', () {
       late final Repository repository;
@@ -40,7 +53,7 @@ void main() {
             .thenReturn(Completer()..complete());
       });
       testWidgets('Every tab gets rendered', (tester) async {
-        final tabPage = TabPage();
+        final tabPage = TabPage(appLinkProvider: _appLinkProvider);
         await tester.pumpApp(
           widget: MultiBlocProvider(
             providers: [
@@ -59,7 +72,7 @@ void main() {
       });
 
       testWidgets('Initial index is 0', (tester) async {
-        final tabPage = TabPage();
+        final tabPage = TabPage(appLinkProvider: _appLinkProvider);
         await tester.pumpApp(
           widget: MultiBlocProvider(
             providers: [
@@ -75,7 +88,7 @@ void main() {
       });
 
       testWidgets('Tapping Home goes to tab index 0', (tester) async {
-        final tabPage = TabPage();
+        final tabPage = TabPage(appLinkProvider: _appLinkProvider);
         await tester.pumpApp(
           widget: MultiBlocProvider(
             providers: [
@@ -92,7 +105,7 @@ void main() {
         expect(tabPage.createState().currentIndex, 0);
       });
       testWidgets('Tapping Search goes to tab index 1', (tester) async {
-        final tabPage = TabPage();
+        final tabPage = TabPage(appLinkProvider: _appLinkProvider);
         await tester.pumpApp(
           widget: MultiBlocProvider(
             providers: [
@@ -111,7 +124,7 @@ void main() {
       });
       testWidgets('Tapping Notifications goes to tab index 2 when signed in',
           (tester) async {
-        final tabPage = TabPage();
+        final tabPage = TabPage(appLinkProvider: _appLinkProvider);
         await tester.pumpApp(
           widget: MultiBlocProvider(
             providers: [
@@ -132,7 +145,7 @@ void main() {
       });
       testWidgets('Tapping Profile goes to tab index 3 when signed in',
           (tester) async {
-        final tabPage = TabPage();
+        final tabPage = TabPage(appLinkProvider: _appLinkProvider);
         await tester.pumpApp(
           widget: MultiBlocProvider(
             providers: [
@@ -169,7 +182,7 @@ void main() {
                   create: (context) => NotificationCubit(
                       repository: RepositoryProvider.of<Repository>(context))),
             ],
-            child: TabPage(),
+            child: TabPage(appLinkProvider: _appLinkProvider),
           ),
           repository: repository,
         );
@@ -191,7 +204,7 @@ void main() {
                   create: (context) => NotificationCubit(
                       repository: RepositoryProvider.of<Repository>(context))),
             ],
-            child: TabPage(),
+            child: TabPage(appLinkProvider: _appLinkProvider),
           ),
           repository: repository,
         );
@@ -214,7 +227,7 @@ void main() {
                   create: (context) => NotificationCubit(
                       repository: RepositoryProvider.of<Repository>(context))),
             ],
-            child: TabPage(),
+            child: TabPage(appLinkProvider: _appLinkProvider),
           ),
           repository: repository,
         );
@@ -249,7 +262,7 @@ void main() {
                   create: (context) => NotificationCubit(
                       repository: RepositoryProvider.of<Repository>(context))),
             ],
-            child: TabPage(),
+            child: TabPage(appLinkProvider: _appLinkProvider),
           ),
           repository: repository,
         );
@@ -338,7 +351,7 @@ void main() {
             .thenAnswer(
                 (invocation) async => 'something random @Tyler yay @Sam');
 
-        final tabPage = TabPage();
+        final tabPage = TabPage(appLinkProvider: _appLinkProvider);
         await tester.pumpApp(
           widget: MultiBlocProvider(
             providers: [
@@ -400,7 +413,7 @@ void main() {
         when(() => repository.getVideosFromUid('aaa'))
             .thenAnswer((_) => Future.value([]));
 
-        final tabPage = TabPage();
+        final tabPage = TabPage(appLinkProvider: _appLinkProvider);
         await tester.pumpApp(
           widget: MultiBlocProvider(
             providers: [
@@ -460,7 +473,7 @@ void main() {
         when(() => repository.getVideosFromUid('aaa'))
             .thenAnswer((_) => Future.value([]));
 
-        final tabPage = TabPage();
+        final tabPage = TabPage(appLinkProvider: _appLinkProvider);
         await tester.pumpApp(
           widget: MultiBlocProvider(
             providers: [
@@ -524,7 +537,7 @@ void main() {
       when(() => repository.getVideosFromUid('aaa'))
           .thenAnswer((_) => Future.value([]));
 
-      final tabPage = TabPage();
+      final tabPage = TabPage(appLinkProvider: _appLinkProvider);
       await tester.pumpApp(
         widget: MultiBlocProvider(
           providers: [
@@ -581,7 +594,7 @@ void main() {
       when(() => repository.getVideosFromUid('aaa'))
           .thenAnswer((_) => Future.value([]));
 
-      final tabPage = TabPage();
+      final tabPage = TabPage(appLinkProvider: _appLinkProvider);
       await tester.pumpApp(
         widget: MultiBlocProvider(
           providers: [

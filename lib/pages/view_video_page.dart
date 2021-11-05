@@ -412,9 +412,8 @@ class __DeletingDialogContentState extends State<_DeletingDialogContent> {
                           _loading = true;
                         });
                         await widget._videoCubit.delete();
-                        Navigator.of(context).popUntil(
-                          (route) => route.settings.name == TabPage.name,
-                        );
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
                       } catch (err) {
                         setState(() {
                           _loading = false;
@@ -482,9 +481,8 @@ class __BlockingDialogContentState extends State<_BlockingDialogContent> {
                           _loading = true;
                         });
                         await widget._videoCubit.block(widget._blockedUserId);
-                        Navigator.of(context).popUntil(
-                          (route) => route.settings.name == TabPage.name,
-                        );
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
                       } catch (err) {
                         setState(() {
                           _loading = false;
