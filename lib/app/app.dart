@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
+import 'package:spot/data_profiders/app_link_provider.dart';
 import 'package:spot/data_profiders/location_provider.dart';
 import 'package:spot/pages/tab_page.dart';
 import 'package:spot/repositories/repository.dart';
@@ -86,7 +87,9 @@ class App extends StatelessWidget {
           navigatorObservers: [
             FirebaseAnalyticsObserver(analytics: _analytics),
           ],
-          home: TabPage(),
+          home: TabPage(
+            appLinkProvider: AppLinkProvider(),
+          ),
         ),
       ),
     );

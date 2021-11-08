@@ -7,6 +7,7 @@ import 'package:spot/components/gradient_border.dart';
 import 'package:spot/components/gradient_button.dart';
 import 'package:spot/components/notification_dot.dart';
 import 'package:spot/cubits/notification/notification_cubit.dart';
+import 'package:spot/data_profiders/app_link_provider.dart';
 import 'package:spot/pages/record_page.dart';
 import 'package:spot/pages/tabs/map_tab.dart';
 import 'package:spot/pages/tabs/notifications_tab.dart';
@@ -22,16 +23,13 @@ import 'record_page.dart';
 /// Page that holds tab navigation at the bottom.
 /// This is the first page presented to the user.
 class TabPage extends StatefulWidget {
-  /// Name of this page within `RouteSettinngs`
-  static const name = 'TabPage';
+  /// Page that holds tab navigation at the bottom.
+  /// This is the first page presented to the user.
+  const TabPage({Key? key, required AppLinkProvider appLinkProvider})
+      : _appLinkProvider = appLinkProvider,
+        super(key: key);
 
-  /// Method ot create this page with necessary `BlocProvider`
-  static Route<void> route() {
-    return MaterialPageRoute(
-      settings: const RouteSettings(name: name),
-      builder: (_) => TabPage(),
-    );
-  }
+  final AppLinkProvider _appLinkProvider;
 
   @override
   TabPageState createState() => TabPageState();
@@ -196,6 +194,7 @@ class TabPageState extends State<TabPage> {
   @override
   void initState() {
     super.initState();
+    widget._appLinkProvider.setupAppLinks(context);
     WidgetsBinding.instance
         ?.addObserver(LifecycleEventHandler(resumeCallBack: onResumed));
   }

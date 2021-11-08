@@ -1,2 +1,2 @@
-- Nearby videos will be clustered together
-- Sharing videos will now share spot web page
+- Fixed a bug where clicking on shared video link does not open the video page within the app
+- Updated the defualt user icon
